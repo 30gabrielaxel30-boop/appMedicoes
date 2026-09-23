@@ -1,0 +1,1363 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#131A21">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Medição de Refeições</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+</head>
+<body>
+<style>
+:root{
+  --bg:#EEF1F3; --surface:#FFFFFF; --surface-2:#F5F7F8; --ink:#17212B; --ink-2:#4B5A68; --ink-3:#7C8994;
+  --line:#D6DDE2; --line-2:#E6EBEE;
+  --accent:#0F5C70; --accent-ink:#FFFFFF; --accent-soft:#DCEDF1; --accent-2:#124E5E;
+  --good:#237A4B; --good-soft:#DFF3E6; --warn:#B7791F; --warn-soft:#FBF0DA; --bad:#B23A3A; --bad-soft:#F8E1E1;
+  --cafe:#8A5A2B; --almoco:#0F5C70; --jantar:#4F3F8A; --lanche:#6B7A1F;
+  --shadow:0 1px 2px rgba(23,33,43,.06),0 4px 14px rgba(23,33,43,.06);
+  /* navigation stays dark in both themes */
+  --nav-bg:#131A21; --nav-line:#232D37; --nav-ink:#9FB0BC; --nav-on:#6CC5D9; --nav-on-bg:#1B3540; --nav-title:#E7ECF0;
+  --r:10px; --font:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  color-scheme:dark; --bg:#0F151B; --surface:#171F27; --surface-2:#1E2831; --ink:#E7ECF0; --ink-2:#AEBAC4; --ink-3:#7E8B96;
+  --line:#2C3843; --line-2:#242E38; --accent:#4FB4CB; --accent-ink:#0B1A20; --accent-soft:#163542; --accent-2:#6CC5D9;
+  --good:#5DC48A; --good-soft:#153524; --warn:#E0A94A; --warn-soft:#3A2D14; --bad:#E27272; --bad-soft:#3D1D1D;
+  --cafe:#D9A06B; --almoco:#4FB4CB; --jantar:#A99AE0; --lanche:#B7C95A;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.35);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark; --bg:#0F151B; --surface:#171F27; --surface-2:#1E2831; --ink:#E7ECF0; --ink-2:#AEBAC4; --ink-3:#7E8B96;
+  --line:#2C3843; --line-2:#242E38; --accent:#4FB4CB; --accent-ink:#0B1A20; --accent-soft:#163542; --accent-2:#6CC5D9;
+  --good:#5DC48A; --good-soft:#153524; --warn:#E0A94A; --warn-soft:#3A2D14; --bad:#E27272; --bad-soft:#3D1D1D;
+  --cafe:#D9A06B; --almoco:#4FB4CB; --jantar:#A99AE0; --lanche:#B7C95A;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+#aud-table td:nth-child(5){min-width:280px}#aud-table td:nth-child(2){white-space:nowrap}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:.005em}
+h1{font-size:22px;font-weight:700}
+h2{font-size:18px;font-weight:600}
+h3{font-size:15px;font-weight:600}
+button{font:inherit;color:inherit;cursor:pointer}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%;min-width:0}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+label{display:block;font-size:12px;font-weight:500;color:var(--ink-2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+.field{display:flex;flex-direction:column}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--ink-3)}
+.small{font-size:12px}
+.mono{font-family:var(--mono);font-size:12.5px}
+
+/* ---------- shell ---------- */
+#app{display:none;height:100%;flex-direction:column}
+#app.on{display:flex}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{width:34px;height:34px;border-radius:9px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:15px;flex:0 0 auto}
+.brand h1{font-size:18px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand .sub{font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+.who{margin-left:auto;text-align:right;line-height:1.2;min-width:0}
+.who b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who span{font-size:11px;color:var(--ink-3)}
+.btn-ghost{background:none;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--ink-2);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn-ghost svg{width:16px;height:16px}
+.body{flex:1;display:flex;min-height:0}
+.sidenav{display:none}
+main{flex:1;min-width:0;overflow:auto;padding:16px 16px calc(84px + env(safe-area-inset-bottom,0px));}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--nav-bg);border-top:1px solid var(--nav-line);display:flex;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+.tabbar button,.sidenav button{flex:1;background:none;border:0;border-radius:8px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--nav-ink);font-weight:500}
+.tabbar button svg,.sidenav button svg{width:22px;height:22px}
+.tabbar button.on,.sidenav button.on{color:var(--nav-on);background:var(--nav-on-bg)}
+@media (min-width:900px){
+  .tabbar{display:none}
+  .sidenav{display:flex;flex-direction:column;gap:4px;width:210px;padding:14px 10px;background:var(--nav-bg);border-right:1px solid var(--nav-line)}
+  .sidenav .nav-title{color:var(--nav-title);font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:6px 12px 10px;opacity:.7}
+  .sidenav button{flex:0 0 auto;flex-direction:row;justify-content:flex-start;gap:10px;padding:10px 12px;font-size:13.5px}
+  main{padding:24px 28px 40px}
+  .cols{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:start}
+}
+.page{display:none;max-width:1180px;margin:0 auto}
+.page.on{display:block}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.page-head p{margin:2px 0 0;color:var(--ink-3);font-size:13px}
+
+/* ---------- components ---------- */
+.card{background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)}
+.card + .card{margin-top:14px}
+.card h2,.card h3{margin-bottom:10px}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:10px 16px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sec{background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
+.btn.danger{background:var(--bad-soft);color:var(--bad);border:1px solid transparent}
+.btn.good{background:var(--good);color:#fff}
+.btn.big{width:100%;padding:16px;font-size:17px;font-family:var(--display);font-weight:700;letter-spacing:.02em}
+.btn.sm{padding:6px 10px;font-size:12px;font-weight:500}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:600;letter-spacing:.02em;white-space:nowrap}
+.pill.cafe{background:color-mix(in srgb,var(--cafe) 16%,transparent);color:var(--cafe)}
+.pill.almoco{background:color-mix(in srgb,var(--almoco) 16%,transparent);color:var(--almoco)}
+.pill.jantar{background:color-mix(in srgb,var(--jantar) 16%,transparent);color:var(--jantar)}
+.pill.lanche{background:color-mix(in srgb,var(--lanche) 18%,transparent);color:var(--lanche)}
+.pill.ok{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.neutral{background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:13px;box-shadow:var(--shadow);z-index:80;max-width:90vw;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+@media (min-width:900px){.toast{bottom:28px}}
+.notice{border-radius:8px;padding:10px 12px;font-size:13px;border:1px solid transparent}
+.notice.warn{background:var(--warn-soft);color:var(--warn)}
+.notice.bad{background:var(--bad-soft);color:var(--bad)}
+.notice.ok{background:var(--good-soft);color:var(--good)}
+.notice.info{background:var(--accent-soft);color:var(--accent-2)}
+.notice a,.notice button.link{color:inherit;font-weight:600;text-decoration:underline;background:none;border:0;padding:0}
+.tablewrap{overflow-x:auto;border:1px solid var(--line-2);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:600;text-align:left;padding:9px 10px;background:var(--surface-2);border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+td.c,th.c{text-align:center}
+td.num{white-space:nowrap}
+td.empty{color:var(--ink-3);text-align:center;padding:18px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);padding:12px 14px;border-left:4px solid var(--line)}
+.tile .k{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:600}
+.tile .v{font-family:var(--display);font-size:26px;font-weight:700;line-height:1.1;margin-top:4px}
+.tile .s{font-size:12px;color:var(--ink-2);margin-top:2px}
+.tile.cafe{border-left-color:var(--cafe)} .tile.almoco{border-left-color:var(--almoco)} .tile.jantar{border-left-color:var(--jantar)} .tile.lanche{border-left-color:var(--lanche)} .tile.total{border-left-color:var(--accent)}
+.subtabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;overflow-x:auto}
+.subtabs button{background:none;border:0;border-bottom:2px solid transparent;padding:8px 12px;font-weight:500;color:var(--ink-3);white-space:nowrap;margin-bottom:-1px}
+.subtabs button.on{color:var(--accent);border-bottom-color:var(--accent)}
+.list{display:flex;flex-direction:column}
+.list .item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line-2)}
+.list .item:last-child{border-bottom:0}
+.list .item .t{flex:1;min-width:0}
+.list .item .t b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list .item .t span{font-size:12px;color:var(--ink-3)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--accent-soft);color:var(--accent-2);display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:14px;flex:0 0 auto}
+.logo-thumb{width:56px;height:36px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:6px;flex:0 0 auto}
+.logo-preview{max-width:220px;max-height:90px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px}
+.setup{display:grid;gap:6px}
+.setup .st{display:flex;align-items:center;gap:8px;font-size:13px}
+.setup .st .dot{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;flex:0 0 auto}
+.setup .st.ok .dot{background:var(--good-soft);color:var(--good)} .setup .st.todo .dot{background:var(--warn-soft);color:var(--warn)}
+
+/* scanner */
+.scanbox{position:relative;border-radius:12px;overflow:hidden;background:#0b1116;aspect-ratio:4/3;max-width:100%;display:grid;place-items:center;color:#9fb1bd}
+.scanbox video{width:100%;height:100%;object-fit:cover}
+.scanbox .frame{position:absolute;inset:14% 18%;border:2px solid rgba(255,255,255,.75);border-radius:12px;pointer-events:none}
+.scanbox .frame::after{content:"";position:absolute;left:8%;right:8%;top:50%;height:2px;background:var(--accent);opacity:.9;animation:scan 2s ease-in-out infinite}
+@keyframes scan{0%,100%{transform:translateY(-70px)}50%{transform:translateY(70px)}}
+@media (prefers-reduced-motion:reduce){.scanbox .frame::after{animation:none}}
+.mealbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mealbtn{border:2px solid var(--line);background:var(--surface);border-radius:10px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:600}
+.mealbtn small{font-weight:400;color:var(--ink-3);font-family:var(--mono)}
+.mealbtn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-2)}
+.mealbtn:disabled{opacity:.4;cursor:not-allowed}
+.colab-card{display:flex;gap:12px;align-items:center;padding:12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line-2)}
+.colab-card .avatar{width:46px;height:46px;font-size:17px}
+.colab-card b{font-size:16px;font-family:var(--display);font-weight:700}
+.colab-card .meta{font-size:12.5px;color:var(--ink-2)}
+.qrbtn{display:flex;align-items:center;gap:14px;width:100%;border:2px dashed var(--line);background:var(--surface-2);border-radius:12px;padding:16px;text-align:left}
+.qrbtn svg{width:40px;height:40px;color:var(--accent);flex:0 0 auto}
+.qrbtn b{display:block;font-family:var(--display);font-size:17px}
+.qrbtn span{font-size:12px;color:var(--ink-3)}
+
+/* login */
+#login{height:100%;display:grid;place-items:center;padding:16px}
+#login .box{width:100%;max-width:400px}
+.demo-banner{font-size:12px;color:var(--ink-3);text-align:center;padding:6px 0 0}
+details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
+
+/* BM document */
+.bmdoc{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:18px;font-size:12.5px}
+.bmdoc .hd{display:grid;grid-template-columns:auto 1fr auto;gap:10px 18px;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:12px;align-items:start}
+.bmdoc .hd .lg{width:120px;height:56px;object-fit:contain;background:#fff;border-radius:4px;padding:3px}
+.bmdoc .hd .lg-empty{width:120px;height:56px;border:1px dashed var(--line);border-radius:4px;display:grid;place-items:center;font-size:10px;color:var(--ink-3);text-align:center;padding:4px}
+.bmdoc .hd h2{font-size:17px;letter-spacing:.03em;text-transform:uppercase}
+.bmdoc .kv{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:12px}
+.bmdoc .kv span:nth-child(odd){color:var(--ink-3);font-weight:600;text-transform:uppercase;font-size:10.5px;letter-spacing:.04em;align-self:center}
+.bmdoc table{font-size:12px}
+.bmdoc th{font-size:10px;padding:6px 8px}
+.bmdoc td{padding:5px 8px}
+.bmdoc tr.grp td{font-weight:600;background:var(--surface-2)}
+.bmdoc tr.tot td{font-weight:700;border-top:2px solid var(--ink)}
+.bmdoc .sig{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:26px}
+.bmdoc .sig div{border-top:1px solid var(--ink);padding-top:6px;text-align:center;font-size:11.5px}
+.bmdoc .fin{display:grid;grid-template-columns:1fr auto;gap:4px 14px;max-width:360px;margin-left:auto;font-size:12.5px}
+.bmdoc .fin span:nth-child(odd){text-transform:uppercase;font-size:10.5px;letter-spacing:.04em;color:var(--ink-2);font-weight:600;align-self:center}
+.bmdoc .fin .big{font-family:var(--display);font-size:18px;font-weight:700}
+.bmdoc .fin input{padding:4px 8px;width:120px;text-align:right}
+@media (max-width:640px){.bmdoc .hd{grid-template-columns:1fr}.bmdoc .sig{grid-template-columns:1fr}}
+.modal{position:fixed;inset:0;background:rgba(10,16,22,.55);z-index:50;display:none;align-items:flex-end;justify-content:center;padding:0}
+.modal.on{display:flex}
+.modal .sheet{background:var(--bg);width:100%;max-height:92%;overflow:auto;border-radius:16px 16px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom,0px))}
+@media (min-width:900px){.modal{align-items:center;padding:24px}.modal .sheet{max-width:1000px;border-radius:14px;max-height:90%}.modal .sheet.narrow{max-width:520px}}
+.modal .sheet .mh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.perm-grid{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center;font-size:13px}
+.perm-grid .grp{grid-column:1/-1;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:600;margin-top:8px}
+.switch{position:relative;width:40px;height:22px;background:var(--line);border-radius:999px;border:0;padding:0;flex:0 0 auto}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .15s}
+.switch.on{background:var(--accent)}
+.switch.on::after{transform:translateX(18px)}
+.ct-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;align-items:center;font-size:12px}
+.ct-grid .h{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3);font-weight:600}
+.ct-grid input{padding:6px 8px}
+.sync{width:10px;height:10px;border-radius:50%;background:var(--good);flex:0 0 auto;box-shadow:0 0 0 3px color-mix(in srgb,var(--good) 25%,transparent)}
+.sync.pend{background:var(--warn);box-shadow:0 0 0 3px color-mix(in srgb,var(--warn) 25%,transparent)}
+.sync.off{background:var(--bad);box-shadow:0 0 0 3px color-mix(in srgb,var(--bad) 25%,transparent)}
+.badge{min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--warn);color:#fff;font-size:11px;font-weight:700;display:inline-grid;place-items:center;margin-left:4px}
+.sidenav button .badge{margin-left:auto}
+.stamp{display:inline-block;border:2px solid var(--good);color:var(--good);border-radius:6px;padding:4px 10px;font-family:var(--display);font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase;transform:rotate(-3deg);margin:4px 0 6px}
+.stamp small{display:block;font-family:var(--font);font-weight:500;letter-spacing:0;text-transform:none;font-size:10.5px}
+.stamp.pend{border-color:var(--line);color:var(--ink-3);border-style:dashed;transform:none}
+.steps{display:flex;gap:0;flex-wrap:wrap;margin-bottom:10px}
+.steps span{font-size:11px;font-weight:600;padding:4px 10px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-3);margin-right:-1px}
+.steps span:first-child{border-radius:6px 0 0 6px}.steps span:last-child{border-radius:0 6px 6px 0}
+.steps span.done{background:var(--good-soft);color:var(--good);border-color:transparent}
+.steps span.cur{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+</style>
+
+<!-- ============ LOGIN ============ -->
+<div id="login">
+  <div class="box card">
+    <div class="brand" style="margin-bottom:14px"><div class="logo">BM</div><div><h1>Medição de Refeições</h1><div class="sub" id="l-sub">Restaurante · Suprimentos</div></div></div>
+    <div class="stack">
+      <div id="l-form">
+        <div class="stack">
+          <div class="field"><label for="l-user">Usuário</label><input id="l-user" autocomplete="username" placeholder="login" autocapitalize="none"></div>
+          <div class="field"><label for="l-pass">Senha</label><input id="l-pass" type="password" autocomplete="current-password" placeholder="••••••"></div>
+          <div id="l-err" class="notice bad" hidden>Usuário ou senha inválidos.</div>
+          <button class="btn big" id="l-go">Entrar</button>
+        </div>
+      </div>
+      <div id="l-boot" hidden>
+        <div class="notice info small" style="margin-bottom:10px">Primeiro acesso ao sistema: crie o usuário <b>Administrador</b>. Ele terá todas as permissões e cadastrará os demais usuários.</div>
+        <div class="stack">
+          <div class="field"><label for="b-nome">Nome</label><input id="b-nome"></div>
+          <div class="field"><label for="b-login">Login</label><input id="b-login" autocapitalize="none" placeholder="ex.: marcelo"></div>
+          <div class="field"><label for="b-pass">Senha (mínimo 6 caracteres)</label><input id="b-pass" type="password" autocomplete="new-password"></div>
+          <div id="b-err" class="notice bad" hidden></div>
+          <button class="btn big" id="b-go">Criar administrador e entrar</button>
+        </div>
+      </div>
+    </div>
+    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…</p>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app">
+  <header class="topbar">
+    <div class="brand"><div class="logo">BM</div><div><h1>Medição de Refeições</h1><div class="sub" id="obra-label">Restaurante · Suprimentos</div></div></div>
+    <div class="who"><b id="who-name"></b><span id="who-role"></span></div>
+    <span id="sync-dot" class="sync" title="Sincronizado"></span><button class="btn-ghost" id="theme-btn" aria-label="Alternar modo escuro/claro"><svg id="theme-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"></svg><span id="theme-txt">Escuro</span></button>
+    <button class="btn-ghost" id="logout">Sair</button>
+  </header>
+  <div class="body">
+    <nav class="sidenav" id="sidenav"></nav>
+    <main>
+      <!-- ---------- RESTAURANTE ---------- -->
+      <section class="page" id="page-rest">
+        <div class="page-head"><div><h2>Registro de refeições</h2><p id="rest-date"></p></div></div>
+        <div id="rest-setup" class="notice warn" style="margin-bottom:14px" hidden></div>
+        <div class="card" id="rest-notif" style="margin-bottom:14px;border-left:4px solid var(--warn)" hidden><h3>Boletins aguardando validação do restaurante</h3><div class="list" id="rest-notif-list"></div></div>
+        <div class="cols">
+          <div class="stack">
+            <div class="card">
+              <h3>Refeição do colaborador</h3>
+              <button class="qrbtn" id="btn-scan-rest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/><rect x="7" y="7" width="4" height="4"/><rect x="13" y="7" width="4" height="4"/><rect x="7" y="13" width="4" height="4"/><path d="M13 13h4v4"/></svg><div><b>Ler QR Code do crachá</b><span>Usa o mesmo QR Code do sistema de ponto</span></div></button>
+              <div style="margin-top:12px" class="field"><label for="qr-manual">Ou informe o código do crachá</label>
+                <div class="row" style="flex-wrap:nowrap"><input id="qr-manual" class="mono" placeholder="código impresso no QR" inputmode="text"><button class="btn sec" id="qr-manual-go">Buscar</button></div></div>
+            </div>
+            <div class="card" id="confirm-card" hidden>
+              <h3>Confirmar refeição</h3>
+              <div class="colab-card" id="colab-card"></div>
+              <div id="dup-msg" class="notice warn" style="margin-top:10px" hidden></div>
+              <div style="margin:12px 0 6px" class="small muted">Tipo de refeição</div>
+              <div class="mealbtns" id="mealbtns"></div>
+              <div class="row" style="margin-top:12px">
+                <button class="btn big" id="btn-confirm" style="flex:1">Confirmar registro</button>
+                <button class="btn sec" id="btn-cancel">Cancelar</button>
+              </div>
+            </div>
+            <div class="card" id="sobras-card">
+              <h3>Sobras de refeições</h3>
+              <div class="small muted" style="margin-bottom:10px">Refeições preparadas que não foram consumidas. Preenchimento manual pelo restaurante.</div>
+              <div class="stack">
+                <div class="grid2">
+                  <div class="field"><label for="s-tipo">Tipo de refeição</label><select id="s-tipo"></select></div>
+                  <div class="field"><label for="s-qtd">Quantidade que sobrou</label><input id="s-qtd" type="number" min="1" step="1" inputmode="numeric" placeholder="0"></div>
+                </div>
+                <div class="field"><label for="s-colab">Nome do colaborador que sobrou</label><input id="s-colab" list="colab-names" placeholder="digite ou escolha da lista"><datalist id="colab-names"></datalist></div>
+                <button class="btn" id="s-save">Registrar sobra</button>
+              </div>
+              <div class="list" id="sobras-list" style="margin-top:10px"></div>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="tiles" id="rest-tiles"></div>
+            <div class="card"><h3>Últimos registros de hoje</h3><div class="list" id="rest-recent"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- SUPRIMENTOS ---------- -->
+      <section class="page" id="page-sup">
+        <div class="page-head"><div><h2>Medição de refeições</h2><p>Conferência dos registros e emissão do Boletim de Medição por empresa</p></div>
+          <button class="btn" id="btn-emitir">Emitir BM</button></div>
+        <div class="card">
+          <div class="row">
+            <button class="btn sec sm" id="wk-prev" aria-label="Semana anterior">‹</button>
+            <div style="min-width:220px"><b id="wk-label"></b><div class="small muted">segunda a domingo</div></div>
+            <button class="btn sec sm" id="wk-next" aria-label="Próxima semana">›</button>
+            <div class="field" style="flex:1;min-width:160px"><label for="f-emp">Empresa</label><select id="f-emp"></select></div>
+            <div class="field" style="flex:1;min-width:120px"><label for="f-tipo">Tipo</label><select id="f-tipo"><option value="">Todos</option></select></div>
+            <div class="field" style="flex:1.4;min-width:160px"><label for="f-busca">Colaborador</label><input id="f-busca" placeholder="nome…"></div>
+          </div>
+        </div>
+        <div class="tiles" id="sup-tiles" style="margin-top:14px"></div>
+        <div class="card" id="sup-notif" style="margin-top:14px;border-left:4px solid var(--good)" hidden><h3>Boletins assinados pelo restaurante — prontos para impressão e assinatura do Suprimentos</h3><div class="list" id="sup-notif-list"></div></div>
+        <div class="card" style="margin-top:14px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Registros</h3><span class="small muted" id="sup-count"></span></div><div class="tablewrap" style="margin-top:8px"><table id="sup-table"></table></div></div>
+        <div class="card"><h3>Sobras informadas na semana</h3><div class="tablewrap"><table id="sup-sobras"></table></div></div>
+        <div class="card"><h3>Boletins emitidos</h3><div class="tablewrap"><table id="bm-list"></table></div><input id="bm-anexo-file" type="file" accept="application/pdf,image/*" hidden></div>
+      </section>
+
+      <!-- ---------- AUDITORIA ---------- -->
+      <section class="page" id="page-aud">
+        <div class="page-head"><div><h2>Auditoria</h2><p>Trilha de tudo que cada usuário fez no sistema. Somente leitura — registros não podem ser editados nem apagados.</p></div>
+          <button class="btn sec" id="aud-csv">Exportar CSV</button></div>
+        <div class="card">
+          <div class="row">
+            <div class="field" style="flex:1;min-width:140px"><label for="a-user">Usuário</label><select id="a-user"></select></div>
+            <div class="field" style="flex:1;min-width:140px"><label for="a-aba">Aba</label><select id="a-aba"></select></div>
+            <div class="field" style="flex:1.2;min-width:160px"><label for="a-acao">Ação</label><select id="a-acao"></select></div>
+            <div class="field" style="flex:1;min-width:140px"><label for="a-obra">Obra</label><select id="a-obra"></select></div>
+            <div class="field" style="flex:1;min-width:140px"><label for="a-emp">Empresa</label><select id="a-emp"></select></div>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <div class="field" style="min-width:150px"><label for="a-de">Movimentação de</label><input id="a-de" type="date"></div>
+            <div class="field" style="min-width:150px"><label for="a-ate">até</label><input id="a-ate" type="date"></div>
+            <div class="field" style="flex:1;min-width:180px"><label for="a-busca">Texto</label><input id="a-busca" placeholder="colaborador, BM, valor…"></div>
+            <button class="btn sec sm" id="a-limpar" style="align-self:flex-end">Limpar filtros</button>
+          </div>
+        </div>
+        <div class="tiles" id="aud-tiles" style="margin-top:14px"></div>
+        <div class="card" style="margin-top:14px">
+          <div class="row" style="justify-content:space-between"><h3 style="margin:0">Movimentações</h3><span class="small muted" id="aud-count"></span></div>
+          <div class="notice info small" style="margin:8px 0">IP e navegador são gravados pelo servidor no momento do registro (não podem ser alterados pelo app). O dispositivo é identificado por um código gerado em cada aparelho.</div>
+          <div class="tablewrap"><table id="aud-table"></table></div>
+        </div>
+      </section>
+
+      <!-- ---------- CONFIGURAÇÕES ---------- -->
+      <section class="page" id="page-cfg">
+        <div class="page-head"><div><h2>Configurações</h2><p>Usuários, colaboradores, empresas, obras, preços e contratada</p></div></div>
+        <div class="card" id="setup-card" style="margin-bottom:14px"><h3>Primeiros passos</h3><div class="setup" id="setup-list"></div></div>
+        <div class="subtabs" id="cfg-tabs"></div>
+
+        <div id="cfg-usuarios" class="cfg-pane">
+          <div class="cols">
+            <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Usuários</h3><button class="btn sm" id="u-new">Novo usuário</button></div><div class="list" id="u-list" style="margin-top:8px"></div></div>
+            <div class="card"><h3 id="u-form-title">Novo usuário</h3>
+              <div class="stack">
+                <div class="grid2"><div class="field"><label for="u-nome">Nome</label><input id="u-nome"></div><div class="field"><label for="u-login">Login</label><input id="u-login" autocomplete="off"></div></div>
+                <div class="grid2"><div class="field"><label for="u-senha">Senha</label><input id="u-senha" type="password" autocomplete="new-password"></div><div class="field"><label for="u-perfil">Perfil</label><select id="u-perfil"><option>Administrador</option><option>Restaurante</option><option>Suprimentos</option><option>Personalizado</option></select></div></div>
+                <div class="field"><label for="u-ativo">Situação</label><select id="u-ativo"><option value="1">Ativo</option><option value="0">Inativo</option></select></div>
+                <div><div class="small muted" style="margin-bottom:4px">Permissões — o que este usuário pode ver ou alterar</div><div class="perm-grid" id="u-perms"></div></div>
+                <div class="row"><button class="btn" id="u-save">Salvar usuário</button><button class="btn sec" id="u-cancel">Limpar</button></div>
+              </div></div>
+          </div>
+        </div>
+
+        <div id="cfg-colab" class="cfg-pane" hidden>
+          <div class="cols">
+            <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Colaboradores</h3><button class="btn sm" id="c-new">Novo colaborador</button></div>
+              <input id="c-busca" placeholder="buscar por nome, código ou empresa…" style="margin-top:8px">
+              <div class="tablewrap" style="margin-top:8px"><table id="c-table"></table></div></div>
+            <div class="card"><h3 id="c-form-title">Novo colaborador</h3>
+              <div class="stack">
+                <div id="c-need" class="notice warn" hidden></div>
+                <div class="field"><label for="c-qr">QR Code do crachá (sistema de ponto)</label>
+                  <div class="row" style="flex-wrap:nowrap"><input id="c-qr" class="mono" placeholder="leia o QR Code do crachá" readonly><button class="btn" id="btn-scan-colab">Ler QR Code</button></div>
+                  <div class="small muted" style="margin-top:4px">O app lê o QR Code já existente no crachá e vincula o conteúdo lido a este cadastro. <button class="link small" id="c-qr-manual" style="background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer">Digitar manualmente</button></div></div>
+                <div class="field"><label for="c-nome">Nome</label><input id="c-nome"></div>
+                <div class="grid2"><div class="field"><label for="c-emp">Empresa</label><select id="c-emp"></select></div><div class="field"><label for="c-obra">Obra</label><select id="c-obra"></select></div></div>
+                <div class="field"><label for="c-ativo">Situação</label><select id="c-ativo"><option value="1">Ativo</option><option value="0">Inativo (não pode registrar refeição)</option></select></div>
+                <div class="row"><button class="btn" id="c-save">Salvar colaborador</button><button class="btn sec" id="c-cancel">Limpar</button></div>
+              </div></div>
+          </div>
+        </div>
+
+        <div id="cfg-empresas" class="cfg-pane" hidden>
+          <div class="cols">
+            <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Empresas</h3><button class="btn sm" id="e-new">Nova empresa</button></div>
+              <div class="small muted" style="margin:4px 0 8px">Cada empresa recebe seu próprio BM, com a logotipo no canto superior esquerdo.</div>
+              <div class="list" id="e-list"></div></div>
+            <div class="card"><h3 id="e-form-title">Nova empresa</h3>
+              <div class="stack">
+                <div class="field"><label for="e-nome">Razão social / nome</label><input id="e-nome"></div>
+                <div class="grid2"><div class="field"><label for="e-cnpj">CNPJ</label><input id="e-cnpj" inputmode="numeric" placeholder="00.000.000/0000-00"></div><div class="field"><label for="e-prox">Próximo nº de BM</label><input id="e-prox" type="number" min="1" value="1"></div></div>
+                <div class="field"><label>Logotipo (aparece no BM)</label>
+                  <div class="row"><img id="e-logo-prev" class="logo-preview" alt="" hidden><div id="e-logo-empty" class="small muted">Nenhuma logotipo enviada.</div></div>
+                  <div class="row" style="margin-top:8px"><label class="btn sec" for="e-logo" style="text-transform:none;letter-spacing:0;margin:0;font-size:14px;color:var(--ink)">Enviar imagem<input id="e-logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden></label><button class="btn sec sm" id="e-logo-rm">Remover</button></div>
+                  <div class="small muted" style="margin-top:4px">PNG ou JPG, fundo branco ou transparente. A imagem é reduzida para até 600 px.</div></div>
+                <details><summary>Quantidades contratadas (opcional — para saldo no BM)</summary>
+                  <div class="ct-grid" style="margin-top:8px"><div class="h">Refeição</div><div class="h">Qtd contratada</div><div class="h">Acum. anterior (qtd)</div><div class="h">Acum. anterior (R$)</div><div id="e-ct"></div></div>
+                  <div class="small muted" style="margin-top:6px">Use "acumulado anterior" para importar o que já foi medido antes do app.</div></details>
+                <div class="row"><button class="btn" id="e-save">Salvar empresa</button><button class="btn sec" id="e-cancel">Limpar</button></div>
+              </div></div>
+          </div>
+        </div>
+
+        <div id="cfg-obras" class="cfg-pane" hidden>
+          <div class="cols">
+            <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Obras</h3><button class="btn sm" id="o-new">Nova obra</button></div><div class="list" id="o-list" style="margin-top:8px"></div></div>
+            <div class="card"><h3 id="o-form-title">Nova obra</h3>
+              <div class="stack">
+                <div class="field"><label for="o-nome">Nome da obra</label><input id="o-nome" placeholder="ex.: SEDE BENEVIDES"></div>
+                <div class="field"><label for="o-end">Endereço / descrição (opcional)</label><input id="o-end"></div>
+                <div class="field"><label for="o-ativo">Situação</label><select id="o-ativo"><option value="1">Ativa</option><option value="0">Encerrada</option></select></div>
+                <div class="row"><button class="btn" id="o-save">Salvar obra</button><button class="btn sec" id="o-cancel">Limpar</button></div>
+              </div></div>
+          </div>
+        </div>
+
+        <div id="cfg-precos" class="cfg-pane" hidden>
+          <div class="cols">
+            <div class="stack">
+              <div class="card"><h3>Preços vigentes</h3><div class="tablewrap"><table id="p-table"></table></div>
+                <div class="notice info small" style="margin-top:10px">Cada refeição registrada guarda o preço vigente no momento do registro. Alterar o preço não muda o valor de registros anteriores.</div></div>
+              <div class="card"><h3>Histórico de alterações</h3><div class="tablewrap"><table id="p-hist"></table></div></div>
+            </div>
+            <div class="card"><h3 id="p-title">Cadastrar / alterar preço</h3>
+              <div class="stack">
+                <div class="grid2"><div class="field"><label for="p-tipo">Refeição</label><select id="p-tipo"></select></div><div class="field"><label for="p-valor">Valor (R$)</label><input id="p-valor" type="number" step="0.01" min="0" inputmode="decimal"></div></div>
+                <div class="field"><label for="p-vig">Vigência a partir de</label><input id="p-vig" type="date"></div>
+                <div class="field"><label for="p-just">Justificativa <span id="p-just-req">(obrigatória em alteração)</span></label><textarea id="p-just" rows="3" placeholder="ex.: 4º Termo Aditivo — reajuste anual conforme cláusula 5.2"></textarea></div>
+                <div id="p-err" class="notice bad" hidden></div>
+                <button class="btn" id="p-save">Salvar preço</button>
+              </div></div>
+          </div>
+        </div>
+
+        <div id="cfg-contratada" class="cfg-pane" hidden>
+          <div class="card" style="max-width:640px"><h3>Contratada (restaurante) e assinaturas do BM</h3>
+            <div class="stack">
+              <div class="field"><label for="k-contratada">Contratada</label><input id="k-contratada" placeholder="razão social do restaurante"></div>
+              <div class="field"><label for="k-cnpj">CNPJ da contratada</label><input id="k-cnpj"></div>
+              <div class="grid2"><div class="field"><label for="k-gestor">Gestor que assina o BM</label><input id="k-gestor"></div><div class="field"><label for="k-cargo">Cargo</label><input id="k-cargo" placeholder="ex.: Gestor de Suprimentos"></div></div>
+              <div class="field"><label for="k-servico">Descrição do serviço</label><input id="k-servico" value="FORNECIMENTO DE REFEIÇÕES"></div>
+              <button class="btn" id="k-save">Salvar</button>
+            </div></div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+  <nav class="tabbar" id="tabbar"></nav>
+</div>
+
+<!-- ============ SCANNER MODAL ============ -->
+<div class="modal" id="scan-modal">
+  <div class="sheet narrow">
+    <div class="mh"><h2 id="scan-title">Ler QR Code</h2><button class="btn sec sm" id="scan-close">Fechar</button></div>
+    <div class="scanbox" id="scanbox">
+      <video id="video" playsinline muted hidden></video>
+      <div id="scan-idle" style="text-align:center;padding:16px"><div class="small">Iniciando câmera…</div></div>
+      <div class="frame" id="scan-frame" hidden></div>
+    </div>
+    <div id="cam-msg" class="notice warn small" style="margin-top:10px" hidden></div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn sec" id="btn-cam-retry">Tentar câmera novamente</button>
+      <label class="btn sec" for="qr-file" style="text-transform:none;letter-spacing:0;margin:0;font-size:14px;color:var(--ink)">Ler de uma foto<input id="qr-file" type="file" accept="image/*" capture="environment" hidden></label>
+    </div>
+    <div class="field" style="margin-top:12px"><label for="scan-manual">Ou digite o conteúdo do QR Code</label><div class="row" style="flex-wrap:nowrap"><input id="scan-manual" class="mono"><button class="btn" id="scan-manual-go">Usar</button></div></div>
+  </div>
+</div>
+
+<!-- ============ BM CHOOSER (empresa + período) ============ -->
+<div class="modal" id="emp-modal">
+  <div class="sheet narrow">
+    <div class="mh"><h2>Emitir BM</h2><button class="btn sec sm" id="emp-close">Fechar</button></div>
+    <div class="stack">
+      <div class="field"><label for="bm-emp">Empresa</label><select id="bm-emp"></select></div>
+      <div class="grid2"><div class="field"><label for="bm-ini">Período — início</label><input id="bm-ini" type="date"></div><div class="field"><label for="bm-fim">Período — fim</label><input id="bm-fim" type="date"></div></div>
+      <div class="row"><button class="btn sec sm" data-q="semana-ant">Semana anterior</button><button class="btn sec sm" data-q="semana">Semana atual</button><button class="btn sec sm" data-q="quinzena">Últimos 15 dias</button><button class="btn sec sm" data-q="mes">Mês anterior</button></div>
+      <div class="tiles" id="bm-prev-tiles"></div>
+      <div id="bm-prev-msg" class="notice info small" hidden></div>
+      <button class="btn big" id="bm-emit-go">Gerar BM com este período</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ANEXO VIEWER ============ -->
+<div class="modal" id="anexo-modal">
+  <div class="sheet narrow">
+    <div class="mh"><h2 id="anexo-title">Anexo</h2><button class="btn sec sm" id="anexo-close">Fechar</button></div>
+    <div id="anexo-body"></div>
+  </div>
+</div>
+
+<!-- ============ BM MODAL ============ -->
+<div class="modal" id="bm-modal">
+  <div class="sheet">
+    <div class="mh"><h2 id="bm-title">Boletim de Medição</h2><div class="row"><button class="btn sec sm" id="bm-pdf">Exportar PDF</button><button class="btn sec sm" id="bm-close">Fechar</button></div></div>
+    <div id="bm-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =================== CONSTANTS =================== */
+const KEY='refeicoes_app_v3', THEME_KEY='refeicoes_theme';
+const TIPOS=[
+  {id:'cafe',nome:'1. Café',curto:'Café'},
+  {id:'almoco',nome:'2. Almoço',curto:'Almoço'},
+  {id:'jantar',nome:'3. Jantar',curto:'Jantar'},
+  {id:'lanche',nome:'4. Lanche',curto:'Lanche'},
+];
+const PERMS=[
+  {grp:'Restaurante'},
+  {id:'rest.registrar',nome:'Registrar refeições (scanner)'},
+  {id:'rest.sobras',nome:'Registrar sobras de refeições'},
+  {id:'rest.estornar',nome:'Estornar registro do dia'},
+  {id:'rest.validar',nome:'Validar BM (assinatura eletrônica do restaurante)'},
+  {grp:'Suprimentos'},
+  {id:'sup.ver',nome:'Visualizar registros e resumos'},
+  {id:'sup.bm',nome:'Emitir, fechar, imprimir e assinar BM'},
+  {id:'sup.nf',nome:'Informar nota fiscal e anexar BM assinado'},
+  {grp:'Auditoria'},
+  {id:'aud.ver',nome:'Visualizar a trilha de auditoria'},
+  {grp:'Configurações'},
+  {id:'cfg.usuarios',nome:'Cadastrar usuários e permissões'},
+  {id:'cfg.colab',nome:'Cadastrar colaboradores'},
+  {id:'cfg.empresas',nome:'Cadastrar empresas e logotipos'},
+  {id:'cfg.obras',nome:'Cadastrar obras'},
+  {id:'cfg.precos',nome:'Alterar preços'},
+  {id:'cfg.contratada',nome:'Editar dados da contratada'},
+];
+const PERFIS={
+  Administrador:PERMS.filter(p=>p.id).map(p=>p.id),
+  Restaurante:['rest.registrar','rest.sobras','rest.estornar','rest.validar'],
+  Suprimentos:['sup.ver','sup.bm','sup.nf','cfg.colab','cfg.empresas','cfg.obras','cfg.precos'],
+  Personalizado:[]
+};
+let S=null, USER=null;
+
+/* =================== HELPERS =================== */
+function pad(n){return String(n).padStart(2,'0')}
+function ymd(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function parse(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}
+function br(s){if(!s)return '';const [y,m,d]=s.split('-');return `${d}/${m}/${y}`}
+function brdt(iso){const d=new Date(iso);return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`}
+function hm(iso){const d=new Date(iso);return `${pad(d.getHours())}:${pad(d.getMinutes())}`}
+function money(v){return (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+function num(v){return (v||0).toLocaleString('pt-BR')}
+function addDays(s,n){const d=parse(s);d.setDate(d.getDate()+n);return ymd(d)}
+function mondayOf(s){const d=parse(s);const w=(d.getDay()+6)%7;d.setDate(d.getDate()-w);return ymd(d)}
+function today(){return ymd(new Date())}
+function uid(){return Math.random().toString(36).slice(2,9)}
+const WD=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+function wd(s){return WD[parse(s).getDay()]}
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function ini(n){return (n||'?').split(' ').filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()}
+const $=id=>document.getElementById(id);
+function tipo(id){return TIPOS.find(t=>t.id===id)}
+function emp(id){return S.empresas.find(e=>e.id===id)}
+function obra(id){return S.obras.find(o=>o.id===id)}
+function can(p){return !!(USER&&USER.perms.includes(p))}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2800)}
+function precoVigente(tipoId,data){
+  const l=S.precos.filter(p=>p.tipo===tipoId&&p.vigencia<=data).sort((a,b)=>a.vigencia<b.vigencia?1:a.vigencia>b.vigencia?-1:(a.criadoEm<b.criadoEm?1:-1));
+  return l[0]?l[0].valor:null;
+}
+function fillSelect(sel,items,val,allLabel){sel.innerHTML=(allLabel!==undefined?`<option value="">${allLabel}</option>`:'')+items.map(i=>`<option value="${esc(i.id)}"${i.id===val?' selected':''}>${esc(i.nome)}</option>`).join('')}
+
+/* =================== AUDITORIA (núcleo) =================== */
+const ABAS={login:'Login',rest:'Restaurante',sup:'Suprimentos',aud:'Auditoria',cfg:'Configurações'};
+const ACOES={
+  'login.ok':'Login','login.falha':'Tentativa de login inválida','logout':'Logout','nav':'Acessou aba','nav.cfg':'Acessou seção de configurações',
+  'refeicao.registrar':'Registrou refeição','refeicao.estornar':'Estornou refeição','sobra.registrar':'Registrou sobra','sobra.excluir':'Excluiu sobra',
+  'bm.emitir':'Gerou rascunho de BM','bm.fechar':'Fechou BM','bm.validar':'Validou BM (assinatura eletrônica do restaurante)','bm.homologar':'Homologou assinatura física do restaurante','bm.assinar_sup':'Registrou assinatura do Suprimentos','bm.nf':'Informou nota fiscal','bm.pdf':'Exportou BM em PDF','bm.imprimir':'Imprimiu BM','bm.anexar':'Anexou BM assinado','bm.anexo_remover':'Removeu anexo do BM','bm.anexo_baixar':'Baixou anexo do BM',
+  'usuario.salvar':'Cadastrou/alterou usuário','colab.salvar':'Cadastrou/alterou colaborador','empresa.salvar':'Cadastrou/alterou empresa','obra.salvar':'Cadastrou/alterou obra','preco.salvar':'Cadastrou/alterou preço','contratada.salvar':'Alterou dados da contratada','auditoria.csv':'Exportou auditoria em CSV','dados.apagar':'Apagou todos os dados'
+};
+let DEVICE='';try{DEVICE=localStorage.getItem('refeicoes_device')||'';if(!DEVICE){DEVICE='DEV-'+Math.random().toString(36).slice(2,8).toUpperCase();localStorage.setItem('refeicoes_device',DEVICE)}}catch(e){DEVICE='DEV-?'}
+function audit(acao,descricao,x){
+  x=x||{};const e={id:uid(),em:new Date().toISOString(),usuarioId:USER?USER.id:null,usuario:x.usuario||(USER?USER.nome:'—'),perfil:USER?USER.perfil:'',
+    acao,descricao:descricao||'',aba:x.aba||PAGE||'login',obra:x.obra||'',empresa:x.empresa||'',entidade:x.entidade||'',antes:x.antes===undefined?null:x.antes,depois:x.depois===undefined?null:x.depois,
+    dispositivo:DEVICE,ip:null,navegador:(navigator.userAgent||'').slice(0,80)};
+  S.audit.push(e);if(S.audit.length>5000)S.audit.splice(0,S.audit.length-5000);
+}
+
+/* =================== SUPABASE: conexão e sincronização =================== */
+const CFG=window.APP_CONFIG||{};
+if(!CFG.SUPABASE_URL||!CFG.SUPABASE_ANON_KEY){document.addEventListener('DOMContentLoaded',()=>{const e=document.getElementById('l-status');if(e){e.textContent='config.js não encontrado ou incompleto (SUPABASE_URL / SUPABASE_ANON_KEY).';e.style.color='var(--bad)'}})}
+const sb=window.supabase.createClient(CFG.SUPABASE_URL||'https://invalid.supabase.co',CFG.SUPABASE_ANON_KEY||'x',{auth:{persistSession:true,autoRefreshToken:true}});
+const EMAIL_DOMAIN=CFG.EMAIL_DOMAIN||'refeicoes.app';
+function toEmail(login){login=(login||'').trim().toLowerCase();return login.includes('@')?login:login.replace(/[^a-z0-9._-]/g,'')+'@'+EMAIL_DOMAIN}
+const TABLES={empresas:'empresas',obras:'obras',colab:'colaboradores',precos:'precos',registros:'registros',sobras:'sobras',bms:'bms',users:'usuarios'};
+const CACHE_KEY='refeicoes_cache_v1';
+let LAST={}, AUDIT_SEEN=new Set(), SYNC={pending:false,running:false,offline:false,timer:null,retry:null};
+function fresh(){return {users:[],empresas:[],obras:[],colab:[],precos:[],registros:[],sobras:[],bms:[],audit:[],contratada:{nome:'',cnpj:'',gestor:'',cargo:'',servico:'FORNECIMENTO DE REFEIÇÕES'}}}
+function rowOf(key,r){const o={...r};delete o.senha;if(key==='users')delete o.id;return o}
+function snapshot(){LAST={};Object.keys(TABLES).forEach(k=>{LAST[k]={};(S[k]||[]).forEach(r=>LAST[k][r.id]=JSON.stringify(rowOf(k,r)))});LAST.contratada=JSON.stringify(S.contratada);AUDIT_SEEN=new Set((S.audit||[]).map(e=>e.id))}
+function setSync(state,msg){const d=$('sync-dot');if(!d)return;d.className='sync'+(state==='pend'?' pend':state==='off'?' off':'');d.title=msg||(state==='pend'?'Enviando alterações…':state==='off'?'Sem conexão — alterações guardadas neste aparelho e enviadas quando voltar':'Sincronizado')}
+async function loadAll(){
+  const ns=fresh();
+  for(const [k,t] of Object.entries(TABLES)){
+    let q=sb.from(t).select('id,data');
+    if(t==='registros'){const lim=addDays(today(),-(CFG.DIAS_HISTORICO||400));q=q.gte('data->>data',lim)}
+    const {data,error}=await q;if(error)throw error;
+    ns[k]=data.map(r=>({...r.data,id:r.id}));
+  }
+  const c=await sb.from('config').select('data').eq('id','contratada').maybeSingle();if(c.error)throw c.error;if(c.data)ns.contratada={...ns.contratada,...c.data.data};
+  const a=await sb.from('auditoria').select('id,data,ip,user_agent,created_at').order('created_at',{ascending:false}).limit(3000);
+  ns.audit=a.error?[]:a.data.map(r=>({...r.data,id:r.id,ip:r.ip,navegador:r.user_agent||r.data.navegador,em:r.created_at||r.data.em})).reverse();
+  // preserva registros ainda não sincronizados (offline)
+  if(S&&SYNC.pending){Object.keys(TABLES).forEach(k=>{(S[k]||[]).forEach(r=>{if(!LAST[k]||LAST[k][r.id]!==JSON.stringify(rowOf(k,r))){const i=ns[k].findIndex(x=>x.id===r.id);if(i>=0)ns[k][i]=r;else ns[k].push(r)}})});(S.audit||[]).forEach(e=>{if(!AUDIT_SEEN.has(e.id))ns.audit.push(e)})}
+  S=ns;snapshot();
+  try{localStorage.setItem(CACHE_KEY,JSON.stringify(S))}catch(e){}
+}
+function save(){
+  try{localStorage.setItem(CACHE_KEY,JSON.stringify(S))}catch(e){}
+  SYNC.pending=true;setSync('pend');clearTimeout(SYNC.timer);SYNC.timer=setTimeout(sync,350);
+}
+async function sync(){
+  if(SYNC.running||!USER)return;SYNC.running=true;SYNC.pending=false;clearTimeout(SYNC.retry);
+  try{
+    for(const [k,t] of Object.entries(TABLES)){
+      const cur={};(S[k]||[]).forEach(r=>cur[r.id]=JSON.stringify(rowOf(k,r)));
+      const ups=[],dels=[];
+      for(const id in cur){if(LAST[k][id]!==cur[id])ups.push({id,data:JSON.parse(cur[id])})}
+      if(k!=='users'){for(const id in LAST[k]){if(!(id in cur))dels.push(id)}}
+      if(ups.length){const {error}=await sb.from(t).upsert(ups);if(error)throw error}
+      if(dels.length){const {error}=await sb.from(t).delete().in('id',dels);if(error)throw error}
+      LAST[k]=cur;
+    }
+    const cj=JSON.stringify(S.contratada);if(LAST.contratada!==cj){const {error}=await sb.from('config').upsert({id:'contratada',data:S.contratada});if(error)throw error;LAST.contratada=cj}
+    const novos=(S.audit||[]).filter(e=>!AUDIT_SEEN.has(e.id));
+    if(novos.length){const {error}=await sb.from('auditoria').insert(novos.map(e=>({id:e.id,data:e})));if(error)throw error;novos.forEach(e=>AUDIT_SEEN.add(e.id))}
+    SYNC.offline=false;setSync(SYNC.pending?'pend':'ok');
+  }catch(e){
+    SYNC.pending=true;SYNC.offline=true;const msg=(e&&e.message)||'';setSync('off',msg?'Falha ao enviar: '+msg:undefined);
+    if(/row-level security|permission|policy/i.test(msg))toast('Alteração recusada pelo servidor: sem permissão ('+msg.slice(0,80)+')');
+    SYNC.retry=setTimeout(sync,15000);
+  }finally{SYNC.running=false;if(SYNC.pending&&!SYNC.offline)setTimeout(sync,200)}
+}
+window.addEventListener('online',()=>{if(SYNC.pending)sync()});
+// atualização periódica com dados de outros aparelhos
+setInterval(async()=>{if(!USER||SYNC.pending||SYNC.running||document.hidden)return;try{await loadAll();refreshBadges();if(PAGE==='rest')renderRest();else if(PAGE==='sup'&&!$('bm-modal').classList.contains('on'))renderSup();else if(PAGE==='aud')renderAud()}catch(e){}},45000);
+
+/* =================== THEME =================== */
+function isDark(){const t=document.documentElement.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
+function applyTheme(t){document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem(THEME_KEY,t)}catch(e){}renderThemeBtn()}
+function renderThemeBtn(){const d=isDark();$('theme-txt').textContent=d?'Claro':'Escuro';
+  $('theme-ico').innerHTML=d?'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>':'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>'}
+$('theme-btn').onclick=()=>applyTheme(isDark()?'light':'dark');
+try{const t=localStorage.getItem(THEME_KEY);if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}
+renderThemeBtn();
+
+/* =================== LOGIN (Supabase Auth) =================== */
+function lstatus(m,bad){const e=$('l-status');e.textContent=m||'';e.style.color=bad?'var(--bad)':''}
+async function enterApp(){
+  try{await loadAll()}catch(e){
+    let cached=null;try{cached=JSON.parse(localStorage.getItem(CACHE_KEY))}catch(x){}
+    if(!cached){lstatus('Não foi possível carregar os dados: '+(e.message||e),true);return false}
+    S=cached;snapshot();SYNC.offline=true;setSync('off');toast('Sem conexão — usando dados guardados neste aparelho');
+  }
+  const {data:{user}}=await sb.auth.getUser();
+  USER=S.users.find(u=>u.id===(user&&user.id));
+  if(!USER){lstatus('Seu usuário ainda não está liberado no sistema. Peça ao administrador.',true);await sb.auth.signOut();return false}
+  if(USER.ativo===false){lstatus('Usuário inativo. Procure o administrador.',true);await sb.auth.signOut();return false}
+  $('login').style.display='none';$('app').classList.add('on');
+  $('who-name').textContent=USER.nome;$('who-role').textContent=USER.perfil;
+  audit('login.ok','',{aba:'login'});save();
+  buildNav();return true;
+}
+async function doLogin(){
+  const login=$('l-user').value.trim(),pass=$('l-pass').value;if(!login||!pass)return;
+  $('l-go').disabled=true;$('l-err').hidden=true;lstatus('Entrando…');
+  const {error}=await sb.auth.signInWithPassword({email:toEmail(login),password:pass});
+  $('l-go').disabled=false;
+  if(error){$('l-err').hidden=false;$('l-err').textContent=/confirm/i.test(error.message)?'E-mail não confirmado: desative "Confirm email" em Authentication › Providers › Email no Supabase.':'Usuário ou senha inválidos.';lstatus('');return}
+  lstatus('Carregando dados…');await enterApp();lstatus('');
+}
+async function doBootstrap(){
+  const nome=$('b-nome').value.trim(),login=$('b-login').value.trim(),pass=$('b-pass').value;const err=$('b-err');
+  if(!nome||!login||pass.length<6){err.hidden=false;err.textContent='Preencha nome, login e uma senha com pelo menos 6 caracteres.';return}
+  err.hidden=true;$('b-go').disabled=true;
+  const {data,error}=await sb.auth.signUp({email:toEmail(login),password:pass,options:{data:{nome,login}}});
+  $('b-go').disabled=false;
+  if(error){err.hidden=false;err.textContent=error.message;return}
+  if(!data.session){err.hidden=false;err.textContent='Usuário criado, mas o Supabase exige confirmação de e-mail. Desative "Confirm email" em Authentication › Providers › Email e entre com o login criado.';$('l-boot').hidden=true;$('l-form').hidden=false;return}
+  $('l-boot').hidden=true;$('l-form').hidden=false;await enterApp();
+}
+$('l-go').onclick=doLogin;$('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+$('b-go').onclick=doBootstrap;
+$('logout').onclick=async()=>{closeScanner();if(USER){audit('logout','');save();if(SYNC.pending){await sync()}}USER=null;await sb.auth.signOut();$('app').classList.remove('on');$('login').style.display='grid';$('l-pass').value='';$('l-boot').hidden=true;$('l-form').hidden=false;lstatus('')};
+async function boot(){
+  S=fresh();
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(session){lstatus('Carregando dados…');if(await enterApp()){lstatus('');return}}
+    const {data:need,error}=await sb.rpc('bootstrap_needed');
+    if(error)throw error;
+    if(need){$('l-form').hidden=true;$('l-boot').hidden=false;lstatus('Nenhum usuário cadastrado ainda.')}
+    else lstatus('');
+  }catch(e){lstatus('Sem conexão com o servidor: '+(e.message||e),true)}
+}
+
+/* =================== NAV =================== */
+const ICONS={aud:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>',rest:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3M4 12h16"/></svg>',
+ sup:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10M15 10v10"/></svg>',
+ cfg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>'};
+function navItems(){
+  const it=[];
+  if(['rest.registrar','rest.sobras','rest.estornar'].some(can))it.push({id:'rest',n:'Restaurante'});
+  if(can('sup.ver')||can('sup.bm'))it.push({id:'sup',n:'Suprimentos'});
+  if(can('aud.ver'))it.push({id:'aud',n:'Auditoria'});
+  if(['cfg.usuarios','cfg.colab','cfg.empresas','cfg.obras','cfg.precos','cfg.contratada'].some(can))it.push({id:'cfg',n:'Configurações'});
+  return it;
+}
+let PAGE=null;
+function buildNav(){
+  const it=navItems();const h=it.map(i=>`<button data-p="${i.id}">${ICONS[i.id]}<span>${i.n}</span><span class="badge" data-badge="${i.id}" hidden></span></button>`).join('');
+  $('tabbar').innerHTML=h;$('sidenav').innerHTML='<div class="nav-title">Menu</div>'+h;
+  document.querySelectorAll('#tabbar button,#sidenav button').forEach(b=>b.onclick=()=>go(b.dataset.p));
+  refreshBadges();
+  go(it[0]?it[0].id:null);
+}
+function pendRest(){return S.bms.filter(b=>b.status==='fechado')}
+function pendSup(){return S.bms.filter(b=>b.status==='assinado_restaurante')}
+function refreshBadges(){const n={rest:can('rest.validar')?pendRest().length:0,sup:can('sup.bm')?pendSup().length:0};
+  document.querySelectorAll('[data-badge]').forEach(e=>{const v=n[e.dataset.badge]||0;e.hidden=!v;e.textContent=v})}
+function go(p){
+  if(p&&p!==PAGE&&USER){PAGE=p;audit('nav',ABAS[p]||p);save()}
+  PAGE=p;
+  document.querySelectorAll('.page').forEach(x=>x.classList.toggle('on',x.id==='page-'+p));
+  document.querySelectorAll('#tabbar button,#sidenav button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));
+  if(p==='rest')renderRest();if(p==='sup')renderSup();if(p==='cfg')renderCfg();if(p==='aud')renderAud();
+}
+
+/* =================== SCANNER (shared) =================== */
+let SCAN_CB=null, stream=null, scanTimer=null, canvas=null;
+function camMsg(m){const e=$('cam-msg');e.hidden=!m;e.textContent=m||''}
+function openScanner(title,cb){SCAN_CB=cb;$('scan-title').textContent=title;$('scan-manual').value='';camMsg('');$('scan-modal').classList.add('on');startCam()}
+function closeScanner(){stopCam();$('scan-modal').classList.remove('on');SCAN_CB=null}
+function scanned(code){code=(code||'').trim();if(!code)return;const cb=SCAN_CB;closeScanner();if(cb)cb(code)}
+async function startCam(){
+  stopCam();
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){camMsg('Câmera indisponível neste navegador. Use a foto do crachá ou digite o código.');$('scan-idle').innerHTML='<div class="small">Sem câmera</div>';return}
+  try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})}
+  catch(e){camMsg('A câmera não pôde ser aberta aqui (o visualizador de artefatos bloqueia câmera; no celular, abra o arquivo HTML e permita o acesso). Use a foto do crachá ou digite o código.');$('scan-idle').innerHTML='<div class="small">Câmera bloqueada</div>';stream=null;return}
+  const v=$('video');v.srcObject=stream;v.hidden=false;$('scan-idle').hidden=true;$('scan-frame').hidden=false;
+  await v.play();
+  const det=('BarcodeDetector' in window)?new BarcodeDetector({formats:['qr_code']}):null;
+  if(!canvas)canvas=document.createElement('canvas');
+  scanTimer=setInterval(async()=>{
+    if(!stream||!v.videoWidth)return;
+    try{
+      if(det){const codes=await det.detect(v);if(codes.length){scanned(codes[0].rawValue);return}}
+      if(typeof jsQR==='function'){canvas.width=v.videoWidth;canvas.height=v.videoHeight;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(v,0,0);
+        const img=ctx.getImageData(0,0,canvas.width,canvas.height);const r=jsQR(img.data,img.width,img.height,{inversionAttempts:'dontInvert'});if(r&&r.data){scanned(r.data)}}
+    }catch(e){}
+  },350);
+}
+function stopCam(){clearInterval(scanTimer);scanTimer=null;if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}
+  const v=$('video');v.hidden=true;v.srcObject=null;$('scan-idle').hidden=false;$('scan-idle').innerHTML='<div class="small">Iniciando câmera…</div>';$('scan-frame').hidden=true}
+$('scan-close').onclick=closeScanner;$('btn-cam-retry').onclick=startCam;
+$('scan-manual-go').onclick=()=>scanned($('scan-manual').value);
+$('scan-manual').addEventListener('keydown',e=>{if(e.key==='Enter')scanned(e.target.value)});
+$('qr-file').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{
+    const bmp=await createImageBitmap(f);
+    if('BarcodeDetector' in window){const codes=await new BarcodeDetector({formats:['qr_code']}).detect(bmp);if(codes.length){scanned(codes[0].rawValue);return}}
+    if(typeof jsQR==='function'){const c=document.createElement('canvas');const scale=Math.min(1,1200/Math.max(bmp.width,bmp.height));c.width=Math.round(bmp.width*scale);c.height=Math.round(bmp.height*scale);const ctx=c.getContext('2d');ctx.drawImage(bmp,0,0,c.width,c.height);
+      const img=ctx.getImageData(0,0,c.width,c.height);const r=jsQR(img.data,img.width,img.height);if(r&&r.data){scanned(r.data);return}}
+    camMsg('Nenhum QR Code encontrado na foto. Tente aproximar e manter o código nítido.');
+  }catch(err){camMsg('Não foi possível ler a foto.')}
+};
+
+/* =================== RESTAURANTE =================== */
+let CUR=null, CURTIPO=null;
+function suggestTipo(){const h=new Date().getHours();return h<10?'cafe':h<15?'almoco':h<17?'lanche':'jantar'}
+function renderRest(){
+  const t=today();const d=parse(t);
+  $('rest-date').textContent=`${WD[d.getDay()]}, ${br(t)} · operador: ${USER.nome}`;
+  const missing=[];if(!S.colab.length)missing.push('colaboradores');if(!TIPOS.some(tp=>precoVigente(tp.id,t)!==null))missing.push('preços das refeições');
+  $('rest-setup').hidden=!missing.length;$('rest-setup').textContent=missing.length?`Antes de registrar refeições, cadastre em Configurações: ${missing.join(' e ')}.`:'';
+  const regs=S.registros.filter(r=>r.data===t);
+  $('rest-tiles').innerHTML=TIPOS.map(tp=>{const n=regs.filter(r=>r.tipo===tp.id).length;const p=precoVigente(tp.id,t);return `<div class="tile ${tp.id}"><div class="k">${tp.curto} hoje</div><div class="v num">${n}</div><div class="s">${p===null?'sem preço':money(p)+' un.'}</div></div>`}).join('');
+  const recent=[...regs].sort((a,b)=>a.registradoEm<b.registradoEm?1:-1).slice(0,12);
+  // notificações de BM fechado
+  const pend=pendRest();$('rest-notif').hidden=!(pend.length&&can('rest.validar'));
+  $('rest-notif-list').innerHTML=pend.map(b=>`<div class="item"><span class="pill warn">Atenção</span><div class="t"><b>BM nº ${b.numero} — ${esc(b.empresaNome)}</b><span>Período ${br(b.ini)} à ${br(b.fim)} fechado em ${brdt(b.fechadoEm)} · ${b.qtd} refeições · ${money(b.liquido)}</span></div><button class="btn sm" data-vbm="${b.id}">Ver e validar</button></div>`).join('');
+  $('rest-notif-list').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
+  $('rest-recent').innerHTML=recent.length?recent.map(r=>`<div class="item"><div class="avatar">${ini(r.nome)}</div><div class="t"><b>${esc(r.nome)}</b><span>${esc(r.empresaNome)} · ${esc(r.obraNome||'obra não informada')} · ${hm(r.registradoEm)}</span></div><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span>${can('rest.estornar')&&!r.bmId?`<button class="btn sec sm" data-undo="${r.id}">Estornar</button>`:''}</div>`).join(''):'<div class="small muted">Nenhum registro hoje ainda.</div>';
+  $('rest-recent').querySelectorAll('[data-undo]').forEach(b=>b.onclick=()=>{const rr=S.registros.find(r=>r.id===b.dataset.undo);S.registros=S.registros.filter(r=>r.id!==b.dataset.undo);if(rr)audit('refeicao.estornar',`${tipo(rr.tipo).curto} de ${rr.nome} (${money(rr.valor)}) registrada às ${hm(rr.registradoEm)}`,{obra:rr.obraNome,empresa:rr.empresaNome,entidade:'registro '+rr.id});save();toast('Registro estornado');renderRest()});
+  $('btn-scan-rest').disabled=!can('rest.registrar');$('qr-manual-go').disabled=!can('rest.registrar');
+  // sobras
+  $('sobras-card').hidden=!can('rest.sobras');
+  if(!$('s-tipo').options.length)TIPOS.forEach(tp=>{const o=document.createElement('option');o.value=tp.id;o.textContent=tp.curto;$('s-tipo').appendChild(o)});
+  $('colab-names').innerHTML=S.colab.filter(c=>c.ativo).map(c=>`<option value="${esc(c.nome)}">`).join('');
+  const sob=S.sobras.filter(s=>s.data===t).sort((a,b)=>a.registradoEm<b.registradoEm?1:-1);
+  $('sobras-list').innerHTML=sob.length?sob.map(s=>`<div class="item"><span class="pill ${s.tipo}">${tipo(s.tipo).curto}</span><div class="t"><b>${s.qtd} ${s.qtd===1?'refeição':'refeições'} — ${esc(s.colabNome)}</b><span>${esc(s.empresaNome||'empresa não identificada')} · ${hm(s.registradoEm)}</span></div><button class="btn sec sm" data-sdel="${s.id}">Excluir</button></div>`).join(''):'<div class="small muted">Nenhuma sobra informada hoje.</div>';
+  $('sobras-list').querySelectorAll('[data-sdel]').forEach(b=>b.onclick=()=>{const ss=S.sobras.find(s=>s.id===b.dataset.sdel);S.sobras=S.sobras.filter(s=>s.id!==b.dataset.sdel);if(ss)audit('sobra.excluir',`${ss.qtd} ${tipo(ss.tipo).curto} — ${ss.colabNome}`,{empresa:ss.empresaNome});save();renderRest()});
+}
+function lookup(code){
+  code=(code||'').trim();if(!code)return;
+  const c=S.colab.find(x=>x.qr.toLowerCase()===code.toLowerCase());
+  if(!c){toast('QR Code não cadastrado: '+code.slice(0,40));CUR=null;$('confirm-card').hidden=true;return}
+  if(!c.ativo){toast('Colaborador inativo — procure o Suprimentos');return}
+  CUR=c;CURTIPO=suggestTipo();
+  $('confirm-card').hidden=false;
+  const e=emp(c.empresaId),o=obra(c.obraId);
+  $('colab-card').innerHTML=`<div class="avatar">${ini(c.nome)}</div><div><b>${esc(c.nome)}</b><div class="meta">${esc(e?e.nome:'—')}<br>${esc(o?o.nome:'—')} · <span class="mono">${esc(c.qr)}</span></div></div>`;
+  renderMeal();
+  $('confirm-card').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function renderMeal(){
+  const t=today();const regs=S.registros.filter(r=>r.data===t&&r.colabId===CUR.id);
+  $('mealbtns').innerHTML=TIPOS.map(tp=>{const done=regs.find(r=>r.tipo===tp.id);const p=precoVigente(tp.id,t);const off=done||p===null;
+    return `<button class="mealbtn${CURTIPO===tp.id?' on':''}" data-t="${tp.id}" ${off?'disabled':''}>${tp.curto}<small>${done?'já registrado '+hm(done.registradoEm):p===null?'sem preço cadastrado':money(p)}</small></button>`}).join('');
+  $('mealbtns').querySelectorAll('button').forEach(b=>b.onclick=()=>{CURTIPO=b.dataset.t;renderMeal()});
+  const dup=regs.find(r=>r.tipo===CURTIPO);const p=precoVigente(CURTIPO,t);
+  $('dup-msg').hidden=!(dup||p===null);
+  if(dup)$('dup-msg').textContent=`${tipo(CURTIPO).curto} já registrado hoje às ${hm(dup.registradoEm)}. Escolha outro tipo ou cancele.`;
+  else if(p===null)$('dup-msg').textContent=`${tipo(CURTIPO).curto} não tem preço cadastrado. Cadastre em Configurações › Preços.`;
+  $('btn-confirm').disabled=!!dup||p===null;
+}
+$('btn-confirm').onclick=()=>{
+  if(!CUR||!CURTIPO)return;const t=today();const p=precoVigente(CURTIPO,t);
+  if(p===null||S.registros.some(r=>r.data===t&&r.colabId===CUR.id&&r.tipo===CURTIPO))return;
+  const e=emp(CUR.empresaId),o=obra(CUR.obraId);
+  S.registros.push({id:uid(),data:t,colabId:CUR.id,nome:CUR.nome,empresaId:CUR.empresaId,empresaNome:e?e.nome:'',obraNome:o?o.nome:'',tipo:CURTIPO,valor:p,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null});
+  audit('refeicao.registrar',`${tipo(CURTIPO).curto} — ${CUR.nome} (${money(p)})`,{obra:o?o.nome:'',empresa:e?e.nome:'',entidade:'colaborador '+CUR.qr});
+  save();toast(`${tipo(CURTIPO).curto} registrado — ${CUR.nome.split(' ')[0]}`);
+  CUR=null;$('confirm-card').hidden=true;$('qr-manual').value='';renderRest();
+};
+$('btn-cancel').onclick=()=>{CUR=null;$('confirm-card').hidden=true};
+$('btn-scan-rest').onclick=()=>openScanner('Ler QR Code do crachá',lookup);
+$('qr-manual-go').onclick=()=>lookup($('qr-manual').value);
+$('qr-manual').addEventListener('keydown',e=>{if(e.key==='Enter')lookup(e.target.value)});
+$('s-save').onclick=()=>{
+  const q=parseInt($('s-qtd').value,10),n=$('s-colab').value.trim();
+  if(!(q>0)){toast('Informe a quantidade que sobrou');return}
+  if(!n){toast('Informe o nome do colaborador');return}
+  const c=S.colab.find(x=>x.nome.toLowerCase()===n.toLowerCase());const e=c?emp(c.empresaId):null;
+  S.sobras.push({id:uid(),data:today(),tipo:$('s-tipo').value,qtd:q,colabNome:c?c.nome:n,colabId:c?c.id:null,empresaId:c?c.empresaId:null,empresaNome:e?e.nome:'',registradoEm:new Date().toISOString(),usuario:USER.nome});
+  audit('sobra.registrar',`${q} ${tipo($('s-tipo').value).curto} — ${c?c.nome:n}`,{empresa:e?e.nome:'',obra:c&&obra(c.obraId)?obra(c.obraId).nome:''});
+  save();$('s-qtd').value='';$('s-colab').value='';toast('Sobra registrada');renderRest();
+};
+
+/* =================== SUPRIMENTOS =================== */
+let WK=mondayOf(today());
+const STATUS={rascunho:['Rascunho','warn'],fechado:['Aguardando restaurante','warn'],assinado_restaurante:['Assinado pelo restaurante','ok'],assinado:['Assinado (ambos)','ok'],faturado:['Faturado','ok']};
+function statusPill(b){const s=STATUS[b.status]||[b.status,'neutral'];return `<span class="pill ${s[1]}">${s[0]}</span>`}
+function periodRegs(ini,fim,empId){return S.registros.filter(r=>r.data>=ini&&r.data<=fim&&(!empId||r.empresaId===empId))}
+function renderSup(){
+  const fim=addDays(WK,6);
+  $('wk-label').textContent=`${br(WK)} a ${br(fim)}`;
+  fillSelect($('f-emp'),S.empresas,$('f-emp').value,'Todas');
+  if($('f-tipo').options.length<2)TIPOS.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.curto;$('f-tipo').appendChild(o)});
+  const empId=$('f-emp').value,tp=$('f-tipo').value,q=$('f-busca').value.trim().toLowerCase();
+  const regs=periodRegs(WK,fim).filter(r=>(!empId||r.empresaId===empId)&&(!tp||r.tipo===tp)&&(!q||r.nome.toLowerCase().includes(q))).sort((a,b)=>a.registradoEm<b.registradoEm?1:-1);
+  const tot=regs.reduce((s,r)=>s+r.valor,0);
+  $('sup-tiles').innerHTML=TIPOS.map(t=>{const l=regs.filter(r=>r.tipo===t.id);return `<div class="tile ${t.id}"><div class="k">${t.curto}</div><div class="v num">${l.length}</div><div class="s num">${money(l.reduce((s,r)=>s+r.valor,0))}</div></div>`}).join('')+`<div class="tile total"><div class="k">Total da semana</div><div class="v num">${regs.length}</div><div class="s num">${money(tot)}</div></div>`;
+  $('sup-count').textContent=`${regs.length} registro(s) na semana`;
+  // notificações: assinados pelo restaurante
+  const ps=pendSup();$('sup-notif').hidden=!(ps.length&&can('sup.bm'));
+  $('sup-notif-list').innerHTML=ps.map(b=>`<div class="item"><span class="pill ok">Assinado</span><div class="t"><b>BM nº ${b.numero} — ${esc(b.empresaNome)}</b><span>Período ${br(b.ini)} à ${br(b.fim)} · assinatura ${b.assRest.tipo==='eletronica'?'eletrônica':'física homologada'} em ${brdt(b.assRest.em)} · ${money(b.liquido)}</span></div><button class="btn sm" data-vbm="${b.id}">Ver / imprimir</button></div>`).join('');
+  $('sup-notif-list').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
+  $('sup-table').innerHTML=`<thead><tr><th>Data refeição</th><th>Colaborador</th><th>Empresa</th><th>Obra</th><th>Tipo</th><th class="r">Valor</th><th>Registrado em</th><th>Por</th><th>Nº BM</th></tr></thead><tbody>${regs.slice(0,400).map(r=>{const b=r.bmId?S.bms.find(x=>x.id===r.bmId):null;return `<tr><td class="num">${br(r.data)}</td><td>${esc(r.nome)}</td><td>${esc(r.empresaNome)}</td><td>${esc(r.obraNome)}</td><td><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span></td><td class="r num">${money(r.valor)}</td><td class="num">${brdt(r.registradoEm)}</td><td>${esc(r.usuario)}</td><td>${b?`<button class="btn sec sm num" data-vbm="${b.id}">BM ${b.numero}</button>`:'<span class="pill neutral">em aberto</span>'}</td></tr>`}).join('')||'<tr><td colspan="9" class="empty">Nenhum registro com esses filtros.</td></tr>'}</tbody>`;
+  $('sup-table').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
+  const sob=S.sobras.filter(s=>s.data>=WK&&s.data<=fim&&(!empId||s.empresaId===empId)&&(!tp||s.tipo===tp)).sort((a,b)=>a.data<b.data?1:-1);
+  $('sup-sobras').innerHTML=`<thead><tr><th>Data</th><th>Tipo</th><th class="r">Qtd</th><th>Colaborador</th><th>Empresa</th><th>Informado por</th></tr></thead><tbody>${sob.map(s=>`<tr><td class="num">${br(s.data)}</td><td><span class="pill ${s.tipo}">${tipo(s.tipo).curto}</span></td><td class="r num">${s.qtd}</td><td>${esc(s.colabNome)}</td><td>${esc(s.empresaNome||'—')}</td><td>${esc(s.usuario)}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">Nenhuma sobra informada na semana.</td></tr>'}</tbody>`;
+  $('btn-emitir').disabled=!can('sup.bm')||!S.empresas.length;
+  $('btn-emitir').onclick=openEmitir;
+  $('bm-list').innerHTML=`<thead><tr><th>Nº</th><th>Empresa</th><th>Período</th><th class="r">Qtd</th><th class="r">Valor líquido</th><th>Situação</th><th>Nota fiscal</th><th>BM assinado</th><th></th></tr></thead><tbody>${[...S.bms].sort((a,b)=>b.emitidoEm<a.emitidoEm?-1:1).map(b=>`<tr><td class="num"><b>${b.numero}</b></td><td>${esc(b.empresaNome)}</td><td class="num">${br(b.ini)} – ${br(b.fim)}</td><td class="r num">${b.qtd}</td><td class="r num">${money(b.liquido)}</td><td>${statusPill(b)}</td><td>${b.nf?esc(b.nf):'<span class="muted">—</span>'}</td><td>${b.anexo?`<button class="btn sec sm" data-anx="${b.id}">${b.anexo.type.startsWith('image/')?'Ver imagem':'Ver PDF'}</button>`:'<span class="muted small">sem anexo</span>'}</td><td style="white-space:nowrap"><button class="btn sec sm" data-vbm="${b.id}">Ver BM</button> ${can('sup.nf')&&b.status!=='rascunho'&&b.status!=='fechado'?`<button class="btn sec sm" data-att="${b.id}" title="Anexar BM assinado">📎 Anexar</button>`:''}</td></tr>`).join('')||'<tr><td colspan="9" class="empty">Nenhum BM emitido ainda.</td></tr>'}</tbody>`;
+  $('bm-list').querySelectorAll('[data-vbm]').forEach(b=>b.onclick=()=>openBM(S.bms.find(x=>x.id===b.dataset.vbm)));
+  $('bm-list').querySelectorAll('[data-att]').forEach(b=>b.onclick=()=>{ATT_BM=b.dataset.att;$('bm-anexo-file').click()});
+  $('bm-list').querySelectorAll('[data-anx]').forEach(b=>b.onclick=()=>viewAnexo(S.bms.find(x=>x.id===b.dataset.anx)));
+  refreshBadges();
+}
+$('wk-prev').onclick=()=>{WK=addDays(WK,-7);renderSup()};$('wk-next').onclick=()=>{WK=addDays(WK,7);renderSup()};
+['f-emp','f-tipo'].forEach(id=>$(id).onchange=renderSup);$('f-busca').oninput=renderSup;
+
+/* ---- anexo do BM assinado ---- */
+let ATT_BM=null;
+$('bm-anexo-file').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f||!ATT_BM)return;const b=S.bms.find(x=>x.id===ATT_BM);if(!b)return;
+  if(f.size>10*1024*1024){toast('Arquivo acima de 10 MB');return}
+  toast('Enviando anexo…');
+  const safe=f.name.replace(/[^\w.\-]+/g,'_').slice(0,80);const path=`bm/${b.id}/${Date.now()}-${safe}`;
+  const {error}=await sb.storage.from('anexos').upload(path,f,{contentType:f.type||'application/octet-stream',upsert:false});
+  if(error){toast('Falha no envio: '+error.message);return}
+  if(b.anexo&&b.anexo.path){sb.storage.from('anexos').remove([b.anexo.path])}
+  b.anexo={name:f.name,type:f.type,path,size:f.size,em:new Date().toISOString(),usuario:USER.nome};
+  audit('bm.anexar',`BM ${b.numero} — ${f.name}`,{empresa:b.empresaNome,entidade:'BM '+b.numero});save();toast('BM assinado anexado');renderSup();
+};
+async function viewAnexo(b){
+  $('anexo-title').textContent=`BM ${b.numero} assinado — ${b.anexo.name}`;
+  $('anexo-body').innerHTML='<div class="small muted">Carregando…</div>';$('anexo-modal').classList.add('on');
+  const {data,error}=await sb.storage.from('anexos').createSignedUrl(b.anexo.path,3600);
+  if(error){$('anexo-body').innerHTML=`<div class="notice bad">Não foi possível abrir o anexo: ${esc(error.message)}</div>`;return}
+  const url=data.signedUrl;
+  $('anexo-body').innerHTML=`<div class="small muted" style="margin-bottom:8px">Anexado em ${brdt(b.anexo.em)} por ${esc(b.anexo.usuario)} · ${Math.round((b.anexo.size||0)/1024)} KB</div>${b.anexo.type.startsWith('image/')?`<img src="${url}" alt="BM assinado" style="width:100%;border-radius:8px;border:1px solid var(--line)">`:`<iframe src="${url}" style="width:100%;height:60vh;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>`}<div class="row" style="margin-top:10px"><a class="btn sec sm" href="${url}" target="_blank" rel="noopener" id="anexo-dl">Abrir / baixar</a>${can('sup.nf')?`<button class="btn danger sm" id="anexo-rm">Remover anexo</button>`:''}</div>`;
+  $('anexo-dl').onclick=()=>{audit('bm.anexo_baixar',`BM ${b.numero} — ${b.anexo.name}`,{empresa:b.empresaNome,entidade:'BM '+b.numero});save()};
+  const rm=$('anexo-rm');if(rm)rm.onclick=async()=>{await sb.storage.from('anexos').remove([b.anexo.path]);audit('bm.anexo_remover',`BM ${b.numero} — ${b.anexo.name}`,{empresa:b.empresaNome,entidade:'BM '+b.numero});delete b.anexo;save();$('anexo-modal').classList.remove('on');renderSup()};
+}
+$('anexo-close').onclick=()=>$('anexo-modal').classList.remove('on');
+
+/* ---- Emitir BM: empresa + período ---- */
+function openEmitir(){
+  fillSelect($('bm-emp'),S.empresas,$('f-emp').value||S.empresas[0].id);
+  $('bm-ini').value=WK;$('bm-fim').value=addDays(WK,6);
+  previewBM();$('emp-modal').classList.add('on');
+}
+function previewBM(){
+  const ini=$('bm-ini').value,fim=$('bm-fim').value,empId=$('bm-emp').value;const msg=$('bm-prev-msg');
+  if(!ini||!fim||fim<ini){$('bm-prev-tiles').innerHTML='';msg.hidden=false;msg.className='notice bad small';msg.textContent='Informe um período válido (fim igual ou posterior ao início).';$('bm-emit-go').disabled=true;return}
+  const all=periodRegs(ini,fim,empId);const livres=all.filter(r=>!r.bmId);const presos=all.length-livres.length;
+  $('bm-prev-tiles').innerHTML=TIPOS.map(t=>{const l=livres.filter(r=>r.tipo===t.id);return `<div class="tile ${t.id}"><div class="k">${t.curto}</div><div class="v num">${l.length}</div><div class="s num">${money(l.reduce((s,r)=>s+r.valor,0))}</div></div>`}).join('')+`<div class="tile total"><div class="k">Total</div><div class="v num">${livres.length}</div><div class="s num">${money(livres.reduce((s,r)=>s+r.valor,0))}</div></div>`;
+  const dias=Math.round((parse(fim)-parse(ini))/864e5)+1;
+  let t=`${dias} dia(s) · ${livres.length} refeições em aberto.`;if(presos)t+=` ${presos} registro(s) do período já pertencem a outro BM e ficam de fora.`;
+  msg.hidden=false;msg.className='notice '+(livres.length?'info':'warn')+' small';msg.textContent=t;
+  $('bm-emit-go').disabled=!livres.length||dias>62;if(dias>62){msg.className='notice bad small';msg.textContent='Período máximo de 62 dias.'}
+}
+['bm-ini','bm-fim','bm-emp'].forEach(id=>$(id).onchange=previewBM);
+document.querySelectorAll('#emp-modal [data-q]').forEach(b=>b.onclick=()=>{
+  const t=today();const q=b.dataset.q;let ini,fim;
+  if(q==='semana'){ini=mondayOf(t);fim=addDays(ini,6)}
+  else if(q==='semana-ant'){ini=addDays(mondayOf(t),-7);fim=addDays(ini,6)}
+  else if(q==='quinzena'){fim=t;ini=addDays(t,-14)}
+  else{const d=parse(t);const first=new Date(d.getFullYear(),d.getMonth()-1,1);const last=new Date(d.getFullYear(),d.getMonth(),0);ini=ymd(first);fim=ymd(last)}
+  $('bm-ini').value=ini;$('bm-fim').value=fim;previewBM();
+});
+$('bm-emit-go').onclick=()=>{$('emp-modal').classList.remove('on');const nb=buildBM($('bm-ini').value,$('bm-fim').value,$('bm-emp').value);audit('bm.emitir',`BM ${nb.numero} — ${nb.empresaNome} — ${br(nb.ini)} à ${br(nb.fim)} — ${nb.qtd} refeições — ${money(nb.valor)}`,{empresa:nb.empresaNome,entidade:'BM '+nb.numero});save();openBM(nb)};
+$('emp-close').onclick=()=>$('emp-modal').classList.remove('on');
+
+/* ---- BM build ---- */
+function buildBM(ini,fim,empId){
+  const E=emp(empId);const regs=periodRegs(ini,fim,empId).filter(r=>!r.bmId);
+  const ct=E.contrato||{};
+  const itens=TIPOS.map((t,i)=>{
+    const c=ct[t.id]||{};const antes=S.registros.filter(r=>r.empresaId===empId&&r.tipo===t.id&&r.data<ini&&r.bmId);
+    const acumQtd=(c.acumQtd||0)+antes.length;const acumVal=(c.acumVal||0)+antes.reduce((s,r)=>s+r.valor,0);
+    const atual=regs.filter(r=>r.tipo===t.id);const atualQtd=atual.length;const atualVal=atual.reduce((s,r)=>s+r.valor,0);
+    const preco=atual.length?atual[atual.length-1].valor:precoVigente(t.id,fim);const qtdCt=c.qtd||null;const totalCt=qtdCt&&preco!==null?Math.trunc(qtdCt*preco*100)/100:null;
+    return {tipo:t.id,item:'1.'+(i+1),preco,qtdCt,totalCt,acumQtd,acumVal,atualQtd,atualVal,totAcQtd:acumQtd+atualQtd,totAcVal:acumVal+atualVal,saldoQtd:qtdCt!==null?qtdCt-acumQtd-atualQtd:null,saldoVal:totalCt!==null?totalCt-acumVal-atualVal:null};
+  });
+  const dias=[];for(let d=ini;d<=fim;d=addDays(d,1)){const l=regs.filter(r=>r.data===d);dias.push({d,porTipo:TIPOS.map(t=>l.filter(r=>r.tipo===t.id).length),total:l.length,valor:l.reduce((s,r)=>s+r.valor,0)})}
+  const obrasN=[...new Set(regs.map(r=>r.obraNome))];
+  const obras=obrasN.map(o=>{const l=regs.filter(r=>r.obraNome===o);return {o,porTipo:TIPOS.map(t=>l.filter(r=>r.tipo===t.id).length),total:l.length,valor:l.reduce((s,r)=>s+r.valor,0)}});
+  const valor=regs.reduce((s,r)=>s+r.valor,0);
+  return {id:uid(),numero:E.proximoBM||1,empresaId:empId,empresaNome:E.nome,empresaCnpj:E.cnpj||'',ini,fim,itens,dias,obras,qtd:regs.length,valor,deducoes:0,adiant:0,liquido:valor,status:'rascunho',emitidoEm:new Date().toISOString(),usuario:USER.nome,nf:'',obs:'',assRest:null,assSup:null};
+}
+let BM=null;
+function openBM(b){BM=b;renderBM();$('bm-modal').classList.add('on')}
+$('bm-close').onclick=()=>$('bm-modal').classList.remove('on');
+function stampHtml(a,who){
+  if(!a)return `<div class="stamp pend">Aguardando assinatura<small>${who}</small></div>`;
+  return `<div class="stamp">${a.tipo==='eletronica'?'Assinado eletronicamente':'Assinatura física homologada'}<small>${esc(a.usuario)} · ${brdt(a.em)}${a.tipo==='fisica'?' · homologado por '+esc(a.por):''}</small></div>`;
+}
+function renderBM(){
+  const b=BM,K=S.contratada,E=emp(b.empresaId);const mes=parse(b.ini).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).toUpperCase();
+  const isDraft=b.status==='rascunho';const st=b.status;
+  b.liquido=b.valor-(b.deducoes||0)-(b.adiant||0);
+  $('bm-title').textContent=`BM nº ${b.numero} — ${b.empresaNome}`;
+  const tot=k=>b.itens.reduce((s,i)=>s+(i[k]||0),0);const anyCt=b.itens.some(i=>i.qtdCt!==null);
+  const dash=v=>v===null||v===undefined?'—':v;
+  const order=['rascunho','fechado','assinado_restaurante','assinado','faturado'];const idx=order.indexOf(st);
+  const steps=[['Emitido','rascunho'],['Fechado → Restaurante','fechado'],['Assinado Restaurante','assinado_restaurante'],['Assinado Suprimentos','assinado'],['NF / Pagamento','faturado']].map(([n,s])=>{const i=order.indexOf(s);return `<span class="${i<idx?'done':i===idx?'cur':''}">${n}</span>`}).join('');
+  let banner='';
+  if(st==='rascunho')banner=`<div class="notice warn">Rascunho — confira os quantitativos. Ao <b>fechar</b>, os ${b.qtd} registros de ${esc(b.empresaNome)} no período ficam vinculados ao BM ${b.numero}, não podem mais ser estornados, e o restaurante recebe a notificação para validar.</div>`;
+  else if(st==='fechado')banner=`<div class="notice warn"><b>Atenção: BM nº ${b.numero} — Período ${br(b.ini)} à ${br(b.fim)} fechado</b> em ${brdt(b.fechadoEm)} por ${esc(b.fechadoPor)}. Aguardando assinatura do restaurante (eletrônica pelo app ou física, homologada pelo Suprimentos).</div>`;
+  else if(st==='assinado_restaurante')banner=`<div class="notice ok">Assinado pelo restaurante em ${brdt(b.assRest.em)}. Imprima o BM para assinatura do Suprimentos e registre a assinatura abaixo.</div>`;
+  else if(st==='assinado')banner=`<div class="notice ok">BM assinado por ambas as partes. Aguardando nota fiscal do restaurante.</div>`;
+  else banner=`<div class="notice ok">Nota fiscal ${esc(b.nf)} informada — BM pronto para inclusão em pagamento.</div>`;
+  $('bm-body').innerHTML=`
+  <div class="steps">${steps}</div>
+  <div style="margin-bottom:10px">${banner}</div>
+  ${!K.nome?'<div class="notice info small" style="margin-bottom:10px">Dados da contratada ainda não preenchidos (Configurações › Contratada).</div>':''}
+  <div class="bmdoc">
+    <div class="hd">
+      ${E&&E.logo?`<img class="lg" src="${E.logo}" alt="Logotipo ${esc(E.nome)}">`:`<div class="lg-empty">logotipo da empresa<br>(Configurações › Empresas)</div>`}
+      <div><h2>Medição do contrato de ${esc((K.servico||'fornecimento de refeições').toLowerCase())}</h2>
+      <div class="kv" style="margin-top:6px"><span>Empresa</span><span><b>${esc(b.empresaNome)}</b>${b.empresaCnpj?` · CNPJ ${esc(b.empresaCnpj)}`:''}</span><span>Contratada</span><span>${esc(K.nome||'—')}${K.cnpj?` · CNPJ ${esc(K.cnpj)}`:''}</span></div></div>
+      <div class="kv"><span>Medição</span><span><b class="num">${b.numero}</b></span><span>Período</span><span class="num">${br(b.ini)} à ${br(b.fim)}</span><span>Ref.</span><span>${mes}</span></div></div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Item</th><th>Descrição</th><th class="c">Unid</th><th class="r">Preço unit.</th>${anyCt?'<th class="r">Qtd contrato</th><th class="r">Total contrato</th>':''}<th class="r">Acum. anterior</th><th class="r">Atual</th><th class="r">Total acum.</th>${anyCt?'<th class="r">Saldo</th>':''}<th class="r">R$ acum. anterior</th><th class="r">R$ desta medição</th><th class="r">R$ acum. atual</th>${anyCt?'<th class="r">R$ saldo</th>':''}</tr></thead>
+      <tbody><tr class="grp"><td>1</td><td colspan="${anyCt?13:9}">${esc(K.servico||'FORNECIMENTO DE REFEIÇÕES')}</td></tr>
+      ${b.itens.map(i=>`<tr><td class="num">${i.item}</td><td>${tipo(i.tipo).nome}</td><td class="c">un</td><td class="r num">${i.preco===null?'—':money(i.preco)}</td>${anyCt?`<td class="r num">${dash(i.qtdCt&&num(i.qtdCt))}</td><td class="r num">${i.totalCt===null?'—':money(i.totalCt)}</td>`:''}<td class="r num">${num(i.acumQtd)}</td><td class="r num"><b>${num(i.atualQtd)}</b></td><td class="r num">${num(i.totAcQtd)}</td>${anyCt?`<td class="r num">${i.saldoQtd===null?'—':num(i.saldoQtd)}</td>`:''}<td class="r num">${money(i.acumVal)}</td><td class="r num"><b>${money(i.atualVal)}</b></td><td class="r num">${money(i.totAcVal)}</td>${anyCt?`<td class="r num">${i.saldoVal===null?'—':money(i.saldoVal)}</td>`:''}</tr>`).join('')}
+      <tr class="tot"><td colspan="4">TOTAL</td>${anyCt?`<td></td><td class="r num">${money(tot('totalCt'))}</td>`:''}<td class="r num">${num(tot('acumQtd'))}</td><td class="r num">${num(tot('atualQtd'))}</td><td class="r num">${num(tot('totAcQtd'))}</td>${anyCt?`<td class="r num">${num(tot('saldoQtd'))}</td>`:''}<td class="r num">${money(tot('acumVal'))}</td><td class="r num">${money(tot('atualVal'))}</td><td class="r num">${money(tot('totAcVal'))}</td>${anyCt?`<td class="r num">${money(tot('saldoVal'))}</td>`:''}</tr></tbody></table></div>
+    <div class="cols" style="margin-top:16px">
+      <div>
+        <h3>Resumo por data</h3>
+        <div class="tablewrap" style="max-height:340px;overflow:auto"><table><thead><tr><th>Data</th>${TIPOS.map(t=>`<th class="r">${t.curto}</th>`).join('')}<th class="r">Total</th><th class="r">Valor</th></tr></thead><tbody>
+        ${b.dias.map(d=>`<tr><td class="num">${wd(d.d)} ${br(d.d)}</td>${d.porTipo.map(n=>`<td class="r num">${n||'–'}</td>`).join('')}<td class="r num"><b>${d.total}</b></td><td class="r num">${money(d.valor)}</td></tr>`).join('')}
+        <tr class="tot"><td>Total geral</td>${TIPOS.map((t,i)=>`<td class="r num">${b.dias.reduce((s,d)=>s+d.porTipo[i],0)}</td>`).join('')}<td class="r num">${b.qtd}</td><td class="r num">${money(b.valor)}</td></tr></tbody></table></div>
+        ${b.obras.length>1?`<h3 style="margin-top:14px">Resumo por obra</h3>
+        <div class="tablewrap"><table><thead><tr><th>Obra</th>${TIPOS.map(t=>`<th class="r">${t.curto}</th>`).join('')}<th class="r">Total</th><th class="r">Valor</th></tr></thead><tbody>
+        ${b.obras.map(e=>`<tr><td>${esc(e.o||'—')}</td>${e.porTipo.map(n=>`<td class="r num">${n||'–'}</td>`).join('')}<td class="r num"><b>${e.total}</b></td><td class="r num">${money(e.valor)}</td></tr>`).join('')}</tbody></table></div>`:''}
+      </div>
+      <div>
+        <div class="fin">
+          <span>Valor da medição</span><span class="num" style="text-align:right">${money(b.valor)}</span>
+          <span>Deduções / descontos</span><span style="text-align:right">${isDraft?`<input id="bm-ded" type="number" step="0.01" min="0" value="${b.deducoes||0}" class="num">`:`<span class="num">${money(b.deducoes)}</span>`}</span>
+          <span>Adiantamentos e outros</span><span style="text-align:right">${isDraft?`<input id="bm-adi" type="number" step="0.01" min="0" value="${b.adiant||0}" class="num">`:`<span class="num">${money(b.adiant)}</span>`}</span>
+          <span>Total da fatura</span><span class="num" style="text-align:right">${money(b.liquido)}</span>
+          <span>Total líquido da medição</span><span class="num big" style="text-align:right">${money(b.liquido)}</span>
+        </div>
+        <div class="field" style="margin-top:12px"><label for="bm-obs">Obs.</label>${isDraft?`<textarea id="bm-obs" rows="2">${esc(b.obs||'')}</textarea>`:`<div class="small">${esc(b.obs||'—')}</div>`}</div>
+        <div class="sig">
+          <div>${isDraft?'':stampHtml(b.assSup,'Suprimentos')}${esc(K.gestor||'________________')}<br><span class="muted">${esc(K.cargo||'')} — ${esc(b.empresaNome)}</span></div>
+          <div>${isDraft?'':stampHtml(b.assRest,'Restaurante')}${esc(K.nome||'________________')}<br><span class="muted">Contratada</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row" style="margin-top:14px;justify-content:flex-end" id="bm-actions"></div>`;
+  // actions by status and permission
+  const A=$('bm-actions');const acts=[];
+  if(st==='rascunho'&&can('sup.bm'))acts.push(['bm-fechar','good',`Fechar BM ${b.numero} e enviar ao restaurante`]);
+  if(st==='fechado'&&can('rest.validar'))acts.push(['bm-validar','good','Validar BM (assinar eletronicamente pelo restaurante)']);
+  if(st==='fechado'&&can('sup.bm'))acts.push(['bm-homologar','sec','Homologar assinatura física do restaurante']);
+  if((st==='assinado_restaurante'||st==='assinado'||st==='faturado')&&can('sup.bm'))acts.push(['bm-print','','Imprimir BM']);
+  if(st==='assinado_restaurante'&&can('sup.bm'))acts.push(['bm-ass-sup','good','Registrar assinatura do Suprimentos']);
+  A.innerHTML=acts.map(a=>`<button class="btn ${a[1]}" id="${a[0]}">${a[2]}</button>`).join('')+((st==='assinado'||st==='faturado')&&can('sup.nf')?`<div class="row" style="flex-wrap:nowrap"><input id="bm-nf" placeholder="nº da nota fiscal" value="${esc(b.nf||'')}" style="width:180px"><button class="btn" id="bm-nf-save">Registrar NF</button></div>`:'');
+  const ded=$('bm-ded'),adi=$('bm-adi'),obs=$('bm-obs');
+  if(ded)ded.onchange=()=>{b.deducoes=+ded.value||0;renderBM()};if(adi)adi.onchange=()=>{b.adiant=+adi.value||0;renderBM()};if(obs)obs.oninput=()=>b.obs=obs.value;
+  const on=(id,fn)=>{const e=$(id);if(e)e.onclick=fn};
+  on('bm-fechar',()=>{
+    b.status='fechado';b.fechadoEm=new Date().toISOString();b.fechadoPor=USER.nome;
+    S.registros.forEach(r=>{if(r.empresaId===b.empresaId&&r.data>=b.ini&&r.data<=b.fim&&!r.bmId)r.bmId=b.id});
+    S.bms.push(b);if(E)E.proximoBM=b.numero+1;audit('bm.fechar',`BM ${b.numero} — ${b.empresaNome} — ${br(b.ini)} à ${br(b.fim)} — ${b.qtd} refeições — líquido ${money(b.liquido)}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,depois:'fechado'});save();toast(`BM ${b.numero} fechado e enviado ao restaurante`);renderBM();renderSup();
+  });
+  on('bm-validar',()=>{b.status='assinado_restaurante';b.assRest={tipo:'eletronica',usuario:USER.nome,em:new Date().toISOString()};audit('bm.validar',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:'fechado',depois:'assinado_restaurante'});save();toast(`BM ${b.numero} validado — devolvido ao Suprimentos assinado`);$('bm-modal').classList.remove('on');refreshBadges();if(can('sup.ver')){go('sup');openBM(b)}else renderRest()});
+  on('bm-homologar',()=>{b.status='assinado_restaurante';b.assRest={tipo:'fisica',usuario:K.nome||'Restaurante',por:USER.nome,em:new Date().toISOString()};audit('bm.homologar',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:'fechado',depois:'assinado_restaurante'});save();toast('Assinatura física do restaurante homologada');renderBM();renderSup()});
+  on('bm-ass-sup',()=>{b.status='assinado';b.assSup={tipo:'fisica',usuario:K.gestor||USER.nome,por:USER.nome,em:new Date().toISOString()};audit('bm.assinar_sup',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:'assinado_restaurante',depois:'assinado'});save();toast('Assinatura do Suprimentos registrada');renderBM();renderSup()});
+  on('bm-print',()=>exportBM(b,true));
+  on('bm-nf-save',()=>{const nfAntes=b.nf;b.nf=$('bm-nf').value.trim();if(b.nf)b.status='faturado';audit('bm.nf',`BM ${b.numero} — NF ${b.nf}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:nfAntes||null,depois:b.nf});save();toast('Nota fiscal registrada — pronta para inclusão em pagamento');renderBM();renderSup()});
+  $('bm-pdf').disabled=!(can('sup.bm')||can('rest.validar'));
+}
+
+/* ---- PDF export / print (jsPDF + AutoTable) ---- */
+function bmPdf(b){
+  const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const K=S.contratada,E=emp(b.empresaId);const W=297,M=10;let y=M;
+  const mes=parse(b.ini).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).toUpperCase();
+  let x=M;
+  if(E&&E.logo){try{const maxW=42,maxH=18;const ratio=(E.logoW||4)/(E.logoH||1);let w=maxW,h=w/ratio;if(h>maxH){h=maxH;w=h*ratio}
+    doc.addImage(E.logo,E.logo.startsWith('data:image/jpeg')?'JPEG':'PNG',M,y,w,h);x=M+w+6}catch(e){}}
+  doc.setFont('helvetica','bold');doc.setFontSize(13);doc.text(('MEDIÇÃO DO CONTRATO DE '+(K.servico||'FORNECIMENTO DE REFEIÇÕES')).toUpperCase(),x,y+5);
+  doc.setFontSize(9);doc.setFont('helvetica','normal');
+  doc.text(`Empresa: ${b.empresaNome}${b.empresaCnpj?'   CNPJ: '+b.empresaCnpj:''}`,x,y+11);
+  doc.text(`Contratada: ${K.nome||'—'}${K.cnpj?'   CNPJ: '+K.cnpj:''}`,x,y+16);
+  doc.setFont('helvetica','bold');doc.text(`MEDIÇÃO Nº ${b.numero}`,W-M,y+5,{align:'right'});
+  doc.setFont('helvetica','normal');doc.text(`Período: ${br(b.ini)} à ${br(b.fim)}`,W-M,y+11,{align:'right'});doc.text(`Ref.: ${mes}`,W-M,y+16,{align:'right'});
+  y+=22;doc.setDrawColor(23,33,43);doc.setLineWidth(.5);doc.line(M,y,W-M,y);y+=3;
+  const anyCt=b.itens.some(i=>i.qtdCt!==null);const dash=v=>v===null||v===undefined?'—':v;
+  const head=['Item','Descrição','Unid','Preço unit.'].concat(anyCt?['Qtd contrato','Total contrato']:[]).concat(['Acum. anterior','Atual','Total acum.']).concat(anyCt?['Saldo']:[]).concat(['R$ acum. ant.','R$ desta medição','R$ acum. atual']).concat(anyCt?['R$ saldo']:[]);
+  const body=b.itens.map(i=>[i.item,tipo(i.tipo).nome,'un',i.preco===null?'—':money(i.preco)].concat(anyCt?[dash(i.qtdCt&&num(i.qtdCt)),i.totalCt===null?'—':money(i.totalCt)]:[]).concat([num(i.acumQtd),num(i.atualQtd),num(i.totAcQtd)]).concat(anyCt?[i.saldoQtd===null?'—':num(i.saldoQtd)]:[]).concat([money(i.acumVal),money(i.atualVal),money(i.totAcVal)]).concat(anyCt?[i.saldoVal===null?'—':money(i.saldoVal)]:[]));
+  const tot=k=>b.itens.reduce((s,i)=>s+(i[k]||0),0);
+  body.push(['','TOTAL','',''].concat(anyCt?['',money(tot('totalCt'))]:[]).concat([num(tot('acumQtd')),num(tot('atualQtd')),num(tot('totAcQtd'))]).concat(anyCt?[num(tot('saldoQtd'))]:[]).concat([money(tot('acumVal')),money(tot('atualVal')),money(tot('totAcVal'))]).concat(anyCt?[money(tot('saldoVal'))]:[]));
+  const right={halign:'right'};const colStyles={};head.forEach((h,i)=>{if(i>=3)colStyles[i]=right;if(i===2)colStyles[i]={halign:'center'}});
+  const base={theme:'grid',styles:{fontSize:7.5,cellPadding:1.5,lineColor:[200,208,214],lineWidth:.2,textColor:[23,33,43]}};
+  doc.autoTable({...base,startY:y,head:[head],body,headStyles:{fillColor:[15,92,112],textColor:255,fontSize:7},columnStyles:colStyles,didParseCell:d=>{if(d.section==='body'&&d.row.index===body.length-1)d.cell.styles.fontStyle='bold'}});
+  y=doc.lastAutoTable.finalY+6;
+  const leftW=150;
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text('RESUMO POR DATA',M,y);
+  const dHead=['Data'].concat(TIPOS.map(t=>t.curto)).concat(['Total','Valor']);
+  const dBody=b.dias.map(d=>[`${wd(d.d)} ${br(d.d)}`].concat(d.porTipo.map(n=>n||'–')).concat([String(d.total),money(d.valor)]));
+  dBody.push(['Total geral'].concat(TIPOS.map((t,i)=>String(b.dias.reduce((s,d)=>s+d.porTipo[i],0)))).concat([String(b.qtd),money(b.valor)]));
+  const dCols={};dHead.forEach((h,i)=>{if(i>0)dCols[i]=right});
+  const grey={fillColor:[236,241,244],textColor:[23,33,43],fontSize:7};
+  doc.autoTable({...base,startY:y+2,head:[dHead],body:dBody,tableWidth:leftW,margin:{left:M,bottom:30},headStyles:grey,columnStyles:dCols,didParseCell:d=>{if(d.section==='body'&&d.row.index===dBody.length-1)d.cell.styles.fontStyle='bold'}});
+  let yL=doc.lastAutoTable.finalY;
+  if(b.obras.length>1){
+    const oHead=['Obra'].concat(TIPOS.map(t=>t.curto)).concat(['Total','Valor']);
+    const oBody=b.obras.map(e=>[e.o||'—'].concat(e.porTipo.map(n=>n||'–')).concat([String(e.total),money(e.valor)]));
+    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text('RESUMO POR OBRA',M,yL+7);
+    doc.autoTable({...base,startY:yL+9,head:[oHead],body:oBody,tableWidth:leftW,margin:{left:M,bottom:30},headStyles:grey,columnStyles:dCols});
+    yL=doc.lastAutoTable.finalY;
+  }
+  // financial block on the first page position of the resumo (if resumo spilled to a new page, place fin on that page)
+  const fx=M+leftW+12,fw=W-M-fx;let fy=y;
+  doc.setPage(doc.internal.getNumberOfPages());const lastPage=doc.internal.getNumberOfPages();
+  if(lastPage>1){doc.setPage(1)}
+  const line=(k,v,bold)=>{doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(bold?10:8.5);doc.text(k,fx,fy);doc.text(v,fx+fw,fy,{align:'right'});fy+=bold?7:6};
+  line('VALOR DA MEDIÇÃO:',money(b.valor));line('DEDUÇÕES / DESCONTOS:',money(b.deducoes));line('ADIANTAMENTOS E OUTROS:',money(b.adiant));line('TOTAL DA FATURA:',money(b.liquido));
+  doc.setDrawColor(23,33,43);doc.line(fx,fy-3,fx+fw,fy-3);line('TOTAL LÍQUIDO DA MEDIÇÃO:',money(b.liquido),true);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text('Obs.: '+(b.obs||'—'),fx,fy+2,{maxWidth:fw});
+  if(b.nf)doc.text('Nota fiscal: '+b.nf,fx,fy+12);
+  // signatures on the last page
+  doc.setPage(lastPage);
+  let sy=lastPage>1?Math.min(yL+20,180):Math.max(yL,fy+20)+16;if(sy>180)sy=180;
+  const stamp=(a,cx,who)=>{if(!a){doc.setTextColor(150);doc.setFontSize(7);doc.text(`aguardando assinatura — ${who}`,cx,sy-4,{align:'center'});doc.setTextColor(23,33,43);return}
+    doc.setDrawColor(35,122,75);doc.setTextColor(35,122,75);doc.setLineWidth(.5);doc.roundedRect(cx-45,sy-16,90,13,1.5,1.5);doc.setFont('helvetica','bold');doc.setFontSize(8);
+    doc.text(a.tipo==='eletronica'?'ASSINADO ELETRONICAMENTE':'ASSINATURA FÍSICA HOMOLOGADA',cx,sy-11,{align:'center'});doc.setFont('helvetica','normal');doc.setFontSize(6.5);
+    doc.text(`${a.usuario} · ${brdt(a.em)}${a.tipo==='fisica'?' · homologado por '+a.por:''}`,cx,sy-6.5,{align:'center'});doc.setTextColor(23,33,43);doc.setDrawColor(23,33,43)};
+  const lx=M+60,rx=W-M-60;
+  if(b.status!=='rascunho'){stamp(b.assSup,lx,'Suprimentos');stamp(b.assRest,rx,'Restaurante')}
+  doc.setLineWidth(.3);doc.line(lx-50,sy,lx+50,sy);doc.line(rx-50,sy,rx+50,sy);
+  doc.setFontSize(8);doc.text(K.gestor||'',lx,sy+4,{align:'center'});doc.text(`${K.cargo||''} — ${b.empresaNome}`,lx,sy+8,{align:'center'});
+  doc.text(K.nome||'',rx,sy+4,{align:'center'});doc.text('Contratada',rx,sy+8,{align:'center'});
+  doc.setFontSize(7);doc.setTextColor(120);doc.text(`Emitido em ${brdt(b.emitidoEm)} por ${b.usuario}${b.status==='rascunho'?' · RASCUNHO':b.fechadoEm?' · fechado em '+brdt(b.fechadoEm)+' por '+b.fechadoPor:''}`,M,205);
+  return doc;
+}
+async function exportBM(b,print){
+  if(!window.jspdf||!window.jspdf.jsPDF){toast('Biblioteca de PDF não carregou — verifique a conexão');return}
+  const btn=print?$('bm-print'):$('bm-pdf');const old=btn?btn.textContent:'';if(btn){btn.disabled=true;btn.textContent='Gerando…'}
+  try{
+    audit(print?'bm.imprimir':'bm.pdf',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero});save();
+    const doc=bmPdf(b);const name=`BM-${b.numero}-${b.empresaNome.replace(/[^\w\-]+/g,'_').slice(0,40)}-${b.ini}.pdf`;
+    const dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;
+    if(dl){try{await dl.save({filename:name,data:doc.output('blob')});toast(print?'PDF salvo — abra e imprima para assinatura':'PDF salvo')}catch(e){if(e&&e.code==='declined')toast('Download cancelado');else doc.save(name)}}
+    else if(print){doc.autoPrint();const w=window.open(doc.output('bloburl'),'_blank');if(!w){doc.save(name);toast('PDF gerado — abra e imprima')}}
+    else{doc.save(name);toast('PDF gerado')}
+  }catch(e){toast('Falha ao gerar o PDF')}
+  if(btn){btn.disabled=false;btn.textContent=old}
+}
+$('bm-pdf').onclick=()=>{if(BM)exportBM(BM,false)};
+
+/* =================== CONFIGURAÇÕES =================== */
+let CFGTAB=null, UEDIT=null, CEDIT=null, EEDIT=null, OEDIT=null, ELOGO=null;
+function renderSetup(){
+  const t=today();
+  const steps=[
+    ['cfg.empresas','empresas',S.empresas.length,'Cadastrar ao menos uma empresa (com logotipo para o BM)'],
+    ['cfg.obras','obras',S.obras.length,'Cadastrar ao menos uma obra'],
+    ['cfg.precos','precos',TIPOS.filter(tp=>precoVigente(tp.id,t)!==null).length,'Cadastrar os preços das refeições'],
+    ['cfg.colab','colab',S.colab.length,'Cadastrar colaboradores lendo o QR Code do crachá'],
+    ['cfg.contratada','contratada',S.contratada.nome?1:0,'Preencher os dados da contratada (restaurante)'],
+    ['cfg.usuarios','usuarios',S.users.length-1,'Criar usuários do Restaurante e do Suprimentos'],
+  ].filter(s=>can(s[0]));
+  const done=steps.every(s=>s[2]>0);
+  $('setup-card').hidden=done||!steps.length;
+  $('setup-list').innerHTML=steps.map(s=>`<div class="st ${s[2]>0?'ok':'todo'}"><div class="dot">${s[2]>0?'✓':'!'}</div><button class="link" data-t="${s[1]}" style="background:none;border:0;padding:0;text-align:left;color:inherit;${s[2]>0?'':'font-weight:600'}">${s[3]}</button></div>`).join('');
+  $('setup-list').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{CFGTAB=b.dataset.t;renderCfg()});
+}
+function renderCfg(){
+  const tabs=[];if(can('cfg.usuarios'))tabs.push(['usuarios','Usuários']);if(can('cfg.colab'))tabs.push(['colab','Colaboradores']);if(can('cfg.empresas'))tabs.push(['empresas','Empresas']);if(can('cfg.obras'))tabs.push(['obras','Obras']);if(can('cfg.precos'))tabs.push(['precos','Preços']);if(can('cfg.contratada'))tabs.push(['contratada','Contratada']);
+  if(!tabs.some(t=>t[0]===CFGTAB))CFGTAB=tabs[0]&&tabs[0][0];
+  $('cfg-tabs').innerHTML=tabs.map(t=>`<button data-t="${t[0]}" class="${CFGTAB===t[0]?'on':''}">${t[1]}</button>`).join('');
+  $('cfg-tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(CFGTAB!==b.dataset.t){audit('nav.cfg','Configurações › '+b.textContent);save()}CFGTAB=b.dataset.t;renderCfg()});
+  document.querySelectorAll('.cfg-pane').forEach(p=>p.hidden=p.id!=='cfg-'+CFGTAB);
+  renderSetup();
+  ({usuarios:renderUsers,colab:renderColab,empresas:renderEmpresas,obras:renderObras,precos:renderPrecos,contratada:renderContratada}[CFGTAB]||(()=>{}))();
+}
+/* users */
+function renderUsers(){
+  $('u-list').innerHTML=S.users.map(u=>`<div class="item"><div class="avatar">${ini(u.nome)}</div><div class="t"><b>${esc(u.nome)}</b><span>${esc(u.perfil)} · <span class="mono">${esc(u.login)}</span> · ${u.perms.length} permissões</span></div>${u.ativo?'':'<span class="pill bad">inativo</span>'}<button class="btn sec sm" data-u="${u.id}">Editar</button></div>`).join('');
+  $('u-list').querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{UEDIT=S.users.find(u=>u.id===b.dataset.u);fillUser()});
+  if(!$('u-perms').innerHTML)fillUser();
+}
+function fillUser(){
+  const u=UEDIT||{nome:'',login:'',senha:'',perfil:'Restaurante',perms:[...PERFIS.Restaurante],ativo:true};
+  $('u-form-title').textContent=UEDIT?'Editar usuário':'Novo usuário';
+  $('u-nome').value=u.nome;$('u-login').value=u.login;$('u-senha').value='';$('u-perfil').value=u.perfil;$('u-ativo').value=u.ativo?'1':'0';
+  $('u-login').disabled=!!UEDIT;$('u-senha').placeholder=UEDIT?(UEDIT===USER?'nova senha (opcional)':'redefinir pelo painel Supabase'):'mínimo 6 caracteres';$('u-senha').disabled=!!(UEDIT&&UEDIT!==USER);
+  renderPerms(new Set(u.perms));
+}
+function renderPerms(set){
+  $('u-perms').innerHTML=PERMS.map(p=>p.grp?`<div class="grp">${p.grp}</div>`:`<span>${p.nome}</span><button class="switch${set.has(p.id)?' on':''}" data-p="${p.id}" role="switch" aria-checked="${set.has(p.id)}" aria-label="${p.nome}"></button>`).join('');
+  $('u-perms').querySelectorAll('.switch').forEach(b=>b.onclick=()=>{b.classList.toggle('on');b.setAttribute('aria-checked',b.classList.contains('on'));$('u-perfil').value='Personalizado'});
+}
+$('u-perfil').onchange=()=>{const p=$('u-perfil').value;if(p!=='Personalizado')renderPerms(new Set(PERFIS[p]))};
+$('u-new').onclick=()=>{UEDIT=null;fillUser()};$('u-cancel').onclick=()=>{UEDIT=null;fillUser()};
+$('u-save').onclick=async()=>{
+  const nome=$('u-nome').value.trim(),login=$('u-login').value.trim().toLowerCase(),senha=$('u-senha').value;
+  if(!nome||!login){toast('Preencha nome e login');return}
+  if(!UEDIT&&senha.length<6){toast('Senha com pelo menos 6 caracteres');return}
+  if(S.users.some(u=>u.login===login&&u!==UEDIT)){toast('Já existe usuário com este login');return}
+  const perms=[...$('u-perms').querySelectorAll('.switch.on')].map(b=>b.dataset.p);
+  if(UEDIT===USER&&!perms.includes('cfg.usuarios')){toast('Você não pode remover sua própria permissão de usuários');return}
+  const obj={nome,login,perfil:$('u-perfil').value,perms,ativo:$('u-ativo').value==='1'};
+  $('u-save').disabled=true;
+  try{
+    if(UEDIT){
+      if(UEDIT===USER&&senha){const {error}=await sb.auth.updateUser({password:senha});if(error)throw error}
+      audit('usuario.salvar',`Alterou usuário ${nome} (${login}) — perfil ${obj.perfil}, ${perms.length} permissões${obj.ativo?'':', inativo'}`,{entidade:'usuário '+login,antes:JSON.stringify({nome:UEDIT.nome,perfil:UEDIT.perfil,perms:UEDIT.perms,ativo:UEDIT.ativo}),depois:JSON.stringify(obj)});
+      Object.assign(UEDIT,obj);
+      if(UEDIT===USER){$('who-name').textContent=USER.nome;$('who-role').textContent=USER.perfil;buildNav();CFGTAB='usuarios';go('cfg')}
+    }else{
+      // cria a conta no Auth com um cliente separado (não derruba a sessão do administrador)
+      const sb2=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+      const {data,error}=await sb2.auth.signUp({email:toEmail(login),password:senha,options:{data:{nome,login}}});
+      if(error)throw error;
+      if(!data.user)throw new Error('Supabase não retornou o usuário criado');
+      audit('usuario.salvar',`Criou usuário ${nome} (${login}) — perfil ${obj.perfil}, ${perms.length} permissões`,{entidade:'usuário '+login,depois:JSON.stringify(obj)});
+      S.users.push({id:data.user.id,email:toEmail(login),...obj});
+    }
+    save();toast('Usuário salvo');UEDIT=null;fillUser();renderUsers();renderSetup();
+  }catch(e){toast('Erro: '+(e.message||e))}
+  $('u-save').disabled=false;
+};
+/* colaboradores */
+function renderColab(){
+  fillSelect($('c-emp'),S.empresas,$('c-emp').value);fillSelect($('c-obra'),S.obras.filter(o=>o.ativo!==false),$('c-obra').value);
+  const need=[];if(!S.empresas.length)need.push('empresa');if(!S.obras.length)need.push('obra');
+  $('c-need').hidden=!need.length;$('c-need').textContent=need.length?`Cadastre antes ao menos uma ${need.join(' e uma ')} nas abas correspondentes.`:'';
+  $('c-save').disabled=!!need.length;
+  const q=$('c-busca').value.trim().toLowerCase();
+  const l=S.colab.filter(c=>{const e=emp(c.empresaId);return !q||[c.nome,c.qr,e?e.nome:''].some(x=>x.toLowerCase().includes(q))});
+  $('c-table').innerHTML=`<thead><tr><th>QR Code</th><th>Nome</th><th>Empresa</th><th>Obra</th><th></th></tr></thead><tbody>${l.map(c=>{const e=emp(c.empresaId),o=obra(c.obraId);return `<tr><td class="mono">${esc(c.qr)}</td><td>${esc(c.nome)}${c.ativo?'':' <span class="pill bad">inativo</span>'}</td><td>${esc(e?e.nome:'—')}</td><td>${esc(o?o.nome:'—')}</td><td><button class="btn sec sm" data-c="${c.id}">Editar</button></td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Nenhum colaborador cadastrado. Leia o QR Code do crachá para começar.</td></tr>'}</tbody>`;
+  $('c-table').querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{CEDIT=S.colab.find(c=>c.id===b.dataset.c);fillColab()});
+}
+function fillColab(){const c=CEDIT||{qr:'',nome:'',empresaId:S.empresas[0]&&S.empresas[0].id,obraId:S.obras[0]&&S.obras[0].id,ativo:true};
+  $('c-form-title').textContent=CEDIT?'Editar colaborador':'Novo colaborador';$('c-qr').value=c.qr;$('c-qr').readOnly=true;$('c-nome').value=c.nome;$('c-emp').value=c.empresaId||'';$('c-obra').value=c.obraId||'';$('c-ativo').value=c.ativo?'1':'0'}
+$('c-busca').oninput=renderColab;$('c-new').onclick=()=>{CEDIT=null;fillColab()};$('c-cancel').onclick=()=>{CEDIT=null;fillColab()};
+$('btn-scan-colab').onclick=()=>openScanner('Ler QR Code do crachá para cadastro',code=>{
+  const dup=S.colab.find(x=>x.qr.toLowerCase()===code.toLowerCase()&&x!==CEDIT);
+  $('c-qr').value=code;
+  if(dup)toast(`Atenção: este QR Code já pertence a ${dup.nome}`);else toast('QR Code lido — complete os dados e salve');
+  $('c-nome').focus();
+});
+$('c-qr-manual').onclick=()=>{$('c-qr').readOnly=false;$('c-qr').placeholder='digite o conteúdo do QR Code';$('c-qr').focus()};
+$('c-save').onclick=()=>{
+  const qr=$('c-qr').value.trim(),nome=$('c-nome').value.trim();
+  if(!qr){toast('Leia o QR Code do crachá antes de salvar');return}
+  if(!nome){toast('Informe o nome do colaborador');return}
+  if(!$('c-emp').value||!$('c-obra').value){toast('Selecione empresa e obra');return}
+  if(S.colab.some(c=>c.qr.toLowerCase()===qr.toLowerCase()&&c!==CEDIT)){toast('Este QR Code já está cadastrado para outro colaborador');return}
+  const obj={qr,nome,empresaId:$('c-emp').value,obraId:$('c-obra').value,ativo:$('c-ativo').value==='1'};
+  const ce=emp(obj.empresaId),co=obra(obj.obraId);audit('colab.salvar',`${CEDIT?'Alterou':'Cadastrou'} colaborador ${nome} — QR ${qr} — ${ce?ce.nome:''} / ${co?co.nome:''}${obj.ativo?'':' — inativo'}`,{obra:co?co.nome:'',empresa:ce?ce.nome:'',entidade:'colaborador '+qr,antes:CEDIT?JSON.stringify({nome:CEDIT.nome,qr:CEDIT.qr,empresa:(emp(CEDIT.empresaId)||{}).nome,obra:(obra(CEDIT.obraId)||{}).nome,ativo:CEDIT.ativo}):null,depois:JSON.stringify({nome,qr,empresa:ce&&ce.nome,obra:co&&co.nome,ativo:obj.ativo})});
+  if(CEDIT)Object.assign(CEDIT,obj);else S.colab.push({id:uid(),...obj});
+  save();toast('Colaborador salvo');CEDIT=null;fillColab();renderColab();renderSetup();
+};
+/* empresas */
+function renderEmpresas(){
+  $('e-list').innerHTML=S.empresas.map(e=>`<div class="item">${e.logo?`<img class="logo-thumb" src="${e.logo}" alt="">`:`<div class="avatar">${ini(e.nome)}</div>`}<div class="t"><b>${esc(e.nome)}</b><span>${e.cnpj?esc(e.cnpj)+' · ':''}${S.colab.filter(c=>c.empresaId===e.id).length} colaboradores · próximo BM ${e.proximoBM||1}${e.logo?'':' · <span style="color:var(--warn)">sem logotipo</span>'}</span></div><button class="btn sec sm" data-e="${e.id}">Editar</button></div>`).join('')||'<div class="small muted">Nenhuma empresa cadastrada.</div>';
+  $('e-list').querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{EEDIT=emp(b.dataset.e);fillEmpresa()});
+  if(!$('e-ct').parentElement.querySelector('[data-ct]'))fillEmpresa();
+}
+function fillEmpresa(){
+  const e=EEDIT||{nome:'',cnpj:'',proximoBM:1,logo:null,contrato:{}};
+  $('e-form-title').textContent=EEDIT?'Editar empresa':'Nova empresa';$('e-nome').value=e.nome;$('e-cnpj').value=e.cnpj||'';$('e-prox').value=e.proximoBM||1;
+  ELOGO=e.logo?{data:e.logo,w:e.logoW,h:e.logoH}:null;showLogo();
+  const grid=$('e-ct').parentElement;grid.querySelectorAll('[data-ct]').forEach(x=>x.remove());
+  TIPOS.forEach(t=>{const c=(e.contrato||{})[t.id]||{};grid.insertAdjacentHTML('beforeend',`<div data-ct>${t.curto}</div><input data-ct data-k="qtd" data-t="${t.id}" type="number" min="0" value="${c.qtd||''}" placeholder="—"><input data-ct data-k="acumQtd" data-t="${t.id}" type="number" min="0" value="${c.acumQtd||''}" placeholder="0"><input data-ct data-k="acumVal" data-t="${t.id}" type="number" min="0" step="0.01" value="${c.acumVal||''}" placeholder="0,00">`)});
+}
+function showLogo(){$('e-logo-prev').hidden=!ELOGO;$('e-logo-empty').hidden=!!ELOGO;if(ELOGO)$('e-logo-prev').src=ELOGO.data}
+$('e-logo').onchange=e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  const img=new Image();const url=URL.createObjectURL(f);
+  img.onload=()=>{const max=600;const sc=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
+    const ctx=c.getContext('2d');if(f.type==='image/jpeg'){ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height)}ctx.drawImage(img,0,0,c.width,c.height);
+    ELOGO={data:c.toDataURL(f.type==='image/jpeg'?'image/jpeg':'image/png',.9),w:c.width,h:c.height};URL.revokeObjectURL(url);showLogo();toast('Logotipo carregada — salve a empresa')};
+  img.onerror=()=>{URL.revokeObjectURL(url);toast('Não foi possível ler a imagem')};
+  img.src=url;
+};
+$('e-logo-rm').onclick=()=>{ELOGO=null;showLogo()};
+$('e-new').onclick=()=>{EEDIT=null;fillEmpresa()};$('e-cancel').onclick=()=>{EEDIT=null;fillEmpresa()};
+$('e-save').onclick=()=>{
+  const nome=$('e-nome').value.trim();if(!nome){toast('Informe o nome da empresa');return}
+  if(S.empresas.some(x=>x.nome.toLowerCase()===nome.toLowerCase()&&x!==EEDIT)){toast('Já existe empresa com este nome');return}
+  const contrato={};$('e-ct').parentElement.querySelectorAll('input[data-ct]').forEach(i=>{const v=parseFloat(i.value);if(!contrato[i.dataset.t])contrato[i.dataset.t]={};contrato[i.dataset.t][i.dataset.k]=isNaN(v)?null:v});
+  const obj={nome,cnpj:$('e-cnpj').value.trim(),proximoBM:parseInt($('e-prox').value,10)||1,logo:ELOGO?ELOGO.data:null,logoW:ELOGO?ELOGO.w:null,logoH:ELOGO?ELOGO.h:null,contrato};
+  audit('empresa.salvar',`${EEDIT?'Alterou':'Cadastrou'} empresa ${nome}${obj.cnpj?' — CNPJ '+obj.cnpj:''}${ELOGO?' — com logotipo':''} — próximo BM ${obj.proximoBM}`,{empresa:nome,entidade:'empresa '+nome});
+  if(EEDIT){Object.assign(EEDIT,obj);S.registros.forEach(r=>{if(r.empresaId===EEDIT.id)r.empresaNome=nome})}else S.empresas.push({id:uid(),...obj});
+  save();toast('Empresa salva');EEDIT=null;fillEmpresa();renderEmpresas();renderSetup();
+};
+/* obras */
+function renderObras(){
+  $('o-list').innerHTML=S.obras.map(o=>`<div class="item"><div class="avatar">${ini(o.nome)}</div><div class="t"><b>${esc(o.nome)}</b><span>${o.endereco?esc(o.endereco)+' · ':''}${S.colab.filter(c=>c.obraId===o.id).length} colaboradores${o.ativo===false?' · encerrada':''}</span></div><button class="btn sec sm" data-o="${o.id}">Editar</button></div>`).join('')||'<div class="small muted">Nenhuma obra cadastrada.</div>';
+  $('o-list').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{OEDIT=obra(b.dataset.o);fillObra()});
+}
+function fillObra(){const o=OEDIT||{nome:'',endereco:'',ativo:true};$('o-form-title').textContent=OEDIT?'Editar obra':'Nova obra';$('o-nome').value=o.nome;$('o-end').value=o.endereco||'';$('o-ativo').value=o.ativo===false?'0':'1'}
+$('o-new').onclick=()=>{OEDIT=null;fillObra()};$('o-cancel').onclick=()=>{OEDIT=null;fillObra()};
+$('o-save').onclick=()=>{
+  const nome=$('o-nome').value.trim();if(!nome){toast('Informe o nome da obra');return}
+  if(S.obras.some(x=>x.nome.toLowerCase()===nome.toLowerCase()&&x!==OEDIT)){toast('Já existe obra com este nome');return}
+  const obj={nome,endereco:$('o-end').value.trim(),ativo:$('o-ativo').value==='1'};
+  audit('obra.salvar',`${OEDIT?'Alterou':'Cadastrou'} obra ${nome}${obj.ativo?'':' — encerrada'}`,{obra:nome,entidade:'obra '+nome});
+  if(OEDIT){Object.assign(OEDIT,obj);S.registros.forEach(r=>{const c=S.colab.find(x=>x.id===r.colabId);if(c&&c.obraId===OEDIT.id)r.obraNome=nome})}else S.obras.push({id:uid(),...obj});
+  save();toast('Obra salva');OEDIT=null;fillObra();renderObras();renderSetup();
+};
+/* preços */
+function renderPrecos(){
+  const t=today();
+  $('p-table').innerHTML=`<thead><tr><th>Refeição</th><th class="r">Valor vigente</th><th>Desde</th></tr></thead><tbody>${TIPOS.map(tp=>{const cur=S.precos.filter(p=>p.tipo===tp.id&&p.vigencia<=t).sort((a,b)=>a.vigencia<b.vigencia?1:-1)[0];const fut=S.precos.filter(p=>p.tipo===tp.id&&p.vigencia>t).sort((a,b)=>a.vigencia>b.vigencia?1:-1)[0];
+    return `<tr><td><span class="pill ${tp.id}">${tp.curto}</span></td><td class="r num">${cur?'<b>'+money(cur.valor)+'</b>':'<span class="muted">não cadastrado</span>'}${fut?`<div class="small" style="color:var(--warn)">→ ${money(fut.valor)} a partir de ${br(fut.vigencia)}</div>`:''}</td><td class="num">${cur?br(cur.vigencia):'—'}</td></tr>`}).join('')}</tbody>`;
+  const h=[...S.precos].sort((a,b)=>a.criadoEm<b.criadoEm?1:-1);
+  $('p-hist').innerHTML=`<thead><tr><th>Alterado em</th><th>Refeição</th><th class="r">De</th><th class="r">Para</th><th>Vigência</th><th>Usuário</th><th>Justificativa</th></tr></thead><tbody>${h.map(p=>{const prev=S.precos.filter(x=>x.tipo===p.tipo&&x.criadoEm<p.criadoEm).sort((a,b)=>a.criadoEm<b.criadoEm?1:-1)[0];
+    return `<tr><td class="num">${brdt(p.criadoEm)}</td><td>${tipo(p.tipo).curto}</td><td class="r num">${prev?money(prev.valor):'—'}</td><td class="r num"><b>${money(p.valor)}</b></td><td class="num">${br(p.vigencia)}</td><td>${esc(p.usuario)}</td><td>${esc(p.just||'—')}</td></tr>`}).join('')||'<tr><td colspan="7" class="empty">Nenhuma alteração registrada.</td></tr>'}</tbody>`;
+  if(!$('p-tipo').options.length)TIPOS.forEach(tp=>{const o=document.createElement('option');o.value=tp.id;o.textContent=tp.curto;$('p-tipo').appendChild(o)});
+  if(!$('p-vig').value)$('p-vig').value=t;
+  updJustReq();
+}
+function updJustReq(){const has=S.precos.some(p=>p.tipo===$('p-tipo').value);$('p-just-req').textContent=has?'(obrigatória — alteração de preço)':'(opcional no cadastro inicial)'}
+$('p-tipo').onchange=updJustReq;
+$('p-save').onclick=()=>{
+  const tp=$('p-tipo').value,v=parseFloat($('p-valor').value),vig=$('p-vig').value,just=$('p-just').value.trim();const err=$('p-err');
+  const isChange=S.precos.some(p=>p.tipo===tp);
+  if(!(v>0)){err.hidden=false;err.textContent='Informe um valor maior que zero.';return}
+  if(!vig){err.hidden=false;err.textContent='Informe a data de vigência.';return}
+  if(isChange&&vig<today()){err.hidden=false;err.textContent='A vigência de uma alteração não pode ser retroativa: registros já feitos mantêm o preço da época.';return}
+  if(isChange&&just.length<10){err.hidden=false;err.textContent='Em alteração de preço a justificativa é obrigatória (mínimo 10 caracteres).';return}
+  const pAntes=precoVigente(tp,today());audit('preco.salvar',`${tipo(tp).curto}: ${pAntes===null?'—':money(pAntes)} → ${money(v)} a partir de ${br(vig)}${just?' — '+just:''}`,{entidade:'preço '+tp,antes:pAntes,depois:Math.round(v*100)/100});
+  err.hidden=true;S.precos.push({id:uid(),tipo:tp,valor:Math.round(v*100)/100,vigencia:vig,criadoEm:new Date().toISOString(),usuario:USER.nome,just:just||(isChange?'':'Cadastro inicial')});
+  save();$('p-valor').value='';$('p-just').value='';toast(isChange?'Preço alterado — histórico registrado':'Preço cadastrado');renderPrecos();renderSetup();
+};
+/* contratada */
+function renderContratada(){const K=S.contratada;$('k-contratada').value=K.nome;$('k-cnpj').value=K.cnpj;$('k-gestor').value=K.gestor;$('k-cargo').value=K.cargo;$('k-servico').value=K.servico||'FORNECIMENTO DE REFEIÇÕES'}
+$('k-save').onclick=()=>{const K=S.contratada;K.nome=$('k-contratada').value.trim();K.cnpj=$('k-cnpj').value.trim();K.gestor=$('k-gestor').value.trim();K.cargo=$('k-cargo').value.trim();const kAntes=JSON.stringify(K);K.servico=$('k-servico').value.trim()||'FORNECIMENTO DE REFEIÇÕES';audit('contratada.salvar',`Contratada: ${K.nome} — gestor ${K.gestor}`,{entidade:'contratada',antes:kAntes,depois:JSON.stringify(K)});save();toast('Contratada salva');renderSetup()};
+/* =================== AUDITORIA (tela) =================== */
+function renderAud(){
+  const A=S.audit;
+  const keep=(id)=>$(id).value;
+  const users=[...new Set(A.map(e=>e.usuario))].sort();const obras=[...new Set(A.map(e=>e.obra).filter(Boolean))].sort();const emps=[...new Set(A.map(e=>e.empresa).filter(Boolean))].sort();
+  const acoes=[...new Set(A.map(e=>e.acao))].sort((a,b)=>(ACOES[a]||a).localeCompare(ACOES[b]||b));
+  const setOpts=(id,list,label,fmt)=>{const sel=$(id);const v=sel.value;sel.innerHTML=`<option value="">${label}</option>`+list.map(x=>`<option value="${esc(x)}"${x===v?' selected':''}>${esc(fmt?fmt(x):x)}</option>`).join('')};
+  setOpts('a-user',users,'Todos');setOpts('a-obra',obras,'Todas');setOpts('a-emp',emps,'Todas');setOpts('a-acao',acoes,'Todas',x=>ACOES[x]||x);setOpts('a-aba',Object.keys(ABAS).filter(k=>A.some(e=>e.aba===k)),'Todas',x=>ABAS[x]);
+  const u=keep('a-user'),ab=keep('a-aba'),ac=keep('a-acao'),ob=keep('a-obra'),em=keep('a-emp'),de=keep('a-de'),ate=keep('a-ate'),q=keep('a-busca').trim().toLowerCase();
+  const rows=A.filter(e=>{const d=e.em.slice(0,10);return (!u||e.usuario===u)&&(!ab||e.aba===ab)&&(!ac||e.acao===ac)&&(!ob||e.obra===ob)&&(!em||e.empresa===em)&&(!de||d>=de)&&(!ate||d<=ate)&&(!q||[e.descricao,e.entidade,e.usuario,ACOES[e.acao]||''].join(' ').toLowerCase().includes(q))}).sort((a,b)=>a.em<b.em?1:-1);
+  const byUser={};rows.forEach(e=>byUser[e.usuario]=(byUser[e.usuario]||0)+1);const top=Object.entries(byUser).sort((a,b)=>b[1]-a[1])[0];
+  const mov=rows.filter(e=>!/^nav|^login|^logout/.test(e.acao)).length;
+  $('aud-tiles').innerHTML=`<div class="tile total"><div class="k">Eventos filtrados</div><div class="v num">${rows.length}</div><div class="s">de ${A.length} no total</div></div><div class="tile almoco"><div class="k">Movimentações</div><div class="v num">${mov}</div><div class="s">exclui navegação e login</div></div><div class="tile jantar"><div class="k">Usuários</div><div class="v num">${Object.keys(byUser).length}</div><div class="s">${top?esc(top[0])+' · '+top[1]+' eventos':'—'}</div></div><div class="tile lanche"><div class="k">Dispositivos</div><div class="v num">${new Set(rows.map(e=>e.dispositivo)).size}</div><div class="s">${new Set(rows.map(e=>e.ip).filter(Boolean)).size} IP(s) distintos</div></div>`;
+  $('aud-count').textContent=`${rows.length} evento(s)${rows.length>500?' — exibindo os 500 mais recentes':''}`;
+  $('aud-table').innerHTML=`<thead><tr><th>Data / hora</th><th>Usuário</th><th>Aba</th><th>Ação</th><th>Descrição</th><th>Obra</th><th>Empresa</th><th>Antes → Depois</th><th>Dispositivo</th><th>IP</th></tr></thead><tbody>${rows.slice(0,500).map(e=>`<tr><td class="num">${brdt(e.em)}:${pad(new Date(e.em).getSeconds())}</td><td><b>${esc(e.usuario)}</b><div class="small muted">${esc(e.perfil)}</div></td><td>${esc(ABAS[e.aba]||e.aba)}</td><td>${esc(ACOES[e.acao]||e.acao)}</td><td style="max-width:360px">${esc(e.descricao)}${e.entidade?`<div class="small muted">${esc(e.entidade)}</div>`:''}</td><td>${esc(e.obra||'—')}</td><td>${esc(e.empresa||'—')}</td><td class="small mono" style="max-width:220px;overflow-wrap:anywhere">${e.antes===null&&e.depois===null?'—':`${fmtAD(e.antes)} → ${fmtAD(e.depois)}`}</td><td class="mono">${esc(e.dispositivo)}</td><td class="mono small">${e.ip?esc(e.ip):'<span class="muted">—</span>'}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">Nenhum evento com esses filtros.</td></tr>'}</tbody>`;
+}
+function fmtAD(v){if(v===null||v===undefined)return '—';if(typeof v==='number')return money(v);const s=String(v);return esc(s.length>90?s.slice(0,90)+'…':s)}
+['a-user','a-aba','a-acao','a-obra','a-emp','a-de','a-ate'].forEach(id=>$(id).onchange=renderAud);$('a-busca').oninput=renderAud;
+$('a-limpar').onclick=()=>{['a-user','a-aba','a-acao','a-obra','a-emp','a-de','a-ate','a-busca'].forEach(id=>$(id).value='');renderAud()};
+$('aud-csv').onclick=async()=>{
+  const cols=['Data/hora','Usuário','Perfil','Aba','Ação','Descrição','Obra','Empresa','Entidade','Antes','Depois','Dispositivo','IP','Navegador'];
+  const cell=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+  const lines=[cols.join(';')].concat([...S.audit].sort((a,b)=>a.em<b.em?1:-1).map(e=>[brdt(e.em),e.usuario,e.perfil,ABAS[e.aba]||e.aba,ACOES[e.acao]||e.acao,e.descricao,e.obra,e.empresa,e.entidade,typeof e.antes==='number'?money(e.antes):e.antes,typeof e.depois==='number'?money(e.depois):e.depois,e.dispositivo,e.ip||'',e.navegador].map(cell).join(';')));
+  audit('auditoria.csv',`${S.audit.length} eventos`);save();
+  const csv='﻿'+lines.join('\r\n');const name=`auditoria-${today()}.csv`;
+  const dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;
+  if(dl){try{await dl.save({filename:name,data:csv});toast('CSV salvo')}catch(e){if(e&&e.code!=='declined')toast('Não foi possível salvar o CSV')}}
+  else{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();toast('CSV gerado')}
+};
+
+/* =================== BOOT =================== */
+if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+boot();
+</script>
+</body>
+</html>
