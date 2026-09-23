@@ -300,6 +300,21 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
                 <button class="btn sec" id="btn-cancel">Cancelar</button>
               </div>
             </div>
+            <div class="card" id="manual-card">
+              <h3>Registro manual — colaborador sem QR Code (terceirizado)</h3>
+              <div class="small muted" style="margin-bottom:10px">Para quem não tem crachá do ponto. O custo é alocado à empresa escolhida; a empresa terceirizada é só informativa.</div>
+              <div class="stack">
+                <div class="field"><label for="m-nome">Nome do colaborador</label><input id="m-nome" list="manual-names" autocomplete="off" placeholder="nome completo"><datalist id="manual-names"></datalist></div>
+                <div class="grid2">
+                  <div class="field"><label for="m-emp">Empresa (custo alocado)</label><select id="m-emp"></select></div>
+                  <div class="field"><label for="m-obra">Obra</label><select id="m-obra"></select></div>
+                </div>
+                <div class="field"><label for="m-terc">Empresa terceirizada (de onde veio — informativo)</label><input id="m-terc" list="terc-names" autocomplete="off" placeholder="ex.: Construtora XYZ"><datalist id="terc-names"></datalist></div>
+                <div><div class="small muted" style="margin-bottom:6px">Tipo de refeição</div><div class="mealbtns" id="m-mealbtns"></div></div>
+                <div id="m-msg" class="notice warn" hidden></div>
+                <button class="btn big" id="m-save">Registrar refeição manual</button>
+              </div>
+            </div>
             <div class="card" id="sobras-card">
               <h3>Sobras de refeições</h3>
               <div class="small muted" style="margin-bottom:10px">Refeições preparadas que não foram consumidas. Preenchimento manual pelo restaurante.</div>
@@ -815,9 +830,11 @@ function renderRest(){
   const pend=pendRest();$('rest-notif').hidden=!(pend.length&&can('rest.validar'));
   $('rest-notif-list').innerHTML=pend.map(b=>`<div class="item"><span class="pill warn">Atenção</span><div class="t"><b>BM nº ${b.numero} — ${esc(b.empresaNome)}</b><span>Período ${br(b.ini)} à ${br(b.fim)} fechado em ${brdt(b.fechadoEm)} · ${b.qtd} refeições · ${money(b.liquido)}</span></div><button class="btn sm" data-vbm="${b.id}">Ver e validar</button></div>`).join('');
   $('rest-notif-list').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
-  $('rest-recent').innerHTML=recent.length?recent.map(r=>`<div class="item"><div class="avatar">${ini(r.nome)}</div><div class="t"><b>${esc(r.nome)}</b><span>${esc(r.empresaNome)} · ${esc(r.obraNome||'obra não informada')} · ${hm(r.registradoEm)}</span></div><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span>${can('rest.estornar')&&!r.bmId?`<button class="btn sec sm" data-undo="${r.id}">Estornar</button>`:''}</div>`).join(''):'<div class="small muted">Nenhum registro hoje ainda.</div>';
+  $('rest-recent').innerHTML=recent.length?recent.map(r=>`<div class="item"><div class="avatar">${ini(r.nome)}</div><div class="t"><b>${esc(r.nome)}${r.manual?' <span class="pill neutral">manual</span>':''}</b><span>${esc(r.empresaNome)} · ${esc(r.obraNome||'obra não informada')}${r.terceirizada?' · terc.: '+esc(r.terceirizada):''} · ${hm(r.registradoEm)}</span></div><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span>${can('rest.estornar')&&!r.bmId?`<button class="btn sec sm" data-undo="${r.id}">Estornar</button>`:''}</div>`).join(''):'<div class="small muted">Nenhum registro hoje ainda.</div>';
   $('rest-recent').querySelectorAll('[data-undo]').forEach(b=>b.onclick=()=>{const rr=S.registros.find(r=>r.id===b.dataset.undo);S.registros=S.registros.filter(r=>r.id!==b.dataset.undo);if(rr)audit('refeicao.estornar',`${tipo(rr.tipo).curto} de ${rr.nome} (${money(rr.valor)}) registrada às ${hm(rr.registradoEm)}`,{obra:rr.obraNome,empresa:rr.empresaNome,entidade:'registro '+rr.id});save();toast('Registro estornado');renderRest()});
   $('btn-scan-rest').disabled=!can('rest.registrar');$('qr-manual-go').disabled=!can('rest.registrar');
+  // registro manual (terceirizados sem QR)
+  $('manual-card').hidden=!can('rest.registrar');renderManual();
   // sobras
   $('sobras-card').hidden=!can('rest.sobras');
   if(!$('s-tipo').options.length)TIPOS.forEach(tp=>{const o=document.createElement('option');o.value=tp.id;o.textContent=tp.curto;$('s-tipo').appendChild(o)});
@@ -859,6 +876,32 @@ $('btn-confirm').onclick=()=>{
   CUR=null;$('confirm-card').hidden=true;$('qr-manual').value='';renderRest();
 };
 $('btn-cancel').onclick=()=>{CUR=null;$('confirm-card').hidden=true};
+/* ---- registro manual: colaborador terceirizado sem QR Code ---- */
+let MTIPO=null;
+function renderManual(){
+  const t=today();if(!MTIPO)MTIPO=suggestTipo();
+  fillSelect($('m-emp'),S.empresas,$('m-emp').value);fillSelect($('m-obra'),S.obras.filter(o=>o.ativo!==false),$('m-obra').value);
+  const man=S.registros.filter(r=>r.manual);
+  $('manual-names').innerHTML=[...new Set(man.map(r=>r.nome))].sort().map(n=>`<option value="${esc(n)}">`).join('');
+  $('terc-names').innerHTML=[...new Set(man.map(r=>r.terceirizada).filter(Boolean))].sort().map(n=>`<option value="${esc(n)}">`).join('');
+  $('m-mealbtns').innerHTML=TIPOS.map(tp=>{const p=precoVigente(tp.id,t);return `<button class="mealbtn${MTIPO===tp.id?' on':''}" data-t="${tp.id}" ${p===null?'disabled':''}>${tp.curto}<small>${p===null?'sem preço cadastrado':money(p)}</small></button>`}).join('');
+  $('m-mealbtns').querySelectorAll('button').forEach(b=>b.onclick=()=>{MTIPO=b.dataset.t;renderManual()});
+  $('m-msg').hidden=true;
+}
+$('m-save').onclick=()=>{
+  const t=today();const nome=$('m-nome').value.trim().replace(/\s+/g,' ');const empId=$('m-emp').value,obraId=$('m-obra').value,terc=$('m-terc').value.trim();const msg=$('m-msg');
+  const show=m=>{msg.hidden=false;msg.textContent=m};
+  if(!nome)return show('Informe o nome do colaborador.');
+  if(!empId||!obraId)return show('Selecione a empresa e a obra (cadastre em Configurações se ainda não existirem).');
+  const p=precoVigente(MTIPO,t);if(p===null)return show(`${tipo(MTIPO).curto} não tem preço cadastrado.`);
+  const dup=S.registros.find(r=>r.data===t&&r.tipo===MTIPO&&r.manual&&r.nome.toLowerCase()===nome.toLowerCase()&&r.empresaId===empId);
+  if(dup)return show(`${tipo(MTIPO).curto} de ${nome} já registrado hoje às ${hm(dup.registradoEm)}.`);
+  const e=emp(empId),o=obra(obraId);
+  S.registros.push({id:uid(),data:t,colabId:null,manual:true,nome,empresaId:empId,empresaNome:e?e.nome:'',obraNome:o?o.nome:'',terceirizada:terc,tipo:MTIPO,valor:p,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null});
+  audit('refeicao.registrar',`${tipo(MTIPO).curto} — ${nome} (${money(p)}) — registro manual, terceirizado${terc?' de '+terc:''}`,{obra:o?o.nome:'',empresa:e?e.nome:'',entidade:'registro manual'});
+  save();toast(`${tipo(MTIPO).curto} registrado — ${nome.split(' ')[0]} (manual)`);
+  $('m-nome').value='';$('m-terc').value='';renderRest();
+};
 $('btn-scan-rest').onclick=()=>openScanner('Ler QR Code do crachá',lookup);
 $('qr-manual-go').onclick=()=>lookup($('qr-manual').value);
 $('qr-manual').addEventListener('keydown',e=>{if(e.key==='Enter')lookup(e.target.value)});
@@ -891,7 +934,7 @@ function renderSup(){
   const ps=pendSup();$('sup-notif').hidden=!(ps.length&&can('sup.bm'));
   $('sup-notif-list').innerHTML=ps.map(b=>`<div class="item"><span class="pill ok">Assinado</span><div class="t"><b>BM nº ${b.numero} — ${esc(b.empresaNome)}</b><span>Período ${br(b.ini)} à ${br(b.fim)} · assinatura ${b.assRest.tipo==='eletronica'?'eletrônica':'física homologada'} em ${brdt(b.assRest.em)} · ${money(b.liquido)}</span></div><button class="btn sm" data-vbm="${b.id}">Ver / imprimir</button></div>`).join('');
   $('sup-notif-list').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
-  $('sup-table').innerHTML=`<thead><tr><th>Data refeição</th><th>Colaborador</th><th>Empresa</th><th>Obra</th><th>Tipo</th><th class="r">Valor</th><th>Registrado em</th><th>Por</th><th>Nº BM</th></tr></thead><tbody>${regs.slice(0,400).map(r=>{const b=r.bmId?S.bms.find(x=>x.id===r.bmId):null;return `<tr><td class="num">${br(r.data)}</td><td>${esc(r.nome)}</td><td>${esc(r.empresaNome)}</td><td>${esc(r.obraNome)}</td><td><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span></td><td class="r num">${money(r.valor)}</td><td class="num">${brdt(r.registradoEm)}</td><td>${esc(r.usuario)}</td><td>${b?`<button class="btn sec sm num" data-vbm="${b.id}">BM ${b.numero}</button>`:'<span class="pill neutral">em aberto</span>'}</td></tr>`}).join('')||'<tr><td colspan="9" class="empty">Nenhum registro com esses filtros.</td></tr>'}</tbody>`;
+  $('sup-table').innerHTML=`<thead><tr><th>Data refeição</th><th>Colaborador</th><th>Empresa</th><th>Obra</th><th>Tipo</th><th class="r">Valor</th><th>Registrado em</th><th>Por</th><th>Nº BM</th></tr></thead><tbody>${regs.slice(0,400).map(r=>{const b=r.bmId?S.bms.find(x=>x.id===r.bmId):null;return `<tr><td class="num">${br(r.data)}</td><td>${esc(r.nome)}${r.manual?`<div class="small muted">manual${r.terceirizada?' · terc.: '+esc(r.terceirizada):''}</div>`:''}</td><td>${esc(r.empresaNome)}</td><td>${esc(r.obraNome)}</td><td><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span></td><td class="r num">${money(r.valor)}</td><td class="num">${brdt(r.registradoEm)}</td><td>${esc(r.usuario)}</td><td>${b?`<button class="btn sec sm num" data-vbm="${b.id}">BM ${b.numero}</button>`:'<span class="pill neutral">em aberto</span>'}</td></tr>`}).join('')||'<tr><td colspan="9" class="empty">Nenhum registro com esses filtros.</td></tr>'}</tbody>`;
   $('sup-table').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
   const sob=S.sobras.filter(s=>s.data>=WK&&s.data<=fim&&(!empId||s.empresaId===empId)&&(!tp||s.tipo===tp)).sort((a,b)=>a.data<b.data?1:-1);
   $('sup-sobras').innerHTML=`<thead><tr><th>Data</th><th>Tipo</th><th class="r">Qtd</th><th>Colaborador</th><th>Empresa</th><th>Informado por</th></tr></thead><tbody>${sob.map(s=>`<tr><td class="num">${br(s.data)}</td><td><span class="pill ${s.tipo}">${tipo(s.tipo).curto}</span></td><td class="r num">${s.qtd}</td><td>${esc(s.colabNome)}</td><td>${esc(s.empresaNome||'—')}</td><td>${esc(s.usuario)}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">Nenhuma sobra informada na semana.</td></tr>'}</tbody>`;
@@ -976,8 +1019,28 @@ function buildBM(ini,fim,empId){
   const valor=regs.reduce((s,r)=>s+r.valor,0);
   return {id:uid(),numero:E.proximoBM||1,empresaId:empId,empresaNome:E.nome,empresaCnpj:E.cnpj||'',ini,fim,itens,dias,obras,qtd:regs.length,valor,deducoes:0,adiant:0,liquido:valor,status:'rascunho',emitidoEm:new Date().toISOString(),usuario:USER.nome,nf:'',obs:'',assRest:null,assSup:null};
 }
-let BM=null;
-function openBM(b){BM=b;renderBM();$('bm-modal').classList.add('on')}
+let BM=null, BMTAB='bm'; const LISTA_VISTA=new Set();
+function openBM(b){BM=b;BMTAB='bm';renderBM();$('bm-modal').classList.add('on');$('bm-modal').querySelector('.sheet').scrollTop=0}
+const TIPO_ORD={cafe:0,almoco:1,jantar:2,lanche:3};
+function bmRegs(b){
+  const l=b.status==='rascunho'?periodRegs(b.ini,b.fim,b.empresaId).filter(r=>!r.bmId):S.registros.filter(r=>r.bmId===b.id);
+  return l.sort((a,c)=>a.data<c.data?-1:a.data>c.data?1:(TIPO_ORD[a.tipo]-TIPO_ORD[c.tipo])||(a.registradoEm<c.registradoEm?-1:1));
+}
+function bmGrupos(b){
+  const g=[];const regs=bmRegs(b);
+  for(let d=b.ini;d<=b.fim;d=addDays(d,1))TIPOS.forEach(t=>{const l=regs.filter(r=>r.data===d&&r.tipo===t.id);if(l.length)g.push({d,tipo:t,regs:l})});
+  return g;
+}
+function assinaturaTxt(r){return r.manual?`Manual · ${hm(r.registradoEm)} · ${r.terceirizada?'terc.: '+r.terceirizada+' · ':''}por ${r.usuario}`:`QR Code · ${hm(r.registradoEm)}`}
+function renderLista(b){
+  const g=bmGrupos(b);const tot=g.reduce((s,x)=>s+x.regs.length,0);
+  if(!g.length)return '<div class="notice warn">Nenhuma refeição no período.</div>';
+  return `<div class="notice info small" style="margin-bottom:10px">${tot} refeições em ${g.length} lista(s) por dia e tipo. <b>Assinatura digital</b> = leitura do QR Code do crachá do colaborador; registros <b>manuais</b> são de terceirizados sem crachá, lançados pelo restaurante.</div>`+
+  g.map((x,i)=>`<div class="card" style="margin-bottom:10px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${i+1}. ${br(x.d)} — ${x.tipo.curto}</h3><span class="pill ${x.tipo.id}">${x.regs.length} refeições</span></div>
+    <div class="tablewrap" style="margin-top:8px"><table><thead><tr><th>#</th><th>Colaborador</th><th>Obra</th><th>Assinatura digital</th></tr></thead><tbody>
+    ${x.regs.map((r,j)=>`<tr><td class="num">${j+1}</td><td>${esc(r.nome)}${r.manual?' <span class="pill neutral">manual</span>':''}</td><td>${esc(r.obraNome||'—')}</td><td class="small">${r.manual?'<span class="pill warn">Manual</span>':'<span class="pill ok">✓ QR Code</span>'} <span class="muted">${esc(r.manual?assinaturaTxt(r).replace(/^Manual · /,''):hm(r.registradoEm))}</span></td></tr>`).join('')}
+    </tbody></table></div></div>`).join('');
+}
 $('bm-close').onclick=()=>$('bm-modal').classList.remove('on');
 function stampHtml(a,who){
   if(!a)return `<div class="stamp pend">Aguardando assinatura<small>${who}</small></div>`;
@@ -998,10 +1061,14 @@ function renderBM(){
   else if(st==='assinado_restaurante')banner=`<div class="notice ok">Assinado pelo restaurante em ${brdt(b.assRest.em)}. Imprima o BM para assinatura do Suprimentos e registre a assinatura abaixo.</div>`;
   else if(st==='assinado')banner=`<div class="notice ok">BM assinado por ambas as partes. Aguardando nota fiscal do restaurante.</div>`;
   else banner=`<div class="notice ok">Nota fiscal ${esc(b.nf)} informada — BM pronto para inclusão em pagamento.</div>`;
+  const nRegs=bmRegs(b).length;
   $('bm-body').innerHTML=`
   <div class="steps">${steps}</div>
   <div style="margin-bottom:10px">${banner}</div>
   ${!K.nome?'<div class="notice info small" style="margin-bottom:10px">Dados da contratada ainda não preenchidos (Configurações › Contratada).</div>':''}
+  <div class="subtabs" id="bm-tabs"><button data-t="bm" class="${BMTAB==='bm'?'on':''}">Boletim de Medição</button><button data-t="lista" class="${BMTAB==='lista'?'on':''}">Lista de colaboradores (${nRegs})${isDraft&&!LISTA_VISTA.has(b.id)?' <span class="badge">!</span>':''}</button></div>
+  <div id="bm-pane-lista" ${BMTAB==='lista'?'':'hidden'}>${BMTAB==='lista'?renderLista(b):''}</div>
+  <div id="bm-pane-bm" ${BMTAB==='bm'?'':'hidden'}>
   <div class="bmdoc">
     <div class="hd">
       ${E&&E.logo?`<img class="lg" src="${E.logo}" alt="Logotipo ${esc(E.nome)}">`:`<div class="lg-empty">logotipo da empresa<br>(Configurações › Empresas)</div>`}
@@ -1039,15 +1106,19 @@ function renderBM(){
       </div>
     </div>
   </div>
+  </div>
+  <div id="bm-hint" class="notice warn small" style="margin-top:12px" hidden></div>
   <div class="row" style="margin-top:14px;justify-content:flex-end" id="bm-actions"></div>`;
+  $('bm-tabs').querySelectorAll('button').forEach(x=>x.onclick=()=>{BMTAB=x.dataset.t;if(BMTAB==='lista')LISTA_VISTA.add(b.id);renderBM();$('bm-modal').querySelector('.sheet').scrollTop=0});
   // actions by status and permission
   const A=$('bm-actions');const acts=[];
-  if(st==='rascunho'&&can('sup.bm'))acts.push(['bm-fechar','good',`Fechar BM ${b.numero} e enviar ao restaurante`]);
+  const listaOk=LISTA_VISTA.has(b.id)||nRegs===0;
+  if(st==='rascunho'&&can('sup.bm')){acts.push(['bm-fechar','good',`Fechar BM ${b.numero} e enviar ao restaurante`]);if(!listaOk){$('bm-hint').hidden=false;$('bm-hint').innerHTML='Antes de fechar, confira a aba <b>Lista de colaboradores</b> (nomes, obras e assinaturas digitais por dia e refeição). A lista acompanha o BM na validação do restaurante e no PDF.'}}
   if(st==='fechado'&&can('rest.validar'))acts.push(['bm-validar','good','Validar BM (assinar eletronicamente pelo restaurante)']);
   if(st==='fechado'&&can('sup.bm'))acts.push(['bm-homologar','sec','Homologar assinatura física do restaurante']);
   if((st==='assinado_restaurante'||st==='assinado'||st==='faturado')&&can('sup.bm'))acts.push(['bm-print','','Imprimir BM']);
   if(st==='assinado_restaurante'&&can('sup.bm'))acts.push(['bm-ass-sup','good','Registrar assinatura do Suprimentos']);
-  A.innerHTML=acts.map(a=>`<button class="btn ${a[1]}" id="${a[0]}">${a[2]}</button>`).join('')+((st==='assinado'||st==='faturado')&&can('sup.nf')?`<div class="row" style="flex-wrap:nowrap"><input id="bm-nf" placeholder="nº da nota fiscal" value="${esc(b.nf||'')}" style="width:180px"><button class="btn" id="bm-nf-save">Registrar NF</button></div>`:'');
+  A.innerHTML=acts.map(a=>`<button class="btn ${a[1]}" id="${a[0]}"${a[0]==='bm-fechar'&&!listaOk?' disabled':''}>${a[2]}</button>`).join('')+((st==='assinado'||st==='faturado')&&can('sup.nf')?`<div class="row" style="flex-wrap:nowrap"><input id="bm-nf" placeholder="nº da nota fiscal" value="${esc(b.nf||'')}" style="width:180px"><button class="btn" id="bm-nf-save">Registrar NF</button></div>`:'');
   const ded=$('bm-ded'),adi=$('bm-adi'),obs=$('bm-obs');
   if(ded)ded.onchange=()=>{b.deducoes=+ded.value||0;renderBM()};if(adi)adi.onchange=()=>{b.adiant=+adi.value||0;renderBM()};if(obs)obs.oninput=()=>b.obs=obs.value;
   const on=(id,fn)=>{const e=$(id);if(e)e.onclick=fn};
@@ -1126,6 +1197,26 @@ function bmPdf(b){
   doc.setFontSize(8);doc.text(K.gestor||'',lx,sy+4,{align:'center'});doc.text(`${K.cargo||''} — ${b.empresaNome}`,lx,sy+8,{align:'center'});
   doc.text(K.nome||'',rx,sy+4,{align:'center'});doc.text('Contratada',rx,sy+8,{align:'center'});
   doc.setFontSize(7);doc.setTextColor(120);doc.text(`Emitido em ${brdt(b.emitidoEm)} por ${b.usuario}${b.status==='rascunho'?' · RASCUNHO':b.fechadoEm?' · fechado em '+brdt(b.fechadoEm)+' por '+b.fechadoPor:''}`,M,205);
+  doc.setTextColor(23,33,43);
+  // ---- Anexo: lista de colaboradores por dia e refeição ----
+  const grupos=bmGrupos(b);
+  if(grupos.length){
+    doc.addPage();let ly=M+4;
+    doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text(`LISTA DE COLABORADORES — BM Nº ${b.numero} — ${b.empresaNome}`,M,ly);
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);ly+=5;doc.text(`Período ${br(b.ini)} à ${br(b.fim)} · ${grupos.reduce((s,x)=>s+x.regs.length,0)} refeições · Assinatura digital = leitura do QR Code do crachá; "Manual" = terceirizado sem crachá, lançado pelo restaurante.`,M,ly);
+    ly+=5;
+    grupos.forEach((x,i)=>{
+      if(ly>175){doc.addPage();ly=M+4}
+      doc.setFont('helvetica','bold');doc.setFontSize(9.5);doc.text(`${i+1}. ${br(x.d)} — ${x.tipo.curto} (${x.regs.length})`,M,ly+4);
+      doc.autoTable({startY:ly+6,head:[['#','Colaborador','Obra','Assinatura digital']],
+        body:x.regs.map((r,j)=>[String(j+1),r.nome,r.obraNome||'—',assinaturaTxt(r)]),
+        theme:'grid',margin:{left:M,right:M,bottom:14},styles:{fontSize:8,cellPadding:1.4,lineColor:[200,208,214],lineWidth:.2,textColor:[23,33,43]},
+        headStyles:{fillColor:[236,241,244],textColor:[23,33,43],fontSize:7.5},columnStyles:{0:{cellWidth:10,halign:'right'},1:{cellWidth:110},2:{cellWidth:70}}});
+      ly=doc.lastAutoTable.finalY+4;
+    });
+    const pages=doc.internal.getNumberOfPages();
+    for(let pg=2;pg<=pages;pg++){doc.setPage(pg);doc.setFontSize(7);doc.setTextColor(120);doc.text(`BM ${b.numero} — ${b.empresaNome} — lista de colaboradores — página ${pg} de ${pages}`,M,205);doc.setTextColor(23,33,43)}
+  }
   return doc;
 }
 async function exportBM(b,print){
