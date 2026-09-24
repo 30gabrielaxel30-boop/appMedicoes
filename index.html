@@ -230,6 +230,15 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 .stamp{display:inline-block;border:2px solid var(--good);color:var(--good);border-radius:6px;padding:4px 10px;font-family:var(--display);font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase;transform:rotate(-3deg);margin:4px 0 6px}
 .stamp small{display:block;font-family:var(--font);font-weight:500;letter-spacing:0;text-transform:none;font-size:10.5px}
 .stamp.pend{border-color:var(--line);color:var(--ink-3);border-style:dashed;transform:none}
+.coll{border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.coll-h{width:100%;display:flex;align-items:center;gap:10px;background:var(--surface-2);border:0;border-radius:8px;padding:10px 12px;text-align:left;font-size:13px;font-weight:600;color:var(--ink)}
+.coll.open .coll-h{border-radius:8px 8px 0 0;border-bottom:1px solid var(--line)}
+.coll-note{font-weight:400;color:var(--ink-3);font-size:12px}
+.coll-sum{margin-left:auto;font-weight:500;color:var(--ink-2);font-size:12px;white-space:nowrap}
+.chev{display:inline-block;transition:transform .15s;color:var(--ink-3);font-size:12px}
+.coll.open .chev{transform:rotate(180deg)}
+@media (prefers-reduced-motion:reduce){.chev{transition:none}}
+.coll-b{padding:10px 12px}
 .steps{display:flex;gap:0;flex-wrap:wrap;margin-bottom:10px}
 .steps span{font-size:11px;font-weight:600;padding:4px 10px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-3);margin-right:-1px}
 .steps span:first-child{border-radius:6px 0 0 6px}.steps span:last-child{border-radius:0 6px 6px 0}
@@ -354,7 +363,6 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
             <div class="field" style="flex:1.4;min-width:160px"><label for="f-busca">Colaborador</label><input id="f-busca" placeholder="nome…"></div>
           </div>
         </div>
-        <div class="tiles" id="sup-tiles" style="margin-top:14px"></div>
         <div class="card" id="sup-notif" style="margin-top:14px;border-left:4px solid var(--good)" hidden><h3>Boletins assinados pelo restaurante — prontos para impressão e assinatura do Suprimentos</h3><div class="list" id="sup-notif-list"></div></div>
         <div class="card" style="margin-top:14px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Registros</h3><span class="small muted" id="sup-count"></span></div><div class="tablewrap" style="margin-top:8px"><table id="sup-table"></table></div></div>
         <div class="card"><h3>Sobras informadas na semana</h3><div class="tablewrap"><table id="sup-sobras"></table></div></div>
@@ -391,7 +399,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 
       <!-- ---------- CONFIGURAÇÕES ---------- -->
       <section class="page" id="page-cfg">
-        <div class="page-head"><div><h2>Configurações</h2><p>Usuários, colaboradores, empresas, obras, preços e contratadas</p></div></div>
+        <div class="page-head"><div><h2>Configurações</h2><p>Usuários, colaboradores, empresas, obras, contratos, preços e contratadas</p></div></div>
         <div class="card" id="setup-card" style="margin-bottom:14px"><h3>Primeiros passos</h3><div class="setup" id="setup-list"></div></div>
         <div class="subtabs" id="cfg-tabs"></div>
 
@@ -403,9 +411,9 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
                 <div class="grid2"><div class="field"><label for="u-nome">Nome</label><input id="u-nome"></div><div class="field"><label for="u-login">Login</label><input id="u-login" autocomplete="off"></div></div>
                 <div class="grid2"><div class="field"><label for="u-senha">Senha</label><input id="u-senha" type="password" autocomplete="new-password"><div class="small muted" id="u-senha-hint" style="margin-top:4px" hidden>Redefinir senha: digite a nova e salve. <button class="link small" id="u-senha-gen" type="button" style="background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer">Gerar senha temporária</button></div></div><div class="field"><label for="u-perfil">Perfil</label><select id="u-perfil"><option>Administrador</option><option>Restaurante</option><option>Suprimentos</option><option>Personalizado</option></select></div></div>
                 <div class="field"><label for="u-ativo">Situação</label><select id="u-ativo"><option value="1">Ativo</option><option value="0">Inativo</option></select></div>
-                <div><div class="small muted" style="margin-bottom:4px">Obras que este usuário enxerga <span class="muted">(nenhuma marcada = todas)</span></div><div class="chips" id="u-obras"></div></div>
-                <div><div class="small muted" style="margin-bottom:4px">Restaurantes (contratadas) que este usuário acessa <span class="muted">(nenhum marcado = todos)</span></div><div class="chips" id="u-cts"></div></div>
-                <div><div class="small muted" style="margin-bottom:4px">Permissões — o que este usuário pode ver ou alterar</div><div class="perm-grid" id="u-perms"></div></div>
+                <div class="coll" data-coll><button type="button" class="coll-h" aria-expanded="false"><span>Obras que este usuário enxerga <span class="coll-note">(nenhuma ligada = todas)</span></span><span class="coll-sum" id="u-obras-sum"></span><span class="chev" aria-hidden="true">▾</span></button><div class="coll-b" hidden><div class="perm-grid" id="u-obras"></div></div></div>
+                <div class="coll" data-coll><button type="button" class="coll-h" aria-expanded="false"><span>Restaurantes (contratadas) que este usuário acessa <span class="coll-note">(nenhum ligado = todos)</span></span><span class="coll-sum" id="u-cts-sum"></span><span class="chev" aria-hidden="true">▾</span></button><div class="coll-b" hidden><div class="perm-grid" id="u-cts"></div></div></div>
+                <div class="coll" data-coll><button type="button" class="coll-h" aria-expanded="false"><span>Permissões — o que este usuário pode ver ou alterar</span><span class="coll-sum" id="u-perms-sum"></span><span class="chev" aria-hidden="true">▾</span></button><div class="coll-b" hidden><div class="perm-grid" id="u-perms"></div></div></div>
                 <div class="row"><button class="btn" id="u-save">Salvar usuário</button><button class="btn sec" id="u-cancel">Limpar</button></div>
               </div></div>
           </div>
@@ -461,6 +469,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
             <div class="card"><h3 id="o-form-title">Nova obra</h3>
               <div class="stack">
                 <div class="field"><label for="o-nome">Nome da obra</label><input id="o-nome" placeholder="ex.: SEDE BENEVIDES"></div>
+                <div class="field"><label for="o-contrato">Nº do contrato (obrigatório, até 7 caracteres)</label><input id="o-contrato" maxlength="7" list="contratos-list" autocomplete="off" class="mono" placeholder="ex.: CT-0421" style="text-transform:uppercase"><datalist id="contratos-list"></datalist><div class="small muted" style="margin-top:4px">Se o número ainda não existir, o contrato é criado e você completa as datas na aba Contratos.</div></div>
                 <div class="field"><label for="o-end">Endereço / descrição (opcional)</label><input id="o-end"></div>
                 <div class="field"><label for="o-ativo">Situação</label><select id="o-ativo"><option value="1">Ativa</option><option value="0">Encerrada</option></select></div>
                 <div class="row"><button class="btn" id="o-save">Salvar obra</button><button class="btn sec" id="o-cancel">Limpar</button></div>
@@ -468,15 +477,32 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
           </div>
         </div>
 
+        <div id="cfg-contratos" class="cfg-pane" hidden>
+          <div class="cols">
+            <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Contratos</h3><div class="row"><select id="ctr-filtro" style="width:auto"><option value="">Todos</option><option value="ativos">Ativos</option><option value="inativos">Inativos / encerrados</option></select><button class="btn sm" id="ctr-new">Novo contrato</button></div></div>
+              <div class="tablewrap" style="margin-top:10px"><table id="ctr-table"></table></div></div>
+            <div class="card"><h3 id="ctr-form-title">Novo contrato</h3>
+              <div class="stack">
+                <div class="grid2"><div class="field"><label for="ctr-num">Nº do contrato (até 7 caracteres)</label><input id="ctr-num" maxlength="7" class="mono" style="text-transform:uppercase"></div><div class="field"><label for="ctr-ativo">Situação</label><select id="ctr-ativo"><option value="1">Ativo</option><option value="0">Inativo</option></select></div></div>
+                <div class="field"><label for="ctr-desc">Objeto / descrição (opcional)</label><input id="ctr-desc" placeholder="ex.: Fornecimento de refeições — Sede Benevides"></div>
+                <div class="grid2"><div class="field"><label for="ctr-ini">Data de início</label><input id="ctr-ini" type="date"></div><div class="field"><label for="ctr-fim">Data de término</label><input id="ctr-fim" type="date"></div></div>
+                <div class="small muted">Fora da vigência (antes do início, depois do término) ou inativo, o restaurante não consegue registrar refeições das obras deste contrato.</div>
+                <div id="ctr-err" class="notice bad" hidden></div>
+                <div class="row"><button class="btn" id="ctr-save">Salvar contrato</button><button class="btn sec" id="ctr-cancel">Limpar</button><button class="btn sec" id="ctr-precos" hidden>Ver preços deste contrato</button></div>
+              </div></div>
+          </div>
+        </div>
+
         <div id="cfg-precos" class="cfg-pane" hidden>
           <div class="cols">
             <div class="stack">
-              <div class="card"><h3>Preços vigentes</h3><div class="tablewrap"><table id="p-table"></table></div>
+              <div class="card"><h3 id="p-vig-title">Preços vigentes</h3><div class="tablewrap"><table id="p-table"></table></div>
                 <div class="notice info small" style="margin-top:10px">Cada refeição registrada guarda o preço vigente no momento do registro. Alterar o preço não muda o valor de registros anteriores.</div></div>
               <div class="card"><h3>Histórico de alterações</h3><div class="tablewrap"><table id="p-hist"></table></div></div>
             </div>
             <div class="card"><h3 id="p-title">Cadastrar / alterar preço</h3>
               <div class="stack">
+                <div class="field"><label for="p-ct">Contrato</label><select id="p-ct"></select><div class="small muted" style="margin-top:4px">"Tabela geral" vale para os contratos sem preço próprio daquela refeição.</div></div>
                 <div class="grid2"><div class="field"><label for="p-tipo">Refeição</label><select id="p-tipo"></select></div><div class="field"><label for="p-valor">Valor (R$)</label><input id="p-valor" type="number" step="0.01" min="0" inputmode="decimal"></div></div>
                 <div class="field"><label for="p-vig">Vigência a partir de</label><input id="p-vig" type="date"></div>
                 <div class="field"><label for="p-just">Justificativa <span id="p-just-req">(obrigatória em alteração)</span></label><textarea id="p-just" rows="3" placeholder="ex.: 4º Termo Aditivo — reajuste anual conforme cláusula 5.2"></textarea></div>
@@ -592,6 +618,7 @@ const PERMS=[
   {grp:'Auditoria'},
   {id:'aud.ver',nome:'Visualizar a trilha de auditoria'},
   {grp:'Configurações'},
+  {id:'cfg.contratos',nome:'Cadastrar contratos (obras e preços por contrato)'},
   {id:'cfg.usuarios',nome:'Cadastrar usuários e permissões'},
   {id:'cfg.colab',nome:'Cadastrar colaboradores'},
   {id:'cfg.empresas',nome:'Cadastrar empresas e logotipos'},
@@ -602,7 +629,7 @@ const PERMS=[
 const PERFIS={
   Administrador:PERMS.filter(p=>p.id).map(p=>p.id),
   Restaurante:['rest.registrar','rest.sobras','rest.estornar','rest.validar'],
-  Suprimentos:['sup.ver','sup.bm','sup.nf','cfg.colab','cfg.empresas','cfg.obras','cfg.precos'],
+  Suprimentos:['sup.ver','sup.bm','sup.nf','cfg.colab','cfg.empresas','cfg.obras','cfg.contratos','cfg.precos'],
   Personalizado:[]
 };
 let S=null, USER=null;
@@ -645,10 +672,17 @@ function ctMigrarLegado(){
   save();
 }
 function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2800)}
-function precoVigente(tipoId,data){
-  const l=S.precos.filter(p=>p.tipo===tipoId&&p.vigencia<=data).sort((a,b)=>a.vigencia<b.vigencia?1:a.vigencia>b.vigencia?-1:(a.criadoEm<b.criadoEm?1:-1));
-  return l[0]?l[0].valor:null;
+/* preço: primeiro o do contrato da obra; se o contrato não tiver preço próprio, usa a tabela geral */
+function precoLista(tipoId,data,cid){return S.precos.filter(p=>p.tipo===tipoId&&p.vigencia<=data&&(p.contratoId||'')===(cid||'')).sort((a,b)=>a.vigencia<b.vigencia?1:a.vigencia>b.vigencia?-1:(a.criadoEm<b.criadoEm?1:-1))}
+function precoVigente(tipoId,data,cid){
+  if(cid){const l=precoLista(tipoId,data,cid);if(l[0])return l[0].valor}
+  const g=precoLista(tipoId,data,'');return g[0]?g[0].valor:null;
 }
+function contrato(id){return (S.contratos||[]).find(c=>c.id===id)}
+function cidOf(obraId){const o=obra(obraId);return o&&o.contratoId||''}
+function contratoStatus(c,d){d=d||today();if(!c)return null;if(c.ativo===false)return 'inativo';if(c.fim&&c.fim<d)return 'encerrado';if(c.inicio&&c.inicio>d)return 'a iniciar';return 'vigente'}
+function contratoErro(obraId,d){const c=contrato(cidOf(obraId));if(!c)return null;const st=contratoStatus(c,d);if(st==='vigente')return null;
+  return `Contrato ${c.numero} da obra ${(obra(obraId)||{}).nome||''} está ${st}${st==='encerrado'?' desde '+br(c.fim):st==='a iniciar'?' (início '+br(c.inicio)+')':''} — refeição não registrada.`}
 function fillSelect(sel,items,val,allLabel){sel.innerHTML=(allLabel!==undefined?`<option value="">${allLabel}</option>`:'')+items.map(i=>`<option value="${esc(i.id)}"${i.id===val?' selected':''}>${esc(i.nome)}</option>`).join('')}
 
 /* =================== AUDITORIA (núcleo) =================== */
@@ -657,7 +691,8 @@ const ACOES={
   'login.ok':'Login','login.falha':'Tentativa de login inválida','logout':'Logout','nav':'Acessou aba','nav.cfg':'Acessou seção de configurações',
   'refeicao.registrar':'Registrou refeição','refeicao.estornar':'Estornou refeição','sobra.registrar':'Registrou sobra','sobra.excluir':'Excluiu sobra',
   'bm.emitir':'Gerou rascunho de BM','bm.fechar':'Fechou BM','bm.validar':'Validou BM (assinatura eletrônica do restaurante)','bm.homologar':'Homologou assinatura física do restaurante','bm.assinar_sup':'Registrou assinatura do Suprimentos','bm.nf':'Informou nota fiscal','bm.pdf':'Exportou BM em PDF','bm.imprimir':'Imprimiu BM','bm.anexar':'Anexou BM assinado','bm.anexo_remover':'Removeu anexo do BM','bm.anexo_baixar':'Baixou anexo do BM',
-  'usuario.salvar':'Cadastrou/alterou usuário','colab.salvar':'Cadastrou/alterou colaborador','colab.realocar':'Realocou colaborador (empresa/obra)','empresa.salvar':'Cadastrou/alterou empresa','obra.salvar':'Cadastrou/alterou obra','preco.salvar':'Cadastrou/alterou preço','contratada.salvar':'Cadastrou/alterou contratada (restaurante)','usuario.senha':'Redefiniu senha de usuário','auditoria.csv':'Exportou auditoria em CSV','dados.apagar':'Apagou todos os dados'
+  'usuario.salvar':'Cadastrou/alterou usuário','colab.salvar':'Cadastrou/alterou colaborador','colab.realocar':'Realocou colaborador (empresa/obra)','empresa.salvar':'Cadastrou/alterou empresa','obra.salvar':'Cadastrou/alterou obra','preco.salvar':'Cadastrou/alterou preço','contrato.salvar':'Cadastrou/alterou contrato',
+  'contratada.salvar':'Cadastrou/alterou contratada (restaurante)','usuario.senha':'Redefiniu senha de usuário','auditoria.csv':'Exportou auditoria em CSV','dados.apagar':'Apagou todos os dados'
 };
 let DEVICE='';try{DEVICE=localStorage.getItem('refeicoes_device')||'';if(!DEVICE){DEVICE='DEV-'+Math.random().toString(36).slice(2,8).toUpperCase();localStorage.setItem('refeicoes_device',DEVICE)}}catch(e){DEVICE='DEV-?'}
 function audit(acao,descricao,x){
@@ -673,10 +708,10 @@ if(!CFG.SUPABASE_URL||!CFG.SUPABASE_ANON_KEY){document.addEventListener('DOMCont
 const sb=window.supabase.createClient(CFG.SUPABASE_URL||'https://invalid.supabase.co',CFG.SUPABASE_ANON_KEY||'x',{auth:{persistSession:true,autoRefreshToken:true}});
 const EMAIL_DOMAIN=CFG.EMAIL_DOMAIN||'refeicoes.app';
 function toEmail(login){login=(login||'').trim().toLowerCase();return login.includes('@')?login:login.replace(/[^a-z0-9._-]/g,'')+'@'+EMAIL_DOMAIN}
-const TABLES={empresas:'empresas',obras:'obras',colab:'colaboradores',precos:'precos',contratadas:'contratadas',registros:'registros',sobras:'sobras',bms:'bms',users:'usuarios'};
+const TABLES={empresas:'empresas',obras:'obras',colab:'colaboradores',precos:'precos',contratos:'contratos',contratadas:'contratadas',registros:'registros',sobras:'sobras',bms:'bms',users:'usuarios'};
 const CACHE_KEY='refeicoes_cache_v1';
 let LAST={}, AUDIT_SEEN=new Set(), SYNC={pending:false,running:false,offline:false,timer:null,retry:null};
-function fresh(){return {users:[],empresas:[],obras:[],colab:[],precos:[],contratadas:[],registros:[],sobras:[],bms:[],audit:[],contratada:{nome:'',cnpj:'',gestor:'',cargo:'',servico:'FORNECIMENTO DE REFEIÇÕES'}}}
+function fresh(){return {users:[],empresas:[],obras:[],colab:[],precos:[],contratos:[],contratadas:[],registros:[],sobras:[],bms:[],audit:[],contratada:{nome:'',cnpj:'',gestor:'',cargo:'',servico:'FORNECIMENTO DE REFEIÇÕES'}}}
 function rowOf(key,r){const o={...r};delete o.senha;if(key==='users')delete o.id;return o}
 function snapshot(){LAST={};Object.keys(TABLES).forEach(k=>{LAST[k]={};(S[k]||[]).forEach(r=>LAST[k][r.id]=JSON.stringify(rowOf(k,r)))});LAST.contratada=JSON.stringify(S.contratada);AUDIT_SEEN=new Set((S.audit||[]).map(e=>e.id))}
 function setSync(state,msg){const d=$('sync-dot');if(!d)return;d.className='sync'+(state==='pend'?' pend':state==='off'?' off':'');d.title=msg||(state==='pend'?'Enviando alterações…':state==='off'?'Sem conexão — alterações guardadas neste aparelho e enviadas quando voltar':'Sincronizado')}
@@ -694,7 +729,7 @@ async function loadAll(){
   // preserva registros ainda não sincronizados (offline)
   if(S&&SYNC.pending){Object.keys(TABLES).forEach(k=>{(S[k]||[]).forEach(r=>{if(!LAST[k]||LAST[k][r.id]!==JSON.stringify(rowOf(k,r))){const i=ns[k].findIndex(x=>x.id===r.id);if(i>=0)ns[k][i]=r;else ns[k].push(r)}})});(S.audit||[]).forEach(e=>{if(!AUDIT_SEEN.has(e.id))ns.audit.push(e)})}
   ns.users.forEach(u=>{if(u.perfil==='Administrador')u.perms=[...PERFIS.Administrador]});
-  ns.contratadas=ns.contratadas||[];
+  ns.contratadas=ns.contratadas||[];ns.contratos=ns.contratos||[];
   S=ns;snapshot();
   try{localStorage.setItem(CACHE_KEY,JSON.stringify(S))}catch(e){}
 }
@@ -796,7 +831,7 @@ function navItems(){
   if(['rest.registrar','rest.sobras','rest.estornar'].some(can))it.push({id:'rest',n:'Restaurante'});
   if(can('sup.ver')||can('sup.bm'))it.push({id:'sup',n:'Suprimentos'});
   if(can('aud.ver'))it.push({id:'aud',n:'Auditoria'});
-  if(['cfg.usuarios','cfg.colab','cfg.empresas','cfg.obras','cfg.precos','cfg.contratada'].some(can))it.push({id:'cfg',n:'Configurações'});
+  if(['cfg.usuarios','cfg.colab','cfg.empresas','cfg.obras','cfg.contratos','cfg.precos','cfg.contratada'].some(can))it.push({id:'cfg',n:'Configurações'});
   return it;
 }
 let PAGE=null;
@@ -870,11 +905,11 @@ function renderRest(){
   fillSelect($('rest-ct'),ctsAcessiveis(),REST_CT);$('rest-ct-wrap').hidden=ctsAcessiveis().length<2;
   const t=today();const d=parse(t);
   $('rest-date').textContent=`${WD[d.getDay()]}, ${br(t)} · operador: ${USER.nome}${RC?' · restaurante: '+RC.nome:''}`;
-  const missing=[];if(!RC)missing.push('uma contratada (restaurante) vinculada às obras');if(!S.colab.length)missing.push('colaboradores');if(!TIPOS.some(tp=>precoVigente(tp.id,t)!==null))missing.push('preços das refeições');
+  const missing=[];if(!RC)missing.push('uma contratada (restaurante) vinculada às obras');if(!S.colab.length)missing.push('colaboradores');if(!S.precos.length)missing.push('preços das refeições');
   $('rest-setup').hidden=!missing.length;$('rest-setup').textContent=missing.length?`Antes de registrar refeições, cadastre em Configurações: ${missing.join(' e ')}.`:'';
   setupDateManual('dm');
   const regs=S.registros.filter(r=>r.data===t&&regOk(r)&&(!RC||ctOf(r)===RC.id));
-  $('rest-tiles').innerHTML=TIPOS.map(tp=>{const n=regs.filter(r=>r.tipo===tp.id).length;const p=precoVigente(tp.id,t);return `<div class="tile ${tp.id}"><div class="k">${tp.curto} hoje</div><div class="v num">${n}</div><div class="s">${p===null?'sem preço':money(p)+' un.'}</div></div>`}).join('');
+  $('rest-tiles').innerHTML=TIPOS.map(tp=>{const l=regs.filter(r=>r.tipo===tp.id);return `<div class="tile ${tp.id}"><div class="k">${tp.curto} hoje</div><div class="v num">${l.length}</div><div class="s num">${money(l.reduce((s,r)=>s+r.valor,0))}</div></div>`}).join('');
   const recent=S.registros.filter(r=>regOk(r)&&(!RC||ctOf(r)===RC.id)&&(r.data===t||r.registradoEm.slice(0,10)===t)).sort((a,b)=>a.registradoEm<b.registradoEm?1:-1).slice(0,12);
   // notificações de BM fechado
   const pend=pendRest();$('rest-notif').hidden=!(pend.length&&can('rest.validar'));
@@ -915,21 +950,22 @@ function lookup(code){
 }
 function renderMeal(){
   const t=regDate('dm');const regs=S.registros.filter(r=>r.data===t&&r.colabId===CUR.id);
-  $('mealbtns').innerHTML=TIPOS.map(tp=>{const done=regs.find(r=>r.tipo===tp.id);const p=precoVigente(tp.id,t);const off=done||p===null;
+  $('mealbtns').innerHTML=TIPOS.map(tp=>{const done=regs.find(r=>r.tipo===tp.id);const p=precoVigente(tp.id,t,cidOf(CUR.obraId));const off=done||p===null;
     return `<button class="mealbtn${CURTIPO===tp.id?' on':''}" data-t="${tp.id}" ${off?'disabled':''}>${tp.curto}<small>${done?'já registrado '+hm(done.registradoEm):p===null?'sem preço cadastrado':money(p)}</small></button>`}).join('');
   $('mealbtns').querySelectorAll('button').forEach(b=>b.onclick=()=>{CURTIPO=b.dataset.t;renderMeal()});
-  const dup=regs.find(r=>r.tipo===CURTIPO);const p=precoVigente(CURTIPO,t);
-  $('dup-msg').hidden=!(dup||p===null);
-  if(dup)$('dup-msg').textContent=`${tipo(CURTIPO).curto} já registrado em ${br(t)} às ${hm(dup.registradoEm)}. Escolha outro tipo ou cancele.`;
+  const dup=regs.find(r=>r.tipo===CURTIPO);const p=precoVigente(CURTIPO,t,cidOf(CUR.obraId));const cerr=contratoErro(CUR.obraId,t);
+  $('dup-msg').hidden=!(dup||p===null||cerr);
+  if(cerr)$('dup-msg').textContent=cerr;
+  else if(dup)$('dup-msg').textContent=`${tipo(CURTIPO).curto} já registrado em ${br(t)} às ${hm(dup.registradoEm)}. Escolha outro tipo ou cancele.`;
   else if(p===null)$('dup-msg').textContent=`${tipo(CURTIPO).curto} não tem preço cadastrado. Cadastre em Configurações › Preços.`;
-  $('btn-confirm').disabled=!!dup||p===null;
+  $('btn-confirm').disabled=!!dup||p===null||!!cerr;
 }
 $('btn-confirm').onclick=()=>{
-  if(!CUR||!CURTIPO)return;const t=regDate('dm');const p=precoVigente(CURTIPO,t);const manualDate=t!==today();
-  if(p===null||S.registros.some(r=>r.data===t&&r.colabId===CUR.id&&r.tipo===CURTIPO))return;
+  if(!CUR||!CURTIPO)return;const t=regDate('dm');const p=precoVigente(CURTIPO,t,cidOf(CUR.obraId));const manualDate=t!==today();
+  if(p===null||contratoErro(CUR.obraId,t)||S.registros.some(r=>r.data===t&&r.colabId===CUR.id&&r.tipo===CURTIPO))return;
   const e=emp(CUR.empresaId),o=obra(CUR.obraId);
   const RC=restCt();if(!RC)return;
-  S.registros.push({id:uid(),data:t,colabId:CUR.id,nome:CUR.nome,empresaId:CUR.empresaId,empresaNome:e?e.nome:'',obraId:CUR.obraId,obraNome:o?o.nome:'',contratadaId:RC.id,contratadaNome:RC.nome,tipo:CURTIPO,valor:p,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null,dataManual:manualDate||undefined});
+  S.registros.push({id:uid(),data:t,colabId:CUR.id,nome:CUR.nome,empresaId:CUR.empresaId,empresaNome:e?e.nome:'',obraId:CUR.obraId,obraNome:o?o.nome:'',contratoId:cidOf(CUR.obraId)||undefined,contratoNumero:(contrato(cidOf(CUR.obraId))||{}).numero||undefined,contratadaId:RC.id,contratadaNome:RC.nome,tipo:CURTIPO,valor:p,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null,dataManual:manualDate||undefined});
   audit('refeicao.registrar',`${tipo(CURTIPO).curto} — ${CUR.nome} (${money(p)})${manualDate?' — DATA MANUAL '+br(t):''}`,{obra:o?o.nome:'',empresa:e?e.nome:'',entidade:'colaborador '+CUR.qr});
   save();toast(`${tipo(CURTIPO).curto} registrado — ${CUR.nome.split(' ')[0]}${manualDate?' ('+br(t)+')':''}`);
   CUR=null;$('confirm-card').hidden=true;$('qr-manual').value='';renderRest();
@@ -943,7 +979,8 @@ function renderManual(){
   const man=S.registros.filter(r=>r.manual);
   $('manual-names').innerHTML=[...new Set(man.map(r=>r.nome))].sort().map(n=>`<option value="${esc(n)}">`).join('');
   $('terc-names').innerHTML=[...new Set(man.map(r=>r.terceirizada).filter(Boolean))].sort().map(n=>`<option value="${esc(n)}">`).join('');
-  $('m-mealbtns').innerHTML=TIPOS.map(tp=>{const p=precoVigente(tp.id,t);return `<button class="mealbtn${MTIPO===tp.id?' on':''}" data-t="${tp.id}" ${p===null?'disabled':''}>${tp.curto}<small>${p===null?'sem preço cadastrado':money(p)}</small></button>`}).join('');
+  $('m-obra').onchange=renderManual;
+  $('m-mealbtns').innerHTML=TIPOS.map(tp=>{const p=precoVigente(tp.id,t,cidOf($('m-obra').value));return `<button class="mealbtn${MTIPO===tp.id?' on':''}" data-t="${tp.id}" ${p===null?'disabled':''}>${tp.curto}<small>${p===null?'sem preço cadastrado':money(p)}</small></button>`}).join('');
   $('m-mealbtns').querySelectorAll('button').forEach(b=>b.onclick=()=>{MTIPO=b.dataset.t;renderManual()});
   $('m-msg').hidden=true;
 }
@@ -953,11 +990,12 @@ $('m-save').onclick=()=>{
   if(!nome)return show('Informe o nome do colaborador.');
   if(!empId||!obraId)return show('Selecione a empresa e a obra (a obra precisa estar vinculada ao restaurante selecionado).');
   const RC=restCt();if(!RC)return show('Nenhuma contratada (restaurante) disponível.');
-  const p=precoVigente(MTIPO,t);if(p===null)return show(`${tipo(MTIPO).curto} não tem preço cadastrado.`);
+  const cerr=contratoErro(obraId,t);if(cerr)return show(cerr);
+  const p=precoVigente(MTIPO,t,cidOf(obraId));if(p===null)return show(`${tipo(MTIPO).curto} não tem preço cadastrado para o contrato desta obra.`);
   const dup=S.registros.find(r=>r.data===t&&r.tipo===MTIPO&&r.manual&&r.nome.toLowerCase()===nome.toLowerCase()&&r.empresaId===empId);
   if(dup)return show(`${tipo(MTIPO).curto} de ${nome} já registrado em ${br(t)} às ${hm(dup.registradoEm)}.`);
   const e=emp(empId),o=obra(obraId);
-  S.registros.push({id:uid(),data:t,colabId:null,manual:true,nome,empresaId:empId,empresaNome:e?e.nome:'',obraId,obraNome:o?o.nome:'',contratadaId:RC.id,contratadaNome:RC.nome,terceirizada:terc,tipo:MTIPO,valor:p,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null,dataManual:manualDate||undefined});
+  S.registros.push({id:uid(),data:t,colabId:null,manual:true,nome,empresaId:empId,empresaNome:e?e.nome:'',obraId,obraNome:o?o.nome:'',contratoId:cidOf(obraId)||undefined,contratoNumero:(contrato(cidOf(obraId))||{}).numero||undefined,contratadaId:RC.id,contratadaNome:RC.nome,terceirizada:terc,tipo:MTIPO,valor:p,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null,dataManual:manualDate||undefined});
   audit('refeicao.registrar',`${tipo(MTIPO).curto} — ${nome} (${money(p)}) — registro manual, terceirizado${terc?' de '+terc:''}${manualDate?' — DATA MANUAL '+br(t):''}`,{obra:o?o.nome:'',empresa:e?e.nome:'',entidade:'registro manual'});
   save();toast(`${tipo(MTIPO).curto} registrado — ${nome.split(' ')[0]} (manual)`);
   $('m-nome').value='';$('m-terc').value='';renderRest();
@@ -990,7 +1028,6 @@ function renderSup(){
   const empId=$('f-emp').value,ctF=$('f-ct').value,tp=$('f-tipo').value,q=$('f-busca').value.trim().toLowerCase();
   const regs=periodRegs(WK,fim).filter(r=>regOk(r)&&(!ctF||ctOf(r)===ctF)&&(!empId||r.empresaId===empId)&&(!tp||r.tipo===tp)&&(!q||r.nome.toLowerCase().includes(q))).sort((a,b)=>a.registradoEm<b.registradoEm?1:-1);
   const tot=regs.reduce((s,r)=>s+r.valor,0);
-  $('sup-tiles').innerHTML=TIPOS.map(t=>{const l=regs.filter(r=>r.tipo===t.id);return `<div class="tile ${t.id}"><div class="k">${t.curto}</div><div class="v num">${l.length}</div><div class="s num">${money(l.reduce((s,r)=>s+r.valor,0))}</div></div>`}).join('')+`<div class="tile total"><div class="k">Total da semana</div><div class="v num">${regs.length}</div><div class="s num">${money(tot)}</div></div>`;
   $('sup-count').textContent=`${regs.length} registro(s) na semana`;
   // notificações: assinados pelo restaurante
   const ps=pendSup();$('sup-notif').hidden=!(ps.length&&can('sup.bm'));
@@ -1309,7 +1346,8 @@ function renderSetup(){
   const steps=[
     ['cfg.empresas','empresas',S.empresas.length,'Cadastrar ao menos uma empresa (com logotipo para o BM)'],
     ['cfg.obras','obras',S.obras.length,'Cadastrar ao menos uma obra'],
-    ['cfg.precos','precos',TIPOS.filter(tp=>precoVigente(tp.id,t)!==null).length,'Cadastrar os preços das refeições'],
+    ['cfg.contratos','contratos',(S.contratos||[]).length,'Cadastrar os contratos (Nº, vigência) e vincular às obras'],
+    ['cfg.precos','precos',S.precos.length,'Cadastrar os preços das refeições por contrato'],
     ['cfg.colab','colab',S.colab.length,'Cadastrar colaboradores lendo o QR Code do crachá'],
     ['cfg.contratada','contratada',(S.contratadas||[]).length,'Cadastrar as contratadas (restaurantes) e as obras que atendem'],
     ['cfg.usuarios','usuarios',S.users.length-1,'Criar usuários do Restaurante e do Suprimentos'],
@@ -1320,13 +1358,13 @@ function renderSetup(){
   $('setup-list').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{CFGTAB=b.dataset.t;renderCfg()});
 }
 function renderCfg(){
-  const tabs=[];if(can('cfg.usuarios'))tabs.push(['usuarios','Usuários']);if(can('cfg.colab'))tabs.push(['colab','Colaboradores']);if(can('cfg.empresas'))tabs.push(['empresas','Empresas']);if(can('cfg.obras'))tabs.push(['obras','Obras']);if(can('cfg.precos'))tabs.push(['precos','Preços']);if(can('cfg.contratada'))tabs.push(['contratada','Contratadas']);
+  const tabs=[];if(can('cfg.usuarios'))tabs.push(['usuarios','Usuários']);if(can('cfg.colab'))tabs.push(['colab','Colaboradores']);if(can('cfg.empresas'))tabs.push(['empresas','Empresas']);if(can('cfg.obras'))tabs.push(['obras','Obras']);if(can('cfg.contratos'))tabs.push(['contratos','Contratos']);if(can('cfg.precos'))tabs.push(['precos','Preços']);if(can('cfg.contratada'))tabs.push(['contratada','Contratadas']);
   if(!tabs.some(t=>t[0]===CFGTAB))CFGTAB=tabs[0]&&tabs[0][0];
   $('cfg-tabs').innerHTML=tabs.map(t=>`<button data-t="${t[0]}" class="${CFGTAB===t[0]?'on':''}">${t[1]}</button>`).join('');
   $('cfg-tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(CFGTAB!==b.dataset.t){audit('nav.cfg','Configurações › '+b.textContent);save()}CFGTAB=b.dataset.t;renderCfg()});
   document.querySelectorAll('.cfg-pane').forEach(p=>p.hidden=p.id!=='cfg-'+CFGTAB);
   renderSetup();
-  ({usuarios:renderUsers,colab:renderColab,empresas:renderEmpresas,obras:renderObras,precos:renderPrecos,contratada:renderContratada}[CFGTAB]||(()=>{}))();
+  ({usuarios:renderUsers,colab:renderColab,empresas:renderEmpresas,obras:renderObras,precos:renderPrecos,contratos:renderContratos,contratada:renderContratada}[CFGTAB]||(()=>{}))();
 }
 /* users */
 function renderUsers(){
@@ -1340,15 +1378,20 @@ function fillUser(){
   $('u-nome').value=u.nome;$('u-login').value=u.login;$('u-senha').value='';$('u-perfil').value=u.perfil;$('u-ativo').value=u.ativo?'1':'0';
   $('u-login').disabled=!!UEDIT;$('u-senha').placeholder=UEDIT?'nova senha — deixe em branco para manter':'mínimo 6 caracteres';$('u-senha').disabled=false;$('u-senha').type='password';$('u-senha-hint').hidden=!UEDIT;
   renderPerms(new Set(u.perms));
-  const sel=new Set(u.obras||[]);
-  $('u-obras').innerHTML=S.obras.map(o=>`<label class="chip" style="cursor:pointer;font-family:var(--font);${sel.has(o.id)?'border-style:solid;border-color:var(--accent);color:var(--accent-2)':''}"><input type="checkbox" data-ob="${o.id}" ${sel.has(o.id)?'checked':''} style="width:auto;margin:0 6px 0 0;vertical-align:middle">${esc(o.nome)}${o.ativo===false?' (encerrada)':''}</label>`).join('')||'<span class="small muted">Nenhuma obra cadastrada.</span>';
-  $('u-obras').querySelectorAll('input').forEach(i=>i.onchange=()=>{const l=i.parentElement;l.style.cssText='cursor:pointer;font-family:var(--font);'+(i.checked?'border-style:solid;border-color:var(--accent);color:var(--accent-2)':'')});
-  $('u-cts').innerHTML=chipsHtml(S.contratadas||[],new Set(u.contratadas||[]),'data-uct')||'<span class="small muted">Nenhuma contratada cadastrada.</span>';
-  $('u-cts').querySelectorAll('input').forEach(i=>i.onchange=()=>chipToggle(i));
+  renderSwitchList('u-obras',S.obras.map(o=>({id:o.id,nome:o.nome+(o.ativo===false?' (encerrada)':'')})),new Set(u.obras||[]),'data-ob','todas');
+  renderSwitchList('u-cts',(S.contratadas||[]).map(c=>({id:c.id,nome:c.nome+(c.ativo===false?' (inativa)':'')})),new Set(u.contratadas||[]),'data-uct','todos');
+  document.querySelectorAll('#u-form-card [data-coll], .coll[data-coll]').forEach(c=>{c.classList.remove('open');c.querySelector('.coll-b').hidden=true;c.querySelector('.coll-h').setAttribute('aria-expanded','false')});
 }
+function renderSwitchList(id,items,sel,attr,todos){
+  $(id).innerHTML=items.map(o=>`<span>${esc(o.nome)}</span><button type="button" class="switch${sel.has(o.id)?' on':''}" ${attr}="${o.id}" role="switch" aria-checked="${sel.has(o.id)}" aria-label="${esc(o.nome)}"></button>`).join('')||'<span class="small muted">Nada cadastrado ainda.</span>';
+  const upd=()=>{const n=$(id).querySelectorAll('.switch.on').length;$(id+'-sum').textContent=n?`${n} de ${items.length}`:`${todos} (${items.length})`};
+  $(id).querySelectorAll('.switch').forEach(b=>b.onclick=()=>{b.classList.toggle('on');b.setAttribute('aria-checked',b.classList.contains('on'));upd()});upd();
+}
+document.querySelectorAll('.coll[data-coll] .coll-h').forEach(h=>h.onclick=()=>{const c=h.parentElement;const open=!c.classList.contains('open');c.classList.toggle('open',open);c.querySelector('.coll-b').hidden=!open;h.setAttribute('aria-expanded',open)});
 function renderPerms(set){
   $('u-perms').innerHTML=PERMS.map(p=>p.grp?`<div class="grp">${p.grp}</div>`:`<span>${p.nome}</span><button class="switch${set.has(p.id)?' on':''}" data-p="${p.id}" role="switch" aria-checked="${set.has(p.id)}" aria-label="${p.nome}"></button>`).join('');
-  $('u-perms').querySelectorAll('.switch').forEach(b=>b.onclick=()=>{b.classList.toggle('on');b.setAttribute('aria-checked',b.classList.contains('on'));$('u-perfil').value='Personalizado'});
+  const upd=()=>{$('u-perms-sum').textContent=`${$('u-perms').querySelectorAll('.switch.on').length} de ${PERMS.filter(p=>p.id).length} ligadas`};
+  $('u-perms').querySelectorAll('.switch').forEach(b=>b.onclick=()=>{b.classList.toggle('on');b.setAttribute('aria-checked',b.classList.contains('on'));$('u-perfil').value='Personalizado';upd()});upd();
 }
 $('u-perfil').onchange=()=>{const p=$('u-perfil').value;if(p!=='Personalizado')renderPerms(new Set(PERFIS[p]))};
 $('u-new').onclick=()=>{UEDIT=null;fillUser()};
@@ -1360,8 +1403,8 @@ $('u-save').onclick=async()=>{
   if(S.users.some(u=>u.login===login&&u!==UEDIT)){toast('Já existe usuário com este login');return}
   const perms=[...$('u-perms').querySelectorAll('.switch.on')].map(b=>b.dataset.p);
   if(UEDIT===USER&&!perms.includes('cfg.usuarios')){toast('Você não pode remover sua própria permissão de usuários');return}
-  const obras=[...$('u-obras').querySelectorAll('input:checked')].map(i=>i.dataset.ob);
-  const contratadas=[...$('u-cts').querySelectorAll('input:checked')].map(i=>i.dataset.uct);
+  const obras=[...$('u-obras').querySelectorAll('.switch.on')].map(i=>i.dataset.ob);
+  const contratadas=[...$('u-cts').querySelectorAll('.switch.on')].map(i=>i.dataset.uct);
   const obj={nome,login,perfil:$('u-perfil').value,perms,ativo:$('u-ativo').value==='1',obras,contratadas};
   $('u-save').disabled=true;
   try{
@@ -1489,45 +1532,85 @@ $('e-save').onclick=()=>{
 };
 /* obras */
 function renderObras(){
-  $('o-list').innerHTML=S.obras.filter(o=>obraOk(o.id)).map(o=>`<div class="item"><div class="avatar">${ini(o.nome)}</div><div class="t"><b>${esc(o.nome)}</b><span>${o.endereco?esc(o.endereco)+' · ':''}${S.colab.filter(c=>c.obraId===o.id).length} colaboradores · restaurante: ${esc((S.contratadas||[]).filter(c=>(c.obras||[]).includes(o.id)).map(c=>c.nome).join(', ')||'nenhum')}${o.ativo===false?' · encerrada':''}</span></div><button class="btn sec sm" data-func="${o.id}">Funcionários</button><button class="btn sec sm" data-o="${o.id}">Editar</button></div>`).join('')||'<div class="small muted">Nenhuma obra cadastrada.</div>';
+  $('o-list').innerHTML=S.obras.filter(o=>obraOk(o.id)).map(o=>`<div class="item"><div class="avatar">${ini(o.nome)}</div><div class="t"><b>${esc(o.nome)} ${contrato(o.contratoId)?`<span class="pill neutral mono">${esc(contrato(o.contratoId).numero)}</span>`:'<span class="pill warn">sem contrato</span>'}</b><span>${o.endereco?esc(o.endereco)+' · ':''}${S.colab.filter(c=>c.obraId===o.id).length} colaboradores · restaurante: ${esc((S.contratadas||[]).filter(c=>(c.obras||[]).includes(o.id)).map(c=>c.nome).join(', ')||'nenhum')}${o.ativo===false?' · encerrada':''}</span></div><button class="btn sec sm" data-func="${o.id}">Funcionários</button><button class="btn sec sm" data-o="${o.id}">Editar</button></div>`).join('')||'<div class="small muted">Nenhuma obra cadastrada.</div>';
   $('o-list').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{OEDIT=obra(b.dataset.o);fillObra()});
   $('o-list').querySelectorAll('[data-func]').forEach(b=>b.onclick=()=>{const o=obra(b.dataset.func);const l=S.colab.filter(c=>c.obraId===o.id).sort((a,c)=>a.nome.localeCompare(c.nome));
     infoModal(`Funcionários — ${esc(o.nome)} (${l.length})`,`<div class="tablewrap"><table><thead><tr><th>#</th><th>Nome</th><th>Empresa</th><th>QR Code</th><th>Situação</th></tr></thead><tbody>${l.map((c,i)=>{const e=emp(c.empresaId);return `<tr><td class="num">${i+1}</td><td>${esc(c.nome)}</td><td>${esc(e?e.nome:'—')}</td><td class="mono">${esc(c.qr)}</td><td>${c.ativo?'<span class="pill ok">ativo</span>':'<span class="pill bad">inativo</span>'}</td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Nenhum colaborador alocado nesta obra.</td></tr>'}</tbody></table></div>`)});
 }
-function fillObra(){const o=OEDIT||{nome:'',endereco:'',ativo:true};$('o-form-title').textContent=OEDIT?'Editar obra':'Nova obra';$('o-nome').value=o.nome;$('o-end').value=o.endereco||'';$('o-ativo').value=o.ativo===false?'0':'1'}
+function fillObra(){const o=OEDIT||{nome:'',endereco:'',ativo:true};$('o-form-title').textContent=OEDIT?'Editar obra':'Nova obra';$('o-nome').value=o.nome;$('o-contrato').value=(contrato(o.contratoId)||{}).numero||'';$('contratos-list').innerHTML=(S.contratos||[]).map(c=>`<option value="${esc(c.numero)}">${esc(c.descricao||'')}</option>`).join('');$('o-end').value=o.endereco||'';$('o-ativo').value=o.ativo===false?'0':'1'}
 $('o-new').onclick=()=>{OEDIT=null;fillObra()};$('o-cancel').onclick=()=>{OEDIT=null;fillObra()};
 $('o-save').onclick=()=>{
   const nome=$('o-nome').value.trim();if(!nome){toast('Informe o nome da obra');return}
   if(S.obras.some(x=>x.nome.toLowerCase()===nome.toLowerCase()&&x!==OEDIT)){toast('Já existe obra com este nome');return}
-  const obj={nome,endereco:$('o-end').value.trim(),ativo:$('o-ativo').value==='1'};
-  audit('obra.salvar',`${OEDIT?'Alterou':'Cadastrou'} obra ${nome}${obj.ativo?'':' — encerrada'}`,{obra:nome,entidade:'obra '+nome});
+  const num=$('o-contrato').value.trim().toUpperCase();
+  if(!num){toast('Informe o Nº do contrato da obra');$('o-contrato').focus();return}
+  if(num.length>7){toast('O Nº do contrato tem no máximo 7 caracteres');return}
+  let C=(S.contratos||[]).find(c=>c.numero.toUpperCase()===num);
+  if(!C){C={id:uid(),numero:num,descricao:'',inicio:'',fim:'',ativo:true};S.contratos.push(C);audit('contrato.salvar',`Criou contrato ${num} ao cadastrar a obra ${nome}`,{obra:nome,entidade:'contrato '+num});toast(`Contrato ${num} criado — complete as datas na aba Contratos`)}
+  const antesCt=OEDIT?(contrato(OEDIT.contratoId)||{}).numero||'':'';
+  const obj={nome,endereco:$('o-end').value.trim(),ativo:$('o-ativo').value==='1',contratoId:C.id};
+  audit('obra.salvar',`${OEDIT?'Alterou':'Cadastrou'} obra ${nome} — contrato ${num}${obj.ativo?'':' — encerrada'}`,{obra:nome,entidade:'obra '+nome,antes:OEDIT&&antesCt!==num?(antesCt||'sem contrato'):null,depois:OEDIT&&antesCt!==num?num:null});
   if(OEDIT){Object.assign(OEDIT,obj);S.registros.forEach(r=>{const c=S.colab.find(x=>x.id===r.colabId);if(c&&c.obraId===OEDIT.id)r.obraNome=nome})}else S.obras.push({id:uid(),...obj});
   save();toast('Obra salva');OEDIT=null;fillObra();renderObras();renderSetup();
 };
-/* preços */
+/* preços (por contrato) */
+function pCt(){return $('p-ct').value||''}
+function ctLabel(c){return c?`${c.numero}${c.descricao?' — '+c.descricao:''}${contratoStatus(c)!=='vigente'?' ('+contratoStatus(c)+')':''}`:'Tabela geral'}
 function renderPrecos(){
-  const t=today();
-  $('p-table').innerHTML=`<thead><tr><th>Refeição</th><th class="r">Valor vigente</th><th>Desde</th></tr></thead><tbody>${TIPOS.map(tp=>{const cur=S.precos.filter(p=>p.tipo===tp.id&&p.vigencia<=t).sort((a,b)=>a.vigencia<b.vigencia?1:-1)[0];const fut=S.precos.filter(p=>p.tipo===tp.id&&p.vigencia>t).sort((a,b)=>a.vigencia>b.vigencia?1:-1)[0];
-    return `<tr><td><span class="pill ${tp.id}">${tp.curto}</span></td><td class="r num">${cur?'<b>'+money(cur.valor)+'</b>':'<span class="muted">não cadastrado</span>'}${fut?`<div class="small" style="color:var(--warn)">→ ${money(fut.valor)} a partir de ${br(fut.vigencia)}</div>`:''}</td><td class="num">${cur?br(cur.vigencia):'—'}</td></tr>`}).join('')}</tbody>`;
-  const h=[...S.precos].sort((a,b)=>a.criadoEm<b.criadoEm?1:-1);
-  $('p-hist').innerHTML=`<thead><tr><th>Alterado em</th><th>Refeição</th><th class="r">De</th><th class="r">Para</th><th>Vigência</th><th>Usuário</th><th>Justificativa</th></tr></thead><tbody>${h.map(p=>{const prev=S.precos.filter(x=>x.tipo===p.tipo&&x.criadoEm<p.criadoEm).sort((a,b)=>a.criadoEm<b.criadoEm?1:-1)[0];
-    return `<tr><td class="num">${brdt(p.criadoEm)}</td><td>${tipo(p.tipo).curto}</td><td class="r num">${prev?money(prev.valor):'—'}</td><td class="r num"><b>${money(p.valor)}</b></td><td class="num">${br(p.vigencia)}</td><td>${esc(p.usuario)}</td><td>${esc(p.just||'—')}</td></tr>`}).join('')||'<tr><td colspan="7" class="empty">Nenhuma alteração registrada.</td></tr>'}</tbody>`;
+  const t=today();const cur0=$('p-ct').value;
+  $('p-ct').innerHTML='<option value="">Tabela geral</option>'+(S.contratos||[]).map(c=>`<option value="${esc(c.id)}"${c.id===cur0?' selected':''}>${esc(ctLabel(c))}</option>`).join('');
+  const cid=pCt();const C=contrato(cid);
+  $('p-vig-title').textContent='Preços vigentes — '+(C?'contrato '+C.numero:'tabela geral');
+  $('p-table').innerHTML=`<thead><tr><th>Refeição</th><th class="r">Valor vigente</th><th>Desde</th><th>Origem</th></tr></thead><tbody>${TIPOS.map(tp=>{
+    const own=precoLista(tp.id,t,cid)[0];const ger=cid?precoLista(tp.id,t,'')[0]:null;const cur=own||ger;
+    const fut=S.precos.filter(p=>p.tipo===tp.id&&(p.contratoId||'')===cid&&p.vigencia>t).sort((a,b)=>a.vigencia>b.vigencia?1:-1)[0];
+    return `<tr><td><span class="pill ${tp.id}">${tp.curto}</span></td><td class="r num">${cur?'<b>'+money(cur.valor)+'</b>':'<span class="muted">não cadastrado</span>'}${fut?`<div class="small" style="color:var(--warn)">→ ${money(fut.valor)} a partir de ${br(fut.vigencia)}</div>`:''}</td><td class="num">${cur?br(cur.vigencia):'—'}</td><td class="small">${own?(cid?'<span class="pill ok">contrato</span>':'tabela geral'):ger?'<span class="pill neutral">tabela geral</span>':'—'}</td></tr>`}).join('')}</tbody>`;
+  const h=S.precos.filter(p=>(p.contratoId||'')===cid).sort((a,b)=>a.criadoEm<b.criadoEm?1:-1);
+  $('p-hist').innerHTML=`<thead><tr><th>Alterado em</th><th>Refeição</th><th class="r">De</th><th class="r">Para</th><th>Vigência</th><th>Usuário</th><th>Justificativa</th></tr></thead><tbody>${h.map(p=>{const prev=S.precos.filter(x=>x.tipo===p.tipo&&(x.contratoId||'')===cid&&x.criadoEm<p.criadoEm).sort((a,b)=>a.criadoEm<b.criadoEm?1:-1)[0];
+    return `<tr><td class="num">${brdt(p.criadoEm)}</td><td>${tipo(p.tipo).curto}</td><td class="r num">${prev?money(prev.valor):'—'}</td><td class="r num"><b>${money(p.valor)}</b></td><td class="num">${br(p.vigencia)}</td><td>${esc(p.usuario)}</td><td>${esc(p.just||'—')}</td></tr>`}).join('')||'<tr><td colspan="7" class="empty">Nenhum preço cadastrado para '+(C?'este contrato':'a tabela geral')+'.</td></tr>'}</tbody>`;
   if(!$('p-tipo').options.length)TIPOS.forEach(tp=>{const o=document.createElement('option');o.value=tp.id;o.textContent=tp.curto;$('p-tipo').appendChild(o)});
   if(!$('p-vig').value)$('p-vig').value=t;
   updJustReq();
 }
-function updJustReq(){const has=S.precos.some(p=>p.tipo===$('p-tipo').value);$('p-just-req').textContent=has?'(obrigatória — alteração de preço)':'(opcional no cadastro inicial)'}
-$('p-tipo').onchange=updJustReq;
+function updJustReq(){const has=S.precos.some(p=>p.tipo===$('p-tipo').value&&(p.contratoId||'')===pCt());$('p-just-req').textContent=has?'(obrigatória — alteração de preço)':'(opcional no cadastro inicial)'}
+$('p-tipo').onchange=updJustReq;$('p-ct').onchange=renderPrecos;
 $('p-save').onclick=()=>{
-  const tp=$('p-tipo').value,v=parseFloat($('p-valor').value),vig=$('p-vig').value,just=$('p-just').value.trim();const err=$('p-err');
-  const isChange=S.precos.some(p=>p.tipo===tp);
+  const tp=$('p-tipo').value,cid=pCt(),C=contrato(cid),v=parseFloat($('p-valor').value),vig=$('p-vig').value,just=$('p-just').value.trim();const err=$('p-err');
+  const isChange=S.precos.some(p=>p.tipo===tp&&(p.contratoId||'')===cid);
   if(!(v>0)){err.hidden=false;err.textContent='Informe um valor maior que zero.';return}
   if(!vig){err.hidden=false;err.textContent='Informe a data de vigência.';return}
   if(isChange&&vig<today()){err.hidden=false;err.textContent='A vigência de uma alteração não pode ser retroativa: registros já feitos mantêm o preço da época.';return}
   if(isChange&&just.length<10){err.hidden=false;err.textContent='Em alteração de preço a justificativa é obrigatória (mínimo 10 caracteres).';return}
-  const pAntes=precoVigente(tp,today());audit('preco.salvar',`${tipo(tp).curto}: ${pAntes===null?'—':money(pAntes)} → ${money(v)} a partir de ${br(vig)}${just?' — '+just:''}`,{entidade:'preço '+tp,antes:pAntes,depois:Math.round(v*100)/100});
-  err.hidden=true;S.precos.push({id:uid(),tipo:tp,valor:Math.round(v*100)/100,vigencia:vig,criadoEm:new Date().toISOString(),usuario:USER.nome,just:just||(isChange?'':'Cadastro inicial')});
+  const pAntes=(precoLista(tp,today(),cid)[0]||{}).valor;const onde=C?'contrato '+C.numero:'tabela geral';
+  audit('preco.salvar',`${tipo(tp).curto} (${onde}): ${pAntes===undefined?'—':money(pAntes)} → ${money(v)} a partir de ${br(vig)}${just?' — '+just:''}`,{entidade:'preço '+tp+' · '+onde,antes:pAntes===undefined?null:pAntes,depois:Math.round(v*100)/100});
+  err.hidden=true;S.precos.push({id:uid(),tipo:tp,contratoId:cid||undefined,contratoNumero:C?C.numero:undefined,valor:Math.round(v*100)/100,vigencia:vig,criadoEm:new Date().toISOString(),usuario:USER.nome,just:just||(isChange?'':'Cadastro inicial')});
   save();$('p-valor').value='';$('p-just').value='';toast(isChange?'Preço alterado — histórico registrado':'Preço cadastrado');renderPrecos();renderSetup();
+};
+/* contratos */
+let CTREDIT=null;
+function renderContratos(){
+  const f=$('ctr-filtro').value;const t=today();
+  const l=(S.contratos||[]).filter(c=>{const st=contratoStatus(c,t);return !f||(f==='ativos'?(st==='vigente'||st==='a iniciar'):(st==='inativo'||st==='encerrado'))}).sort((a,b)=>a.numero.localeCompare(b.numero));
+  const pill={vigente:'ok','a iniciar':'warn',encerrado:'bad',inativo:'bad'};
+  $('ctr-table').innerHTML=`<thead><tr><th>Nº</th><th>Objeto</th><th>Início</th><th>Término</th><th>Situação</th><th>Obras</th><th>Preços</th><th></th></tr></thead><tbody>${l.map(c=>{const st=contratoStatus(c,t);const ob=S.obras.filter(o=>o.contratoId===c.id);const np=new Set(S.precos.filter(p=>p.contratoId===c.id).map(p=>p.tipo)).size;
+    return `<tr><td class="mono"><b>${esc(c.numero)}</b></td><td>${esc(c.descricao||'—')}</td><td class="num">${c.inicio?br(c.inicio):'<span class="muted">—</span>'}</td><td class="num">${c.fim?br(c.fim):'<span class="muted">—</span>'}</td><td><span class="pill ${pill[st]}">${st}</span></td><td class="small">${esc(ob.map(o=>o.nome).join(', ')||'—')}</td><td class="small">${np?np+' de '+TIPOS.length+' próprios':'<span class="muted">tabela geral</span>'}</td><td><button class="btn sec sm" data-ctr="${c.id}">Editar</button></td></tr>`}).join('')||'<tr><td colspan="8" class="empty">Nenhum contrato.</td></tr>'}</tbody>`;
+  $('ctr-table').querySelectorAll('[data-ctr]').forEach(b=>b.onclick=()=>{CTREDIT=contrato(b.dataset.ctr);fillContrato()});
+  if(!$('ctr-form-title').dataset.init){$('ctr-form-title').dataset.init=1;fillContrato()}
+}
+function fillContrato(){const c=CTREDIT||{numero:'',descricao:'',inicio:'',fim:'',ativo:true};
+  $('ctr-form-title').textContent=CTREDIT?'Editar contrato':'Novo contrato';$('ctr-num').value=c.numero;$('ctr-desc').value=c.descricao||'';$('ctr-ini').value=c.inicio||'';$('ctr-fim').value=c.fim||'';$('ctr-ativo').value=c.ativo===false?'0':'1';$('ctr-err').hidden=true;$('ctr-precos').hidden=!CTREDIT}
+$('ctr-filtro').onchange=renderContratos;$('ctr-new').onclick=()=>{CTREDIT=null;fillContrato()};$('ctr-cancel').onclick=()=>{CTREDIT=null;fillContrato()};
+$('ctr-precos').onclick=()=>{if(!CTREDIT||!can('cfg.precos'))return;const id=CTREDIT.id;CFGTAB='precos';renderCfg();$('p-ct').value=id;renderPrecos()};
+$('ctr-save').onclick=()=>{
+  const err=$('ctr-err');const show=m=>{err.hidden=false;err.textContent=m};
+  const numero=$('ctr-num').value.trim().toUpperCase(),ini=$('ctr-ini').value,fim=$('ctr-fim').value;
+  if(!numero)return show('Informe o Nº do contrato.');if(numero.length>7)return show('O Nº do contrato tem no máximo 7 caracteres.');
+  if((S.contratos||[]).some(c=>c.numero.toUpperCase()===numero&&c!==CTREDIT))return show('Já existe contrato com este número.');
+  if(ini&&fim&&fim<ini)return show('A data de término não pode ser anterior à de início.');
+  const obj={numero,descricao:$('ctr-desc').value.trim(),inicio:ini,fim,ativo:$('ctr-ativo').value==='1'};
+  audit('contrato.salvar',`${CTREDIT?'Alterou':'Cadastrou'} contrato ${numero} — ${ini?br(ini):'sem início'} a ${fim?br(fim):'sem término'}${obj.ativo?'':' — INATIVO'}`,{entidade:'contrato '+numero,antes:CTREDIT?JSON.stringify({numero:CTREDIT.numero,inicio:CTREDIT.inicio,fim:CTREDIT.fim,ativo:CTREDIT.ativo}):null,depois:JSON.stringify({numero,inicio:ini,fim,ativo:obj.ativo})});
+  if(CTREDIT)Object.assign(CTREDIT,obj);else S.contratos.push({id:uid(),...obj});
+  save();toast('Contrato salvo');CTREDIT=null;fillContrato();renderContratos();renderSetup();
 };
 /* contratadas (restaurantes) */
 let KEDIT=null;
