@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>Medição de Refeições</title>
+<title>SISMED</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -47,7 +47,7 @@
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-#aud-table td:nth-child(5){min-width:280px}#aud-table td:nth-child(2){white-space:nowrap}
+#aud-table td:nth-child(5){min-width:280px}#aud-table td:nth-child(8){min-width:220px}#aud-table td:nth-child(2){white-space:nowrap}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:.005em}
@@ -240,7 +240,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 <!-- ============ LOGIN ============ -->
 <div id="login">
   <div class="box card">
-    <div class="brand" style="margin-bottom:14px"><div class="logo">BM</div><div><h1>Medição de Refeições</h1><div class="sub" id="l-sub">Restaurante · Suprimentos</div></div></div>
+    <div class="brand" style="margin-bottom:14px"><div class="logo">BM</div><div><h1>SISMED</h1><div class="sub" id="l-sub">Sistema de Medição de Refeições</div></div></div>
     <div class="stack">
       <div id="l-form">
         <div class="stack">
@@ -268,7 +268,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 <!-- ============ APP ============ -->
 <div id="app">
   <header class="topbar">
-    <div class="brand"><div class="logo">BM</div><div><h1>Medição de Refeições</h1><div class="sub" id="obra-label">Restaurante · Suprimentos</div></div></div>
+    <div class="brand"><div class="logo">BM</div><div><h1>SISMED</h1></div></div>
     <div class="who"><b id="who-name"></b><span id="who-role"></span></div>
     <span id="sync-dot" class="sync" title="Sincronizado"></span><button class="btn-ghost" id="theme-btn" aria-label="Alternar modo escuro/claro"><svg id="theme-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"></svg><span id="theme-txt">Escuro</span></button>
     <button class="btn-ghost" id="logout">Sair</button>
@@ -278,7 +278,8 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
     <main>
       <!-- ---------- RESTAURANTE ---------- -->
       <section class="page" id="page-rest">
-        <div class="page-head"><div><h2>Registro de refeições</h2><p id="rest-date"></p></div></div>
+        <div class="page-head"><div><h2>Registro de refeições</h2><p id="rest-date"></p></div>
+          <div class="field" id="rest-ct-wrap" style="min-width:220px"><label for="rest-ct">Restaurante</label><select id="rest-ct"></select></div></div>
         <div id="rest-setup" class="notice warn" style="margin-bottom:14px" hidden></div>
         <div class="card" id="rest-notif" style="margin-bottom:14px;border-left:4px solid var(--warn)" hidden><h3>Boletins aguardando validação do restaurante</h3><div class="list" id="rest-notif-list"></div></div>
         <div class="cols">
@@ -293,6 +294,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
               <h3>Confirmar refeição</h3>
               <div class="colab-card" id="colab-card"></div>
               <div id="dup-msg" class="notice warn" style="margin-top:10px" hidden></div>
+              <div class="row" id="dm-row" style="margin-top:10px" hidden><label class="row" style="text-transform:none;letter-spacing:0;font-size:13px;margin:0;gap:6px;cursor:pointer"><input type="checkbox" id="dm-check" style="width:auto"> Data manual</label><input type="date" id="dm-date" style="width:170px" hidden></div>
               <div style="margin:12px 0 6px" class="small muted">Tipo de refeição</div>
               <div class="mealbtns" id="mealbtns"></div>
               <div class="row" style="margin-top:12px">
@@ -310,6 +312,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
                   <div class="field"><label for="m-obra">Obra</label><select id="m-obra"></select></div>
                 </div>
                 <div class="field"><label for="m-terc">Empresa terceirizada (de onde veio — informativo)</label><input id="m-terc" list="terc-names" autocomplete="off" placeholder="ex.: Construtora XYZ"><datalist id="terc-names"></datalist></div>
+                <div class="row" id="mdm-row" hidden><label class="row" style="text-transform:none;letter-spacing:0;font-size:13px;margin:0;gap:6px;cursor:pointer"><input type="checkbox" id="mdm-check" style="width:auto"> Data manual</label><input type="date" id="mdm-date" style="width:170px" hidden></div>
                 <div><div class="small muted" style="margin-bottom:6px">Tipo de refeição</div><div class="mealbtns" id="m-mealbtns"></div></div>
                 <div id="m-msg" class="notice warn" hidden></div>
                 <button class="btn big" id="m-save">Registrar refeição manual</button>
@@ -346,6 +349,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
             <div style="min-width:220px"><b id="wk-label"></b><div class="small muted">segunda a domingo</div></div>
             <button class="btn sec sm" id="wk-next" aria-label="Próxima semana">›</button>
             <div class="field" style="flex:1;min-width:160px"><label for="f-emp">Empresa</label><select id="f-emp"></select></div>
+            <div class="field" style="flex:1;min-width:160px"><label for="f-ct">Restaurante</label><select id="f-ct"></select></div>
             <div class="field" style="flex:1;min-width:120px"><label for="f-tipo">Tipo</label><select id="f-tipo"><option value="">Todos</option></select></div>
             <div class="field" style="flex:1.4;min-width:160px"><label for="f-busca">Colaborador</label><input id="f-busca" placeholder="nome…"></div>
           </div>
@@ -381,12 +385,13 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
           <div class="row" style="justify-content:space-between"><h3 style="margin:0">Movimentações</h3><span class="small muted" id="aud-count"></span></div>
           <div class="notice info small" style="margin:8px 0">IP e navegador são gravados pelo servidor no momento do registro (não podem ser alterados pelo app). O dispositivo é identificado por um código gerado em cada aparelho.</div>
           <div class="tablewrap"><table id="aud-table"></table></div>
+          <div class="row" id="aud-pager" style="justify-content:center;margin-top:10px"></div>
         </div>
       </section>
 
       <!-- ---------- CONFIGURAÇÕES ---------- -->
       <section class="page" id="page-cfg">
-        <div class="page-head"><div><h2>Configurações</h2><p>Usuários, colaboradores, empresas, obras, preços e contratada</p></div></div>
+        <div class="page-head"><div><h2>Configurações</h2><p>Usuários, colaboradores, empresas, obras, preços e contratadas</p></div></div>
         <div class="card" id="setup-card" style="margin-bottom:14px"><h3>Primeiros passos</h3><div class="setup" id="setup-list"></div></div>
         <div class="subtabs" id="cfg-tabs"></div>
 
@@ -396,8 +401,10 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
             <div class="card"><h3 id="u-form-title">Novo usuário</h3>
               <div class="stack">
                 <div class="grid2"><div class="field"><label for="u-nome">Nome</label><input id="u-nome"></div><div class="field"><label for="u-login">Login</label><input id="u-login" autocomplete="off"></div></div>
-                <div class="grid2"><div class="field"><label for="u-senha">Senha</label><input id="u-senha" type="password" autocomplete="new-password"></div><div class="field"><label for="u-perfil">Perfil</label><select id="u-perfil"><option>Administrador</option><option>Restaurante</option><option>Suprimentos</option><option>Personalizado</option></select></div></div>
+                <div class="grid2"><div class="field"><label for="u-senha">Senha</label><input id="u-senha" type="password" autocomplete="new-password"><div class="small muted" id="u-senha-hint" style="margin-top:4px" hidden>Redefinir senha: digite a nova e salve. <button class="link small" id="u-senha-gen" type="button" style="background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer">Gerar senha temporária</button></div></div><div class="field"><label for="u-perfil">Perfil</label><select id="u-perfil"><option>Administrador</option><option>Restaurante</option><option>Suprimentos</option><option>Personalizado</option></select></div></div>
                 <div class="field"><label for="u-ativo">Situação</label><select id="u-ativo"><option value="1">Ativo</option><option value="0">Inativo</option></select></div>
+                <div><div class="small muted" style="margin-bottom:4px">Obras que este usuário enxerga <span class="muted">(nenhuma marcada = todas)</span></div><div class="chips" id="u-obras"></div></div>
+                <div><div class="small muted" style="margin-bottom:4px">Restaurantes (contratadas) que este usuário acessa <span class="muted">(nenhum marcado = todos)</span></div><div class="chips" id="u-cts"></div></div>
                 <div><div class="small muted" style="margin-bottom:4px">Permissões — o que este usuário pode ver ou alterar</div><div class="perm-grid" id="u-perms"></div></div>
                 <div class="row"><button class="btn" id="u-save">Salvar usuário</button><button class="btn sec" id="u-cancel">Limpar</button></div>
               </div></div>
@@ -417,10 +424,13 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
                   <div class="small muted" style="margin-top:4px">O app lê o QR Code já existente no crachá e vincula o conteúdo lido a este cadastro. <button class="link small" id="c-qr-manual" style="background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer">Digitar manualmente</button></div></div>
                 <div class="field"><label for="c-nome">Nome</label><input id="c-nome"></div>
                 <div class="grid2"><div class="field"><label for="c-emp">Empresa</label><select id="c-emp"></select></div><div class="field"><label for="c-obra">Obra</label><select id="c-obra"></select></div></div>
+                <div id="c-realoc-hint" class="small muted" hidden>Empresa e obra de um colaborador já cadastrado só mudam por <b>Realocar</b>, com motivo registrado no histórico.</div>
                 <div class="field"><label for="c-ativo">Situação</label><select id="c-ativo"><option value="1">Ativo</option><option value="0">Inativo (não pode registrar refeição)</option></select></div>
-                <div class="row"><button class="btn" id="c-save">Salvar colaborador</button><button class="btn sec" id="c-cancel">Limpar</button></div>
+                <div class="row"><button class="btn" id="c-save">Salvar colaborador</button><button class="btn sec" id="c-realoc" hidden>Realocar</button><button class="btn sec" id="c-cancel">Limpar</button></div>
               </div></div>
           </div>
+          <div class="card" style="margin-top:14px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Histórico de realocações</h3><input id="rl-busca" placeholder="filtrar por colaborador, empresa ou obra…" style="max-width:320px"></div>
+            <div class="tablewrap" style="margin-top:8px"><table id="rl-table"></table></div></div>
         </div>
 
         <div id="cfg-empresas" class="cfg-pane" hidden>
@@ -432,6 +442,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
               <div class="stack">
                 <div class="field"><label for="e-nome">Razão social / nome</label><input id="e-nome"></div>
                 <div class="grid2"><div class="field"><label for="e-cnpj">CNPJ</label><input id="e-cnpj" inputmode="numeric" placeholder="00.000.000/0000-00"></div><div class="field"><label for="e-prox">Próximo nº de BM</label><input id="e-prox" type="number" min="1" value="1"></div></div>
+                <div class="field"><label for="e-ativo">Situação</label><select id="e-ativo"><option value="1">Ativa</option><option value="0">Inativa (não recebe novos registros nem BM)</option></select></div>
                 <div class="field"><label>Logotipo (aparece no BM)</label>
                   <div class="row"><img id="e-logo-prev" class="logo-preview" alt="" hidden><div id="e-logo-empty" class="small muted">Nenhuma logotipo enviada.</div></div>
                   <div class="row" style="margin-top:8px"><label class="btn sec" for="e-logo" style="text-transform:none;letter-spacing:0;margin:0;font-size:14px;color:var(--ink)">Enviar imagem<input id="e-logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden></label><button class="btn sec sm" id="e-logo-rm">Remover</button></div>
@@ -476,14 +487,21 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         </div>
 
         <div id="cfg-contratada" class="cfg-pane" hidden>
-          <div class="card" style="max-width:640px"><h3>Contratada (restaurante) e assinaturas do BM</h3>
-            <div class="stack">
-              <div class="field"><label for="k-contratada">Contratada</label><input id="k-contratada" placeholder="razão social do restaurante"></div>
-              <div class="field"><label for="k-cnpj">CNPJ da contratada</label><input id="k-cnpj"></div>
-              <div class="grid2"><div class="field"><label for="k-gestor">Gestor que assina o BM</label><input id="k-gestor"></div><div class="field"><label for="k-cargo">Cargo</label><input id="k-cargo" placeholder="ex.: Gestor de Suprimentos"></div></div>
-              <div class="field"><label for="k-servico">Descrição do serviço</label><input id="k-servico" value="FORNECIMENTO DE REFEIÇÕES"></div>
-              <button class="btn" id="k-save">Salvar</button>
-            </div></div>
+          <div class="cols">
+            <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Contratadas (restaurantes)</h3><button class="btn sm" id="k-new">Nova contratada</button></div>
+              <div class="small muted" style="margin:4px 0 8px">Cada restaurante atende uma ou mais obras. Os registros e os BMs ficam separados por restaurante.</div>
+              <div class="list" id="k-list"></div></div>
+            <div class="card"><h3 id="k-form-title">Nova contratada</h3>
+              <div class="stack">
+                <div class="field"><label for="k-contratada">Razão social do restaurante</label><input id="k-contratada" placeholder="ex.: YPS RESTAURANTE"></div>
+                <div class="grid2"><div class="field"><label for="k-cnpj">CNPJ</label><input id="k-cnpj"></div><div class="field"><label for="k-ativo">Situação</label><select id="k-ativo"><option value="1">Ativa</option><option value="0">Inativa</option></select></div></div>
+                <div><div class="small muted" style="margin-bottom:4px">Obras atendidas <b>(obrigatório — ao menos uma)</b></div><div class="chips" id="k-obras"></div></div>
+                <div class="grid2"><div class="field"><label for="k-gestor">Gestor que assina o BM</label><input id="k-gestor"></div><div class="field"><label for="k-cargo">Cargo</label><input id="k-cargo" placeholder="ex.: Gestor de Suprimentos"></div></div>
+                <div class="field"><label for="k-servico">Descrição do serviço</label><input id="k-servico" value="FORNECIMENTO DE REFEIÇÕES"></div>
+                <div id="k-err" class="notice bad" hidden></div>
+                <div class="row"><button class="btn" id="k-save">Salvar contratada</button><button class="btn sec" id="k-cancel">Limpar</button></div>
+              </div></div>
+          </div>
         </div>
 
       </section>
@@ -515,13 +533,21 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
   <div class="sheet narrow">
     <div class="mh"><h2>Emitir BM</h2><button class="btn sec sm" id="emp-close">Fechar</button></div>
     <div class="stack">
-      <div class="field"><label for="bm-emp">Empresa</label><select id="bm-emp"></select></div>
+      <div class="grid2"><div class="field"><label for="bm-emp">Empresa</label><select id="bm-emp"></select></div><div class="field"><label for="bm-ct">Restaurante (contratada)</label><select id="bm-ct"></select></div></div>
       <div class="grid2"><div class="field"><label for="bm-ini">Período — início</label><input id="bm-ini" type="date"></div><div class="field"><label for="bm-fim">Período — fim</label><input id="bm-fim" type="date"></div></div>
       <div class="row"><button class="btn sec sm" data-q="semana-ant">Semana anterior</button><button class="btn sec sm" data-q="semana">Semana atual</button><button class="btn sec sm" data-q="quinzena">Últimos 15 dias</button><button class="btn sec sm" data-q="mes">Mês anterior</button></div>
       <div class="tiles" id="bm-prev-tiles"></div>
       <div id="bm-prev-msg" class="notice info small" hidden></div>
       <button class="btn big" id="bm-emit-go">Gerar BM com este período</button>
     </div>
+  </div>
+</div>
+
+<!-- ============ INFO MODAL (genérico) ============ -->
+<div class="modal" id="info-modal">
+  <div class="sheet narrow">
+    <div class="mh"><h2 id="info-title"></h2><button class="btn sec sm" id="info-close">Fechar</button></div>
+    <div id="info-body"></div>
   </div>
 </div>
 
@@ -557,6 +583,7 @@ const PERMS=[
   {id:'rest.registrar',nome:'Registrar refeições (scanner)'},
   {id:'rest.sobras',nome:'Registrar sobras de refeições'},
   {id:'rest.estornar',nome:'Estornar registro do dia'},
+  {id:'rest.data_manual',nome:'Registrar refeição com data manual (retroativa)'},
   {id:'rest.validar',nome:'Validar BM (assinatura eletrônica do restaurante)'},
   {grp:'Suprimentos'},
   {id:'sup.ver',nome:'Visualizar registros e resumos'},
@@ -570,7 +597,7 @@ const PERMS=[
   {id:'cfg.empresas',nome:'Cadastrar empresas e logotipos'},
   {id:'cfg.obras',nome:'Cadastrar obras'},
   {id:'cfg.precos',nome:'Alterar preços'},
-  {id:'cfg.contratada',nome:'Editar dados da contratada'},
+  {id:'cfg.contratada',nome:'Cadastrar contratadas (restaurantes)'},
 ];
 const PERFIS={
   Administrador:PERMS.filter(p=>p.id).map(p=>p.id),
@@ -602,6 +629,21 @@ function tipo(id){return TIPOS.find(t=>t.id===id)}
 function emp(id){return S.empresas.find(e=>e.id===id)}
 function obra(id){return S.obras.find(o=>o.id===id)}
 function can(p){return !!(USER&&USER.perms.includes(p))}
+function obraOk(obraId){if(!USER||!USER.obras||!USER.obras.length)return true;return USER.obras.includes(obraId)}
+function obraNomeOk(nome){if(!USER||!USER.obras||!USER.obras.length)return true;const o=S.obras.find(x=>x.nome===nome);return !!o&&USER.obras.includes(o.id)}
+function regOkObra(r){if(!USER||!USER.obras||!USER.obras.length)return true;return r.obraId?USER.obras.includes(r.obraId):obraNomeOk(r.obraNome)}
+/* ---- contratadas (restaurantes) ---- */
+function ct(id){return (S.contratadas||[]).find(c=>c.id===id)}
+function ctDefault(){const l=S.contratadas||[];return (l.find(c=>c.id==='ct-legacy')||l[0]||{}).id||null}
+function ctOf(x){return (x&&x.contratadaId)||ctDefault()}
+function ctOk(id){if(!USER||!USER.contratadas||!USER.contratadas.length)return true;return !id||USER.contratadas.includes(id)}
+function ctsAcessiveis(){return (S.contratadas||[]).filter(c=>c.ativo!==false&&ctOk(c.id))}
+function regOk(r){return regOkObra(r)&&ctOk(ctOf(r))}
+function ctMigrarLegado(){
+  if((S.contratadas||[]).length||!S.contratada||!S.contratada.nome||!can('cfg.contratada'))return;
+  const K=S.contratada;S.contratadas.push({id:'ct-legacy',nome:K.nome,cnpj:K.cnpj||'',gestor:K.gestor||'',cargo:K.cargo||'',servico:K.servico||'FORNECIMENTO DE REFEIÇÕES',obras:S.obras.map(o=>o.id),ativo:true});
+  save();
+}
 function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2800)}
 function precoVigente(tipoId,data){
   const l=S.precos.filter(p=>p.tipo===tipoId&&p.vigencia<=data).sort((a,b)=>a.vigencia<b.vigencia?1:a.vigencia>b.vigencia?-1:(a.criadoEm<b.criadoEm?1:-1));
@@ -615,7 +657,7 @@ const ACOES={
   'login.ok':'Login','login.falha':'Tentativa de login inválida','logout':'Logout','nav':'Acessou aba','nav.cfg':'Acessou seção de configurações',
   'refeicao.registrar':'Registrou refeição','refeicao.estornar':'Estornou refeição','sobra.registrar':'Registrou sobra','sobra.excluir':'Excluiu sobra',
   'bm.emitir':'Gerou rascunho de BM','bm.fechar':'Fechou BM','bm.validar':'Validou BM (assinatura eletrônica do restaurante)','bm.homologar':'Homologou assinatura física do restaurante','bm.assinar_sup':'Registrou assinatura do Suprimentos','bm.nf':'Informou nota fiscal','bm.pdf':'Exportou BM em PDF','bm.imprimir':'Imprimiu BM','bm.anexar':'Anexou BM assinado','bm.anexo_remover':'Removeu anexo do BM','bm.anexo_baixar':'Baixou anexo do BM',
-  'usuario.salvar':'Cadastrou/alterou usuário','colab.salvar':'Cadastrou/alterou colaborador','empresa.salvar':'Cadastrou/alterou empresa','obra.salvar':'Cadastrou/alterou obra','preco.salvar':'Cadastrou/alterou preço','contratada.salvar':'Alterou dados da contratada','auditoria.csv':'Exportou auditoria em CSV','dados.apagar':'Apagou todos os dados'
+  'usuario.salvar':'Cadastrou/alterou usuário','colab.salvar':'Cadastrou/alterou colaborador','colab.realocar':'Realocou colaborador (empresa/obra)','empresa.salvar':'Cadastrou/alterou empresa','obra.salvar':'Cadastrou/alterou obra','preco.salvar':'Cadastrou/alterou preço','contratada.salvar':'Cadastrou/alterou contratada (restaurante)','usuario.senha':'Redefiniu senha de usuário','auditoria.csv':'Exportou auditoria em CSV','dados.apagar':'Apagou todos os dados'
 };
 let DEVICE='';try{DEVICE=localStorage.getItem('refeicoes_device')||'';if(!DEVICE){DEVICE='DEV-'+Math.random().toString(36).slice(2,8).toUpperCase();localStorage.setItem('refeicoes_device',DEVICE)}}catch(e){DEVICE='DEV-?'}
 function audit(acao,descricao,x){
@@ -631,10 +673,10 @@ if(!CFG.SUPABASE_URL||!CFG.SUPABASE_ANON_KEY){document.addEventListener('DOMCont
 const sb=window.supabase.createClient(CFG.SUPABASE_URL||'https://invalid.supabase.co',CFG.SUPABASE_ANON_KEY||'x',{auth:{persistSession:true,autoRefreshToken:true}});
 const EMAIL_DOMAIN=CFG.EMAIL_DOMAIN||'refeicoes.app';
 function toEmail(login){login=(login||'').trim().toLowerCase();return login.includes('@')?login:login.replace(/[^a-z0-9._-]/g,'')+'@'+EMAIL_DOMAIN}
-const TABLES={empresas:'empresas',obras:'obras',colab:'colaboradores',precos:'precos',registros:'registros',sobras:'sobras',bms:'bms',users:'usuarios'};
+const TABLES={empresas:'empresas',obras:'obras',colab:'colaboradores',precos:'precos',contratadas:'contratadas',registros:'registros',sobras:'sobras',bms:'bms',users:'usuarios'};
 const CACHE_KEY='refeicoes_cache_v1';
 let LAST={}, AUDIT_SEEN=new Set(), SYNC={pending:false,running:false,offline:false,timer:null,retry:null};
-function fresh(){return {users:[],empresas:[],obras:[],colab:[],precos:[],registros:[],sobras:[],bms:[],audit:[],contratada:{nome:'',cnpj:'',gestor:'',cargo:'',servico:'FORNECIMENTO DE REFEIÇÕES'}}}
+function fresh(){return {users:[],empresas:[],obras:[],colab:[],precos:[],contratadas:[],registros:[],sobras:[],bms:[],audit:[],contratada:{nome:'',cnpj:'',gestor:'',cargo:'',servico:'FORNECIMENTO DE REFEIÇÕES'}}}
 function rowOf(key,r){const o={...r};delete o.senha;if(key==='users')delete o.id;return o}
 function snapshot(){LAST={};Object.keys(TABLES).forEach(k=>{LAST[k]={};(S[k]||[]).forEach(r=>LAST[k][r.id]=JSON.stringify(rowOf(k,r)))});LAST.contratada=JSON.stringify(S.contratada);AUDIT_SEEN=new Set((S.audit||[]).map(e=>e.id))}
 function setSync(state,msg){const d=$('sync-dot');if(!d)return;d.className='sync'+(state==='pend'?' pend':state==='off'?' off':'');d.title=msg||(state==='pend'?'Enviando alterações…':state==='off'?'Sem conexão — alterações guardadas neste aparelho e enviadas quando voltar':'Sincronizado')}
@@ -651,6 +693,8 @@ async function loadAll(){
   ns.audit=a.error?[]:a.data.map(r=>({...r.data,id:r.id,ip:r.ip,navegador:r.user_agent||r.data.navegador,em:r.created_at||r.data.em})).reverse();
   // preserva registros ainda não sincronizados (offline)
   if(S&&SYNC.pending){Object.keys(TABLES).forEach(k=>{(S[k]||[]).forEach(r=>{if(!LAST[k]||LAST[k][r.id]!==JSON.stringify(rowOf(k,r))){const i=ns[k].findIndex(x=>x.id===r.id);if(i>=0)ns[k][i]=r;else ns[k].push(r)}})});(S.audit||[]).forEach(e=>{if(!AUDIT_SEEN.has(e.id))ns.audit.push(e)})}
+  ns.users.forEach(u=>{if(u.perfil==='Administrador')u.perms=[...PERFIS.Administrador]});
+  ns.contratadas=ns.contratadas||[];
   S=ns;snapshot();
   try{localStorage.setItem(CACHE_KEY,JSON.stringify(S))}catch(e){}
 }
@@ -763,8 +807,8 @@ function buildNav(){
   refreshBadges();
   go(it[0]?it[0].id:null);
 }
-function pendRest(){return S.bms.filter(b=>b.status==='fechado')}
-function pendSup(){return S.bms.filter(b=>b.status==='assinado_restaurante')}
+function pendRest(){return S.bms.filter(b=>b.status==='fechado'&&ctOk(ctOf(b)))}
+function pendSup(){return S.bms.filter(b=>b.status==='assinado_restaurante'&&ctOk(ctOf(b)))}
 function refreshBadges(){const n={rest:can('rest.validar')?pendRest().length:0,sup:can('sup.bm')?pendSup().length:0};
   document.querySelectorAll('[data-badge]').forEach(e=>{const v=n[e.dataset.badge]||0;e.hidden=!v;e.textContent=v})}
 function go(p){
@@ -818,19 +862,25 @@ $('qr-file').onchange=async e=>{
 /* =================== RESTAURANTE =================== */
 let CUR=null, CURTIPO=null;
 function suggestTipo(){const h=new Date().getHours();return h<10?'cafe':h<15?'almoco':h<17?'lanche':'jantar'}
+let REST_CT=null;try{REST_CT=localStorage.getItem('sismed_rest_ct')}catch(e){}
+function restCt(){const l=ctsAcessiveis();if(!l.find(c=>c.id===REST_CT))REST_CT=l[0]?l[0].id:null;return REST_CT?ct(REST_CT):null}
+$('rest-ct').onchange=()=>{REST_CT=$('rest-ct').value;try{localStorage.setItem('sismed_rest_ct',REST_CT)}catch(e){}CUR=null;$('confirm-card').hidden=true;renderRest()};
 function renderRest(){
+  ctMigrarLegado();const RC=restCt();
+  fillSelect($('rest-ct'),ctsAcessiveis(),REST_CT);$('rest-ct-wrap').hidden=ctsAcessiveis().length<2;
   const t=today();const d=parse(t);
-  $('rest-date').textContent=`${WD[d.getDay()]}, ${br(t)} · operador: ${USER.nome}`;
-  const missing=[];if(!S.colab.length)missing.push('colaboradores');if(!TIPOS.some(tp=>precoVigente(tp.id,t)!==null))missing.push('preços das refeições');
+  $('rest-date').textContent=`${WD[d.getDay()]}, ${br(t)} · operador: ${USER.nome}${RC?' · restaurante: '+RC.nome:''}`;
+  const missing=[];if(!RC)missing.push('uma contratada (restaurante) vinculada às obras');if(!S.colab.length)missing.push('colaboradores');if(!TIPOS.some(tp=>precoVigente(tp.id,t)!==null))missing.push('preços das refeições');
   $('rest-setup').hidden=!missing.length;$('rest-setup').textContent=missing.length?`Antes de registrar refeições, cadastre em Configurações: ${missing.join(' e ')}.`:'';
-  const regs=S.registros.filter(r=>r.data===t);
+  setupDateManual('dm');
+  const regs=S.registros.filter(r=>r.data===t&&regOk(r)&&(!RC||ctOf(r)===RC.id));
   $('rest-tiles').innerHTML=TIPOS.map(tp=>{const n=regs.filter(r=>r.tipo===tp.id).length;const p=precoVigente(tp.id,t);return `<div class="tile ${tp.id}"><div class="k">${tp.curto} hoje</div><div class="v num">${n}</div><div class="s">${p===null?'sem preço':money(p)+' un.'}</div></div>`}).join('');
-  const recent=[...regs].sort((a,b)=>a.registradoEm<b.registradoEm?1:-1).slice(0,12);
+  const recent=S.registros.filter(r=>regOk(r)&&(!RC||ctOf(r)===RC.id)&&(r.data===t||r.registradoEm.slice(0,10)===t)).sort((a,b)=>a.registradoEm<b.registradoEm?1:-1).slice(0,12);
   // notificações de BM fechado
   const pend=pendRest();$('rest-notif').hidden=!(pend.length&&can('rest.validar'));
-  $('rest-notif-list').innerHTML=pend.map(b=>`<div class="item"><span class="pill warn">Atenção</span><div class="t"><b>BM nº ${b.numero} — ${esc(b.empresaNome)}</b><span>Período ${br(b.ini)} à ${br(b.fim)} fechado em ${brdt(b.fechadoEm)} · ${b.qtd} refeições · ${money(b.liquido)}</span></div><button class="btn sm" data-vbm="${b.id}">Ver e validar</button></div>`).join('');
+  $('rest-notif-list').innerHTML=pend.map(b=>`<div class="item"><span class="pill warn">Atenção</span><div class="t"><b>BM nº ${b.numero} — ${esc(b.empresaNome)}</b><span>${esc(bmK(b).nome)} · Período ${br(b.ini)} à ${br(b.fim)} fechado em ${brdt(b.fechadoEm)} · ${b.qtd} refeições · ${money(b.liquido)}</span></div><button class="btn sm" data-vbm="${b.id}">Ver e validar</button></div>`).join('');
   $('rest-notif-list').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
-  $('rest-recent').innerHTML=recent.length?recent.map(r=>`<div class="item"><div class="avatar">${ini(r.nome)}</div><div class="t"><b>${esc(r.nome)}${r.manual?' <span class="pill neutral">manual</span>':''}</b><span>${esc(r.empresaNome)} · ${esc(r.obraNome||'obra não informada')}${r.terceirizada?' · terc.: '+esc(r.terceirizada):''} · ${hm(r.registradoEm)}</span></div><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span>${can('rest.estornar')&&!r.bmId?`<button class="btn sec sm" data-undo="${r.id}">Estornar</button>`:''}</div>`).join(''):'<div class="small muted">Nenhum registro hoje ainda.</div>';
+  $('rest-recent').innerHTML=recent.length?recent.map(r=>`<div class="item"><div class="avatar">${ini(r.nome)}</div><div class="t"><b>${esc(r.nome)}${r.manual?' <span class="pill neutral">manual</span>':''}${r.dataManual?' <span class="pill warn">data '+br(r.data)+'</span>':''}</b><span>${esc(r.empresaNome)} · ${esc(r.obraNome||'obra não informada')}${r.terceirizada?' · terc.: '+esc(r.terceirizada):''} · ${hm(r.registradoEm)}</span></div><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span>${can('rest.estornar')&&!r.bmId?`<button class="btn sec sm" data-undo="${r.id}">Estornar</button>`:''}</div>`).join(''):'<div class="small muted">Nenhum registro hoje ainda.</div>';
   $('rest-recent').querySelectorAll('[data-undo]').forEach(b=>b.onclick=()=>{const rr=S.registros.find(r=>r.id===b.dataset.undo);S.registros=S.registros.filter(r=>r.id!==b.dataset.undo);if(rr)audit('refeicao.estornar',`${tipo(rr.tipo).curto} de ${rr.nome} (${money(rr.valor)}) registrada às ${hm(rr.registradoEm)}`,{obra:rr.obraNome,empresa:rr.empresaNome,entidade:'registro '+rr.id});save();toast('Registro estornado');renderRest()});
   $('btn-scan-rest').disabled=!can('rest.registrar');$('qr-manual-go').disabled=!can('rest.registrar');
   // registro manual (terceirizados sem QR)
@@ -839,15 +889,23 @@ function renderRest(){
   $('sobras-card').hidden=!can('rest.sobras');
   if(!$('s-tipo').options.length)TIPOS.forEach(tp=>{const o=document.createElement('option');o.value=tp.id;o.textContent=tp.curto;$('s-tipo').appendChild(o)});
   $('colab-names').innerHTML=S.colab.filter(c=>c.ativo).map(c=>`<option value="${esc(c.nome)}">`).join('');
-  const sob=S.sobras.filter(s=>s.data===t).sort((a,b)=>a.registradoEm<b.registradoEm?1:-1);
+  const sob=S.sobras.filter(s=>s.data===t&&(!RC||ctOf(s)===RC.id)).sort((a,b)=>a.registradoEm<b.registradoEm?1:-1);
   $('sobras-list').innerHTML=sob.length?sob.map(s=>`<div class="item"><span class="pill ${s.tipo}">${tipo(s.tipo).curto}</span><div class="t"><b>${s.qtd} ${s.qtd===1?'refeição':'refeições'} — ${esc(s.colabNome)}</b><span>${esc(s.empresaNome||'empresa não identificada')} · ${hm(s.registradoEm)}</span></div><button class="btn sec sm" data-sdel="${s.id}">Excluir</button></div>`).join(''):'<div class="small muted">Nenhuma sobra informada hoje.</div>';
   $('sobras-list').querySelectorAll('[data-sdel]').forEach(b=>b.onclick=()=>{const ss=S.sobras.find(s=>s.id===b.dataset.sdel);S.sobras=S.sobras.filter(s=>s.id!==b.dataset.sdel);if(ss)audit('sobra.excluir',`${ss.qtd} ${tipo(ss.tipo).curto} — ${ss.colabNome}`,{empresa:ss.empresaNome});save();renderRest()});
 }
+/* ---- data manual (permissão rest.data_manual) ---- */
+function regDate(prefix){const chk=$(prefix+'-check'),dt=$(prefix+'-date');if(can('rest.data_manual')&&chk&&chk.checked&&dt&&dt.value&&dt.value<=today())return dt.value;return today()}
+function setupDateManual(prefix){const row=$(prefix+'-row'),chk=$(prefix+'-check'),dt=$(prefix+'-date');row.hidden=!can('rest.data_manual');dt.max=today();dt.min=addDays(today(),-90);if(!dt.value)dt.value=today();
+  chk.onchange=()=>{dt.hidden=!chk.checked;if(prefix==='dm'&&CUR)renderMeal();if(prefix==='mdm')renderManual()};dt.onchange=()=>{if(dt.value>today())dt.value=today();if(prefix==='dm'&&CUR)renderMeal();if(prefix==='mdm')renderManual()}}
 function lookup(code){
   code=(code||'').trim();if(!code)return;
   const c=S.colab.find(x=>x.qr.toLowerCase()===code.toLowerCase());
   if(!c){toast('QR Code não cadastrado: '+code.slice(0,40));CUR=null;$('confirm-card').hidden=true;return}
   if(!c.ativo){toast('Colaborador inativo — procure o Suprimentos');return}
+  const ce=emp(c.empresaId);if(ce&&ce.ativo===false){toast(`Empresa ${ce.nome} está inativa — refeição não registrada`);return}
+  if(!obraOk(c.obraId)){toast('Colaborador de obra fora do seu acesso');return}
+  const RC=restCt();if(!RC){toast('Nenhuma contratada (restaurante) cadastrada ou liberada para você');return}
+  if(!(RC.obras||[]).includes(c.obraId)){const o=obra(c.obraId);toast(`O restaurante ${RC.nome} não atende a obra ${o?o.nome:''} deste colaborador`);return}
   CUR=c;CURTIPO=suggestTipo();
   $('confirm-card').hidden=false;
   const e=emp(c.empresaId),o=obra(c.obraId);
@@ -856,31 +914,32 @@ function lookup(code){
   $('confirm-card').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 function renderMeal(){
-  const t=today();const regs=S.registros.filter(r=>r.data===t&&r.colabId===CUR.id);
+  const t=regDate('dm');const regs=S.registros.filter(r=>r.data===t&&r.colabId===CUR.id);
   $('mealbtns').innerHTML=TIPOS.map(tp=>{const done=regs.find(r=>r.tipo===tp.id);const p=precoVigente(tp.id,t);const off=done||p===null;
     return `<button class="mealbtn${CURTIPO===tp.id?' on':''}" data-t="${tp.id}" ${off?'disabled':''}>${tp.curto}<small>${done?'já registrado '+hm(done.registradoEm):p===null?'sem preço cadastrado':money(p)}</small></button>`}).join('');
   $('mealbtns').querySelectorAll('button').forEach(b=>b.onclick=()=>{CURTIPO=b.dataset.t;renderMeal()});
   const dup=regs.find(r=>r.tipo===CURTIPO);const p=precoVigente(CURTIPO,t);
   $('dup-msg').hidden=!(dup||p===null);
-  if(dup)$('dup-msg').textContent=`${tipo(CURTIPO).curto} já registrado hoje às ${hm(dup.registradoEm)}. Escolha outro tipo ou cancele.`;
+  if(dup)$('dup-msg').textContent=`${tipo(CURTIPO).curto} já registrado em ${br(t)} às ${hm(dup.registradoEm)}. Escolha outro tipo ou cancele.`;
   else if(p===null)$('dup-msg').textContent=`${tipo(CURTIPO).curto} não tem preço cadastrado. Cadastre em Configurações › Preços.`;
   $('btn-confirm').disabled=!!dup||p===null;
 }
 $('btn-confirm').onclick=()=>{
-  if(!CUR||!CURTIPO)return;const t=today();const p=precoVigente(CURTIPO,t);
+  if(!CUR||!CURTIPO)return;const t=regDate('dm');const p=precoVigente(CURTIPO,t);const manualDate=t!==today();
   if(p===null||S.registros.some(r=>r.data===t&&r.colabId===CUR.id&&r.tipo===CURTIPO))return;
   const e=emp(CUR.empresaId),o=obra(CUR.obraId);
-  S.registros.push({id:uid(),data:t,colabId:CUR.id,nome:CUR.nome,empresaId:CUR.empresaId,empresaNome:e?e.nome:'',obraNome:o?o.nome:'',tipo:CURTIPO,valor:p,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null});
-  audit('refeicao.registrar',`${tipo(CURTIPO).curto} — ${CUR.nome} (${money(p)})`,{obra:o?o.nome:'',empresa:e?e.nome:'',entidade:'colaborador '+CUR.qr});
-  save();toast(`${tipo(CURTIPO).curto} registrado — ${CUR.nome.split(' ')[0]}`);
+  const RC=restCt();if(!RC)return;
+  S.registros.push({id:uid(),data:t,colabId:CUR.id,nome:CUR.nome,empresaId:CUR.empresaId,empresaNome:e?e.nome:'',obraId:CUR.obraId,obraNome:o?o.nome:'',contratadaId:RC.id,contratadaNome:RC.nome,tipo:CURTIPO,valor:p,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null,dataManual:manualDate||undefined});
+  audit('refeicao.registrar',`${tipo(CURTIPO).curto} — ${CUR.nome} (${money(p)})${manualDate?' — DATA MANUAL '+br(t):''}`,{obra:o?o.nome:'',empresa:e?e.nome:'',entidade:'colaborador '+CUR.qr});
+  save();toast(`${tipo(CURTIPO).curto} registrado — ${CUR.nome.split(' ')[0]}${manualDate?' ('+br(t)+')':''}`);
   CUR=null;$('confirm-card').hidden=true;$('qr-manual').value='';renderRest();
 };
 $('btn-cancel').onclick=()=>{CUR=null;$('confirm-card').hidden=true};
 /* ---- registro manual: colaborador terceirizado sem QR Code ---- */
 let MTIPO=null;
 function renderManual(){
-  const t=today();if(!MTIPO)MTIPO=suggestTipo();
-  fillSelect($('m-emp'),S.empresas,$('m-emp').value);fillSelect($('m-obra'),S.obras.filter(o=>o.ativo!==false),$('m-obra').value);
+  setupDateManual('mdm');const t=regDate('mdm');if(!MTIPO)MTIPO=suggestTipo();
+  fillSelect($('m-emp'),S.empresas.filter(e=>e.ativo!==false),$('m-emp').value);const RC=restCt();fillSelect($('m-obra'),S.obras.filter(o=>o.ativo!==false&&obraOk(o.id)&&RC&&(RC.obras||[]).includes(o.id)),$('m-obra').value);
   const man=S.registros.filter(r=>r.manual);
   $('manual-names').innerHTML=[...new Set(man.map(r=>r.nome))].sort().map(n=>`<option value="${esc(n)}">`).join('');
   $('terc-names').innerHTML=[...new Set(man.map(r=>r.terceirizada).filter(Boolean))].sort().map(n=>`<option value="${esc(n)}">`).join('');
@@ -889,16 +948,17 @@ function renderManual(){
   $('m-msg').hidden=true;
 }
 $('m-save').onclick=()=>{
-  const t=today();const nome=$('m-nome').value.trim().replace(/\s+/g,' ');const empId=$('m-emp').value,obraId=$('m-obra').value,terc=$('m-terc').value.trim();const msg=$('m-msg');
+  const t=regDate('mdm');const manualDate=t!==today();const nome=$('m-nome').value.trim().replace(/\s+/g,' ');const empId=$('m-emp').value,obraId=$('m-obra').value,terc=$('m-terc').value.trim();const msg=$('m-msg');
   const show=m=>{msg.hidden=false;msg.textContent=m};
   if(!nome)return show('Informe o nome do colaborador.');
-  if(!empId||!obraId)return show('Selecione a empresa e a obra (cadastre em Configurações se ainda não existirem).');
+  if(!empId||!obraId)return show('Selecione a empresa e a obra (a obra precisa estar vinculada ao restaurante selecionado).');
+  const RC=restCt();if(!RC)return show('Nenhuma contratada (restaurante) disponível.');
   const p=precoVigente(MTIPO,t);if(p===null)return show(`${tipo(MTIPO).curto} não tem preço cadastrado.`);
   const dup=S.registros.find(r=>r.data===t&&r.tipo===MTIPO&&r.manual&&r.nome.toLowerCase()===nome.toLowerCase()&&r.empresaId===empId);
-  if(dup)return show(`${tipo(MTIPO).curto} de ${nome} já registrado hoje às ${hm(dup.registradoEm)}.`);
+  if(dup)return show(`${tipo(MTIPO).curto} de ${nome} já registrado em ${br(t)} às ${hm(dup.registradoEm)}.`);
   const e=emp(empId),o=obra(obraId);
-  S.registros.push({id:uid(),data:t,colabId:null,manual:true,nome,empresaId:empId,empresaNome:e?e.nome:'',obraNome:o?o.nome:'',terceirizada:terc,tipo:MTIPO,valor:p,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null});
-  audit('refeicao.registrar',`${tipo(MTIPO).curto} — ${nome} (${money(p)}) — registro manual, terceirizado${terc?' de '+terc:''}`,{obra:o?o.nome:'',empresa:e?e.nome:'',entidade:'registro manual'});
+  S.registros.push({id:uid(),data:t,colabId:null,manual:true,nome,empresaId:empId,empresaNome:e?e.nome:'',obraId,obraNome:o?o.nome:'',contratadaId:RC.id,contratadaNome:RC.nome,terceirizada:terc,tipo:MTIPO,valor:p,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null,dataManual:manualDate||undefined});
+  audit('refeicao.registrar',`${tipo(MTIPO).curto} — ${nome} (${money(p)}) — registro manual, terceirizado${terc?' de '+terc:''}${manualDate?' — DATA MANUAL '+br(t):''}`,{obra:o?o.nome:'',empresa:e?e.nome:'',entidade:'registro manual'});
   save();toast(`${tipo(MTIPO).curto} registrado — ${nome.split(' ')[0]} (manual)`);
   $('m-nome').value='';$('m-terc').value='';renderRest();
 };
@@ -910,7 +970,8 @@ $('s-save').onclick=()=>{
   if(!(q>0)){toast('Informe a quantidade que sobrou');return}
   if(!n){toast('Informe o nome do colaborador');return}
   const c=S.colab.find(x=>x.nome.toLowerCase()===n.toLowerCase());const e=c?emp(c.empresaId):null;
-  S.sobras.push({id:uid(),data:today(),tipo:$('s-tipo').value,qtd:q,colabNome:c?c.nome:n,colabId:c?c.id:null,empresaId:c?c.empresaId:null,empresaNome:e?e.nome:'',registradoEm:new Date().toISOString(),usuario:USER.nome});
+  const RC=restCt();
+  S.sobras.push({id:uid(),data:today(),contratadaId:RC?RC.id:null,contratadaNome:RC?RC.nome:'',tipo:$('s-tipo').value,qtd:q,colabNome:c?c.nome:n,colabId:c?c.id:null,empresaId:c?c.empresaId:null,empresaNome:e?e.nome:'',registradoEm:new Date().toISOString(),usuario:USER.nome});
   audit('sobra.registrar',`${q} ${tipo($('s-tipo').value).curto} — ${c?c.nome:n}`,{empresa:e?e.nome:'',obra:c&&obra(c.obraId)?obra(c.obraId).nome:''});
   save();$('s-qtd').value='';$('s-colab').value='';toast('Sobra registrada');renderRest();
 };
@@ -919,14 +980,15 @@ $('s-save').onclick=()=>{
 let WK=mondayOf(today());
 const STATUS={rascunho:['Rascunho','warn'],fechado:['Aguardando restaurante','warn'],assinado_restaurante:['Assinado pelo restaurante','ok'],assinado:['Assinado (ambos)','ok'],faturado:['Faturado','ok']};
 function statusPill(b){const s=STATUS[b.status]||[b.status,'neutral'];return `<span class="pill ${s[1]}">${s[0]}</span>`}
-function periodRegs(ini,fim,empId){return S.registros.filter(r=>r.data>=ini&&r.data<=fim&&(!empId||r.empresaId===empId))}
+function periodRegs(ini,fim,empId,ctId){return S.registros.filter(r=>r.data>=ini&&r.data<=fim&&(!empId||r.empresaId===empId)&&(!ctId||ctOf(r)===ctId))}
 function renderSup(){
   const fim=addDays(WK,6);
   $('wk-label').textContent=`${br(WK)} a ${br(fim)}`;
   fillSelect($('f-emp'),S.empresas,$('f-emp').value,'Todas');
   if($('f-tipo').options.length<2)TIPOS.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.curto;$('f-tipo').appendChild(o)});
-  const empId=$('f-emp').value,tp=$('f-tipo').value,q=$('f-busca').value.trim().toLowerCase();
-  const regs=periodRegs(WK,fim).filter(r=>(!empId||r.empresaId===empId)&&(!tp||r.tipo===tp)&&(!q||r.nome.toLowerCase().includes(q))).sort((a,b)=>a.registradoEm<b.registradoEm?1:-1);
+  fillSelect($('f-ct'),(S.contratadas||[]).filter(c=>ctOk(c.id)),$('f-ct').value,'Todos');
+  const empId=$('f-emp').value,ctF=$('f-ct').value,tp=$('f-tipo').value,q=$('f-busca').value.trim().toLowerCase();
+  const regs=periodRegs(WK,fim).filter(r=>regOk(r)&&(!ctF||ctOf(r)===ctF)&&(!empId||r.empresaId===empId)&&(!tp||r.tipo===tp)&&(!q||r.nome.toLowerCase().includes(q))).sort((a,b)=>a.registradoEm<b.registradoEm?1:-1);
   const tot=regs.reduce((s,r)=>s+r.valor,0);
   $('sup-tiles').innerHTML=TIPOS.map(t=>{const l=regs.filter(r=>r.tipo===t.id);return `<div class="tile ${t.id}"><div class="k">${t.curto}</div><div class="v num">${l.length}</div><div class="s num">${money(l.reduce((s,r)=>s+r.valor,0))}</div></div>`}).join('')+`<div class="tile total"><div class="k">Total da semana</div><div class="v num">${regs.length}</div><div class="s num">${money(tot)}</div></div>`;
   $('sup-count').textContent=`${regs.length} registro(s) na semana`;
@@ -934,20 +996,20 @@ function renderSup(){
   const ps=pendSup();$('sup-notif').hidden=!(ps.length&&can('sup.bm'));
   $('sup-notif-list').innerHTML=ps.map(b=>`<div class="item"><span class="pill ok">Assinado</span><div class="t"><b>BM nº ${b.numero} — ${esc(b.empresaNome)}</b><span>Período ${br(b.ini)} à ${br(b.fim)} · assinatura ${b.assRest.tipo==='eletronica'?'eletrônica':'física homologada'} em ${brdt(b.assRest.em)} · ${money(b.liquido)}</span></div><button class="btn sm" data-vbm="${b.id}">Ver / imprimir</button></div>`).join('');
   $('sup-notif-list').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
-  $('sup-table').innerHTML=`<thead><tr><th>Data refeição</th><th>Colaborador</th><th>Empresa</th><th>Obra</th><th>Tipo</th><th class="r">Valor</th><th>Registrado em</th><th>Por</th><th>Nº BM</th></tr></thead><tbody>${regs.slice(0,400).map(r=>{const b=r.bmId?S.bms.find(x=>x.id===r.bmId):null;return `<tr><td class="num">${br(r.data)}</td><td>${esc(r.nome)}${r.manual?`<div class="small muted">manual${r.terceirizada?' · terc.: '+esc(r.terceirizada):''}</div>`:''}</td><td>${esc(r.empresaNome)}</td><td>${esc(r.obraNome)}</td><td><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span></td><td class="r num">${money(r.valor)}</td><td class="num">${brdt(r.registradoEm)}</td><td>${esc(r.usuario)}</td><td>${b?`<button class="btn sec sm num" data-vbm="${b.id}">BM ${b.numero}</button>`:'<span class="pill neutral">em aberto</span>'}</td></tr>`}).join('')||'<tr><td colspan="9" class="empty">Nenhum registro com esses filtros.</td></tr>'}</tbody>`;
+  $('sup-table').innerHTML=`<thead><tr><th>Data refeição</th><th>Colaborador</th><th>Empresa</th><th>Obra</th><th>Restaurante</th><th>Tipo</th><th class="r">Valor</th><th>Registrado em</th><th>Por</th><th>Nº BM</th></tr></thead><tbody>${regs.slice(0,400).map(r=>{const b=r.bmId?S.bms.find(x=>x.id===r.bmId):null;return `<tr><td class="num">${br(r.data)}${r.dataManual?' <span class="pill warn" title="data informada manualmente">manual</span>':''}</td><td>${esc(r.nome)}${r.manual?`<div class="small muted">manual${r.terceirizada?' · terc.: '+esc(r.terceirizada):''}</div>`:''}</td><td>${esc(r.empresaNome)}</td><td>${esc(r.obraNome)}</td><td>${esc((ct(ctOf(r))||{}).nome||r.contratadaNome||'—')}</td><td><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span></td><td class="r num">${money(r.valor)}</td><td class="num">${brdt(r.registradoEm)}</td><td>${esc(r.usuario)}</td><td>${b?`<button class="btn sec sm num" data-vbm="${b.id}">BM ${b.numero}</button>`:'<span class="pill neutral">em aberto</span>'}</td></tr>`}).join('')||'<tr><td colspan="10" class="empty">Nenhum registro com esses filtros.</td></tr>'}</tbody>`;
   $('sup-table').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
-  const sob=S.sobras.filter(s=>s.data>=WK&&s.data<=fim&&(!empId||s.empresaId===empId)&&(!tp||s.tipo===tp)).sort((a,b)=>a.data<b.data?1:-1);
+  const sob=S.sobras.filter(s=>s.data>=WK&&s.data<=fim&&ctOk(ctOf(s))&&(!ctF||ctOf(s)===ctF)&&(!s.obraNome||obraNomeOk(s.obraNome))&&(!empId||s.empresaId===empId)&&(!tp||s.tipo===tp)).sort((a,b)=>a.data<b.data?1:-1);
   $('sup-sobras').innerHTML=`<thead><tr><th>Data</th><th>Tipo</th><th class="r">Qtd</th><th>Colaborador</th><th>Empresa</th><th>Informado por</th></tr></thead><tbody>${sob.map(s=>`<tr><td class="num">${br(s.data)}</td><td><span class="pill ${s.tipo}">${tipo(s.tipo).curto}</span></td><td class="r num">${s.qtd}</td><td>${esc(s.colabNome)}</td><td>${esc(s.empresaNome||'—')}</td><td>${esc(s.usuario)}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">Nenhuma sobra informada na semana.</td></tr>'}</tbody>`;
   $('btn-emitir').disabled=!can('sup.bm')||!S.empresas.length;
   $('btn-emitir').onclick=openEmitir;
-  $('bm-list').innerHTML=`<thead><tr><th>Nº</th><th>Empresa</th><th>Período</th><th class="r">Qtd</th><th class="r">Valor líquido</th><th>Situação</th><th>Nota fiscal</th><th>BM assinado</th><th></th></tr></thead><tbody>${[...S.bms].sort((a,b)=>b.emitidoEm<a.emitidoEm?-1:1).map(b=>`<tr><td class="num"><b>${b.numero}</b></td><td>${esc(b.empresaNome)}</td><td class="num">${br(b.ini)} – ${br(b.fim)}</td><td class="r num">${b.qtd}</td><td class="r num">${money(b.liquido)}</td><td>${statusPill(b)}</td><td>${b.nf?esc(b.nf):'<span class="muted">—</span>'}</td><td>${b.anexo?`<button class="btn sec sm" data-anx="${b.id}">${b.anexo.type.startsWith('image/')?'Ver imagem':'Ver PDF'}</button>`:'<span class="muted small">sem anexo</span>'}</td><td style="white-space:nowrap"><button class="btn sec sm" data-vbm="${b.id}">Ver BM</button> ${can('sup.nf')&&b.status!=='rascunho'&&b.status!=='fechado'?`<button class="btn sec sm" data-att="${b.id}" title="Anexar BM assinado">📎 Anexar</button>`:''}</td></tr>`).join('')||'<tr><td colspan="9" class="empty">Nenhum BM emitido ainda.</td></tr>'}</tbody>`;
+  $('bm-list').innerHTML=`<thead><tr><th>Nº</th><th>Empresa</th><th>Restaurante</th><th>Período</th><th class="r">Qtd</th><th class="r">Valor líquido</th><th>Situação</th><th>Nota fiscal</th><th>BM assinado</th><th></th></tr></thead><tbody>${[...S.bms].filter(b=>ctOk(ctOf(b))&&(!ctF||ctOf(b)===ctF)).sort((a,b)=>b.emitidoEm<a.emitidoEm?-1:1).map(b=>`<tr><td class="num"><b>${b.numero}</b></td><td>${esc(b.empresaNome)}</td><td>${esc(bmK(b).nome||'—')}</td><td class="num">${br(b.ini)} – ${br(b.fim)}</td><td class="r num">${b.qtd}</td><td class="r num">${money(b.liquido)}</td><td>${statusPill(b)}</td><td>${b.nf?esc(b.nf):'<span class="muted">—</span>'}</td><td>${b.anexo?`<button class="btn sec sm" data-anx="${b.id}">${b.anexo.type.startsWith('image/')?'Ver imagem':'Ver PDF'}</button>`:'<span class="muted small">sem anexo</span>'}</td><td style="white-space:nowrap"><button class="btn sec sm" data-vbm="${b.id}">Ver BM</button> ${can('sup.nf')&&b.status!=='rascunho'&&b.status!=='fechado'?`<button class="btn sec sm" data-att="${b.id}" title="Anexar BM assinado">📎 Anexar</button>`:''}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">Nenhum BM emitido ainda.</td></tr>'}</tbody>`;
   $('bm-list').querySelectorAll('[data-vbm]').forEach(b=>b.onclick=()=>openBM(S.bms.find(x=>x.id===b.dataset.vbm)));
   $('bm-list').querySelectorAll('[data-att]').forEach(b=>b.onclick=()=>{ATT_BM=b.dataset.att;$('bm-anexo-file').click()});
   $('bm-list').querySelectorAll('[data-anx]').forEach(b=>b.onclick=()=>viewAnexo(S.bms.find(x=>x.id===b.dataset.anx)));
   refreshBadges();
 }
 $('wk-prev').onclick=()=>{WK=addDays(WK,-7);renderSup()};$('wk-next').onclick=()=>{WK=addDays(WK,7);renderSup()};
-['f-emp','f-tipo'].forEach(id=>$(id).onchange=renderSup);$('f-busca').oninput=renderSup;
+['f-emp','f-ct','f-tipo'].forEach(id=>$(id).onchange=renderSup);$('f-busca').oninput=renderSup;
 
 /* ---- anexo do BM assinado ---- */
 let ATT_BM=null;
@@ -973,24 +1035,29 @@ async function viewAnexo(b){
   const rm=$('anexo-rm');if(rm)rm.onclick=async()=>{await sb.storage.from('anexos').remove([b.anexo.path]);audit('bm.anexo_remover',`BM ${b.numero} — ${b.anexo.name}`,{empresa:b.empresaNome,entidade:'BM '+b.numero});delete b.anexo;save();$('anexo-modal').classList.remove('on');renderSup()};
 }
 $('anexo-close').onclick=()=>$('anexo-modal').classList.remove('on');
+function infoModal(title,html){$('info-title').innerHTML=title;$('info-body').innerHTML=html;$('info-modal').classList.add('on')}
+$('info-close').onclick=()=>$('info-modal').classList.remove('on');
 
 /* ---- Emitir BM: empresa + período ---- */
 function openEmitir(){
-  fillSelect($('bm-emp'),S.empresas,$('f-emp').value||S.empresas[0].id);
+  const ativas=S.empresas.filter(e=>e.ativo!==false);if(!ativas.length){toast('Nenhuma empresa ativa');return}
+  fillSelect($('bm-emp'),ativas,$('f-emp').value||ativas[0].id);
+  const cts=ctsAcessiveis();if(!cts.length){toast('Cadastre uma contratada (restaurante) em Configurações');return}
+  fillSelect($('bm-ct'),cts,$('f-ct').value||cts[0].id);
   $('bm-ini').value=WK;$('bm-fim').value=addDays(WK,6);
   previewBM();$('emp-modal').classList.add('on');
 }
 function previewBM(){
-  const ini=$('bm-ini').value,fim=$('bm-fim').value,empId=$('bm-emp').value;const msg=$('bm-prev-msg');
+  const ini=$('bm-ini').value,fim=$('bm-fim').value,empId=$('bm-emp').value,ctId=$('bm-ct').value;const msg=$('bm-prev-msg');
   if(!ini||!fim||fim<ini){$('bm-prev-tiles').innerHTML='';msg.hidden=false;msg.className='notice bad small';msg.textContent='Informe um período válido (fim igual ou posterior ao início).';$('bm-emit-go').disabled=true;return}
-  const all=periodRegs(ini,fim,empId);const livres=all.filter(r=>!r.bmId);const presos=all.length-livres.length;
+  const all=periodRegs(ini,fim,empId,ctId);const livres=all.filter(r=>!r.bmId);const presos=all.length-livres.length;
   $('bm-prev-tiles').innerHTML=TIPOS.map(t=>{const l=livres.filter(r=>r.tipo===t.id);return `<div class="tile ${t.id}"><div class="k">${t.curto}</div><div class="v num">${l.length}</div><div class="s num">${money(l.reduce((s,r)=>s+r.valor,0))}</div></div>`}).join('')+`<div class="tile total"><div class="k">Total</div><div class="v num">${livres.length}</div><div class="s num">${money(livres.reduce((s,r)=>s+r.valor,0))}</div></div>`;
   const dias=Math.round((parse(fim)-parse(ini))/864e5)+1;
   let t=`${dias} dia(s) · ${livres.length} refeições em aberto.`;if(presos)t+=` ${presos} registro(s) do período já pertencem a outro BM e ficam de fora.`;
   msg.hidden=false;msg.className='notice '+(livres.length?'info':'warn')+' small';msg.textContent=t;
   $('bm-emit-go').disabled=!livres.length||dias>62;if(dias>62){msg.className='notice bad small';msg.textContent='Período máximo de 62 dias.'}
 }
-['bm-ini','bm-fim','bm-emp'].forEach(id=>$(id).onchange=previewBM);
+['bm-ini','bm-fim','bm-emp','bm-ct'].forEach(id=>$(id).onchange=previewBM);
 document.querySelectorAll('#emp-modal [data-q]').forEach(b=>b.onclick=()=>{
   const t=today();const q=b.dataset.q;let ini,fim;
   if(q==='semana'){ini=mondayOf(t);fim=addDays(ini,6)}
@@ -999,15 +1066,15 @@ document.querySelectorAll('#emp-modal [data-q]').forEach(b=>b.onclick=()=>{
   else{const d=parse(t);const first=new Date(d.getFullYear(),d.getMonth()-1,1);const last=new Date(d.getFullYear(),d.getMonth(),0);ini=ymd(first);fim=ymd(last)}
   $('bm-ini').value=ini;$('bm-fim').value=fim;previewBM();
 });
-$('bm-emit-go').onclick=()=>{$('emp-modal').classList.remove('on');const nb=buildBM($('bm-ini').value,$('bm-fim').value,$('bm-emp').value);audit('bm.emitir',`BM ${nb.numero} — ${nb.empresaNome} — ${br(nb.ini)} à ${br(nb.fim)} — ${nb.qtd} refeições — ${money(nb.valor)}`,{empresa:nb.empresaNome,entidade:'BM '+nb.numero});save();openBM(nb)};
+$('bm-emit-go').onclick=()=>{$('emp-modal').classList.remove('on');const nb=buildBM($('bm-ini').value,$('bm-fim').value,$('bm-emp').value,$('bm-ct').value);audit('bm.emitir',`BM ${nb.numero} — ${nb.empresaNome} — ${nb.contratadaNome} — ${br(nb.ini)} à ${br(nb.fim)} — ${nb.qtd} refeições — ${money(nb.valor)}`,{empresa:nb.empresaNome,entidade:'BM '+nb.numero});save();openBM(nb)};
 $('emp-close').onclick=()=>$('emp-modal').classList.remove('on');
 
 /* ---- BM build ---- */
-function buildBM(ini,fim,empId){
-  const E=emp(empId);const regs=periodRegs(ini,fim,empId).filter(r=>!r.bmId);
-  const ct=E.contrato||{};
+function buildBM(ini,fim,empId,ctId){
+  const E=emp(empId);const C=ct(ctId)||{};const regs=periodRegs(ini,fim,empId,ctId).filter(r=>!r.bmId);
+  const contr=E.contrato||{};
   const itens=TIPOS.map((t,i)=>{
-    const c=ct[t.id]||{};const antes=S.registros.filter(r=>r.empresaId===empId&&r.tipo===t.id&&r.data<ini&&r.bmId);
+    const c=contr[t.id]||{};const antes=S.registros.filter(r=>r.empresaId===empId&&ctOf(r)===ctId&&r.tipo===t.id&&r.data<ini&&r.bmId);
     const acumQtd=(c.acumQtd||0)+antes.length;const acumVal=(c.acumVal||0)+antes.reduce((s,r)=>s+r.valor,0);
     const atual=regs.filter(r=>r.tipo===t.id);const atualQtd=atual.length;const atualVal=atual.reduce((s,r)=>s+r.valor,0);
     const preco=atual.length?atual[atual.length-1].valor:precoVigente(t.id,fim);const qtdCt=c.qtd||null;const totalCt=qtdCt&&preco!==null?Math.trunc(qtdCt*preco*100)/100:null;
@@ -1017,13 +1084,14 @@ function buildBM(ini,fim,empId){
   const obrasN=[...new Set(regs.map(r=>r.obraNome))];
   const obras=obrasN.map(o=>{const l=regs.filter(r=>r.obraNome===o);return {o,porTipo:TIPOS.map(t=>l.filter(r=>r.tipo===t.id).length),total:l.length,valor:l.reduce((s,r)=>s+r.valor,0)}});
   const valor=regs.reduce((s,r)=>s+r.valor,0);
-  return {id:uid(),numero:E.proximoBM||1,empresaId:empId,empresaNome:E.nome,empresaCnpj:E.cnpj||'',ini,fim,itens,dias,obras,qtd:regs.length,valor,deducoes:0,adiant:0,liquido:valor,status:'rascunho',emitidoEm:new Date().toISOString(),usuario:USER.nome,nf:'',obs:'',assRest:null,assSup:null};
+  return {id:uid(),numero:E.proximoBM||1,empresaId:empId,empresaNome:E.nome,empresaCnpj:E.cnpj||'',contratadaId:ctId,contratadaNome:C.nome||'',contratadaCnpj:C.cnpj||'',gestor:C.gestor||'',cargo:C.cargo||'',servico:C.servico||'FORNECIMENTO DE REFEIÇÕES',ini,fim,itens,dias,obras,qtd:regs.length,valor,deducoes:0,adiant:0,liquido:valor,status:'rascunho',emitidoEm:new Date().toISOString(),usuario:USER.nome,nf:'',obs:'',assRest:null,assSup:null};
 }
+function bmK(b){const C=ct(ctOf(b))||{};const L=S.contratada||{};return {nome:b.contratadaNome||C.nome||L.nome||'',cnpj:b.contratadaCnpj||C.cnpj||L.cnpj||'',gestor:b.gestor||C.gestor||L.gestor||'',cargo:b.cargo||C.cargo||L.cargo||'',servico:b.servico||C.servico||L.servico||'FORNECIMENTO DE REFEIÇÕES'}}
 let BM=null, BMTAB='bm'; const LISTA_VISTA=new Set();
 function openBM(b){BM=b;BMTAB='bm';renderBM();$('bm-modal').classList.add('on');$('bm-modal').querySelector('.sheet').scrollTop=0}
 const TIPO_ORD={cafe:0,almoco:1,jantar:2,lanche:3};
 function bmRegs(b){
-  const l=b.status==='rascunho'?periodRegs(b.ini,b.fim,b.empresaId).filter(r=>!r.bmId):S.registros.filter(r=>r.bmId===b.id);
+  const l=b.status==='rascunho'?periodRegs(b.ini,b.fim,b.empresaId,ctOf(b)).filter(r=>!r.bmId):S.registros.filter(r=>r.bmId===b.id);
   return l.sort((a,c)=>a.data<c.data?-1:a.data>c.data?1:(TIPO_ORD[a.tipo]-TIPO_ORD[c.tipo])||(a.registradoEm<c.registradoEm?-1:1));
 }
 function bmGrupos(b){
@@ -1047,7 +1115,7 @@ function stampHtml(a,who){
   return `<div class="stamp">${a.tipo==='eletronica'?'Assinado eletronicamente':'Assinatura física homologada'}<small>${esc(a.usuario)} · ${brdt(a.em)}${a.tipo==='fisica'?' · homologado por '+esc(a.por):''}</small></div>`;
 }
 function renderBM(){
-  const b=BM,K=S.contratada,E=emp(b.empresaId);const mes=parse(b.ini).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).toUpperCase();
+  const b=BM,K=bmK(b),E=emp(b.empresaId);const mes=parse(b.ini).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).toUpperCase();
   const isDraft=b.status==='rascunho';const st=b.status;
   b.liquido=b.valor-(b.deducoes||0)-(b.adiant||0);
   $('bm-title').textContent=`BM nº ${b.numero} — ${b.empresaNome}`;
@@ -1065,7 +1133,7 @@ function renderBM(){
   $('bm-body').innerHTML=`
   <div class="steps">${steps}</div>
   <div style="margin-bottom:10px">${banner}</div>
-  ${!K.nome?'<div class="notice info small" style="margin-bottom:10px">Dados da contratada ainda não preenchidos (Configurações › Contratada).</div>':''}
+  ${!K.nome?'<div class="notice info small" style="margin-bottom:10px">Dados da contratada ainda não preenchidos (Configurações › Contratadas).</div>':''}
   <div class="subtabs" id="bm-tabs"><button data-t="bm" class="${BMTAB==='bm'?'on':''}">Boletim de Medição</button><button data-t="lista" class="${BMTAB==='lista'?'on':''}">Lista de colaboradores (${nRegs})${isDraft&&!LISTA_VISTA.has(b.id)?' <span class="badge">!</span>':''}</button></div>
   <div id="bm-pane-lista" ${BMTAB==='lista'?'':'hidden'}>${BMTAB==='lista'?renderLista(b):''}</div>
   <div id="bm-pane-bm" ${BMTAB==='bm'?'':'hidden'}>
@@ -1114,7 +1182,7 @@ function renderBM(){
   const A=$('bm-actions');const acts=[];
   const listaOk=LISTA_VISTA.has(b.id)||nRegs===0;
   if(st==='rascunho'&&can('sup.bm')){acts.push(['bm-fechar','good',`Fechar BM ${b.numero} e enviar ao restaurante`]);if(!listaOk){$('bm-hint').hidden=false;$('bm-hint').innerHTML='Antes de fechar, confira a aba <b>Lista de colaboradores</b> (nomes, obras e assinaturas digitais por dia e refeição). A lista acompanha o BM na validação do restaurante e no PDF.'}}
-  if(st==='fechado'&&can('rest.validar'))acts.push(['bm-validar','good','Validar BM (assinar eletronicamente pelo restaurante)']);
+  if(st==='fechado'&&can('rest.validar')&&ctOk(ctOf(b)))acts.push(['bm-validar','good','Validar BM (assinar eletronicamente pelo restaurante)']);
   if(st==='fechado'&&can('sup.bm'))acts.push(['bm-homologar','sec','Homologar assinatura física do restaurante']);
   if((st==='assinado_restaurante'||st==='assinado'||st==='faturado')&&can('sup.bm'))acts.push(['bm-print','','Imprimir BM']);
   if(st==='assinado_restaurante'&&can('sup.bm'))acts.push(['bm-ass-sup','good','Registrar assinatura do Suprimentos']);
@@ -1124,7 +1192,7 @@ function renderBM(){
   const on=(id,fn)=>{const e=$(id);if(e)e.onclick=fn};
   on('bm-fechar',()=>{
     b.status='fechado';b.fechadoEm=new Date().toISOString();b.fechadoPor=USER.nome;
-    S.registros.forEach(r=>{if(r.empresaId===b.empresaId&&r.data>=b.ini&&r.data<=b.fim&&!r.bmId)r.bmId=b.id});
+    S.registros.forEach(r=>{if(r.empresaId===b.empresaId&&ctOf(r)===ctOf(b)&&r.data>=b.ini&&r.data<=b.fim&&!r.bmId)r.bmId=b.id});
     S.bms.push(b);if(E)E.proximoBM=b.numero+1;audit('bm.fechar',`BM ${b.numero} — ${b.empresaNome} — ${br(b.ini)} à ${br(b.fim)} — ${b.qtd} refeições — líquido ${money(b.liquido)}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,depois:'fechado'});save();toast(`BM ${b.numero} fechado e enviado ao restaurante`);renderBM();renderSup();
   });
   on('bm-validar',()=>{b.status='assinado_restaurante';b.assRest={tipo:'eletronica',usuario:USER.nome,em:new Date().toISOString()};audit('bm.validar',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:'fechado',depois:'assinado_restaurante'});save();toast(`BM ${b.numero} validado — devolvido ao Suprimentos assinado`);$('bm-modal').classList.remove('on');refreshBadges();if(can('sup.ver')){go('sup');openBM(b)}else renderRest()});
@@ -1138,7 +1206,7 @@ function renderBM(){
 /* ---- PDF export / print (jsPDF + AutoTable) ---- */
 function bmPdf(b){
   const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
-  const K=S.contratada,E=emp(b.empresaId);const W=297,M=10;let y=M;
+  const K=bmK(b),E=emp(b.empresaId);const W=297,M=10;let y=M;
   const mes=parse(b.ini).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).toUpperCase();
   let x=M;
   if(E&&E.logo){try{const maxW=42,maxH=18;const ratio=(E.logoW||4)/(E.logoH||1);let w=maxW,h=w/ratio;if(h>maxH){h=maxH;w=h*ratio}
@@ -1243,7 +1311,7 @@ function renderSetup(){
     ['cfg.obras','obras',S.obras.length,'Cadastrar ao menos uma obra'],
     ['cfg.precos','precos',TIPOS.filter(tp=>precoVigente(tp.id,t)!==null).length,'Cadastrar os preços das refeições'],
     ['cfg.colab','colab',S.colab.length,'Cadastrar colaboradores lendo o QR Code do crachá'],
-    ['cfg.contratada','contratada',S.contratada.nome?1:0,'Preencher os dados da contratada (restaurante)'],
+    ['cfg.contratada','contratada',(S.contratadas||[]).length,'Cadastrar as contratadas (restaurantes) e as obras que atendem'],
     ['cfg.usuarios','usuarios',S.users.length-1,'Criar usuários do Restaurante e do Suprimentos'],
   ].filter(s=>can(s[0]));
   const done=steps.every(s=>s[2]>0);
@@ -1252,7 +1320,7 @@ function renderSetup(){
   $('setup-list').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{CFGTAB=b.dataset.t;renderCfg()});
 }
 function renderCfg(){
-  const tabs=[];if(can('cfg.usuarios'))tabs.push(['usuarios','Usuários']);if(can('cfg.colab'))tabs.push(['colab','Colaboradores']);if(can('cfg.empresas'))tabs.push(['empresas','Empresas']);if(can('cfg.obras'))tabs.push(['obras','Obras']);if(can('cfg.precos'))tabs.push(['precos','Preços']);if(can('cfg.contratada'))tabs.push(['contratada','Contratada']);
+  const tabs=[];if(can('cfg.usuarios'))tabs.push(['usuarios','Usuários']);if(can('cfg.colab'))tabs.push(['colab','Colaboradores']);if(can('cfg.empresas'))tabs.push(['empresas','Empresas']);if(can('cfg.obras'))tabs.push(['obras','Obras']);if(can('cfg.precos'))tabs.push(['precos','Preços']);if(can('cfg.contratada'))tabs.push(['contratada','Contratadas']);
   if(!tabs.some(t=>t[0]===CFGTAB))CFGTAB=tabs[0]&&tabs[0][0];
   $('cfg-tabs').innerHTML=tabs.map(t=>`<button data-t="${t[0]}" class="${CFGTAB===t[0]?'on':''}">${t[1]}</button>`).join('');
   $('cfg-tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(CFGTAB!==b.dataset.t){audit('nav.cfg','Configurações › '+b.textContent);save()}CFGTAB=b.dataset.t;renderCfg()});
@@ -1262,7 +1330,7 @@ function renderCfg(){
 }
 /* users */
 function renderUsers(){
-  $('u-list').innerHTML=S.users.map(u=>`<div class="item"><div class="avatar">${ini(u.nome)}</div><div class="t"><b>${esc(u.nome)}</b><span>${esc(u.perfil)} · <span class="mono">${esc(u.login)}</span> · ${u.perms.length} permissões</span></div>${u.ativo?'':'<span class="pill bad">inativo</span>'}<button class="btn sec sm" data-u="${u.id}">Editar</button></div>`).join('');
+  $('u-list').innerHTML=S.users.map(u=>`<div class="item"><div class="avatar">${ini(u.nome)}</div><div class="t"><b>${esc(u.nome)}</b><span>${esc(u.perfil)} · <span class="mono">${esc(u.login)}</span> · ${u.perms.length} permissões · ${u.obras&&u.obras.length?u.obras.length+' obra(s)':'todas as obras'} · ${u.contratadas&&u.contratadas.length?u.contratadas.map(id=>(ct(id)||{}).nome).filter(Boolean).join(', '):'todos os restaurantes'}</span></div>${u.ativo?'':'<span class="pill bad">inativo</span>'}<button class="btn sec sm" data-u="${u.id}">Editar</button></div>`).join('');
   $('u-list').querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{UEDIT=S.users.find(u=>u.id===b.dataset.u);fillUser()});
   if(!$('u-perms').innerHTML)fillUser();
 }
@@ -1270,15 +1338,21 @@ function fillUser(){
   const u=UEDIT||{nome:'',login:'',senha:'',perfil:'Restaurante',perms:[...PERFIS.Restaurante],ativo:true};
   $('u-form-title').textContent=UEDIT?'Editar usuário':'Novo usuário';
   $('u-nome').value=u.nome;$('u-login').value=u.login;$('u-senha').value='';$('u-perfil').value=u.perfil;$('u-ativo').value=u.ativo?'1':'0';
-  $('u-login').disabled=!!UEDIT;$('u-senha').placeholder=UEDIT?(UEDIT===USER?'nova senha (opcional)':'redefinir pelo painel Supabase'):'mínimo 6 caracteres';$('u-senha').disabled=!!(UEDIT&&UEDIT!==USER);
+  $('u-login').disabled=!!UEDIT;$('u-senha').placeholder=UEDIT?'nova senha — deixe em branco para manter':'mínimo 6 caracteres';$('u-senha').disabled=false;$('u-senha').type='password';$('u-senha-hint').hidden=!UEDIT;
   renderPerms(new Set(u.perms));
+  const sel=new Set(u.obras||[]);
+  $('u-obras').innerHTML=S.obras.map(o=>`<label class="chip" style="cursor:pointer;font-family:var(--font);${sel.has(o.id)?'border-style:solid;border-color:var(--accent);color:var(--accent-2)':''}"><input type="checkbox" data-ob="${o.id}" ${sel.has(o.id)?'checked':''} style="width:auto;margin:0 6px 0 0;vertical-align:middle">${esc(o.nome)}${o.ativo===false?' (encerrada)':''}</label>`).join('')||'<span class="small muted">Nenhuma obra cadastrada.</span>';
+  $('u-obras').querySelectorAll('input').forEach(i=>i.onchange=()=>{const l=i.parentElement;l.style.cssText='cursor:pointer;font-family:var(--font);'+(i.checked?'border-style:solid;border-color:var(--accent);color:var(--accent-2)':'')});
+  $('u-cts').innerHTML=chipsHtml(S.contratadas||[],new Set(u.contratadas||[]),'data-uct')||'<span class="small muted">Nenhuma contratada cadastrada.</span>';
+  $('u-cts').querySelectorAll('input').forEach(i=>i.onchange=()=>chipToggle(i));
 }
 function renderPerms(set){
   $('u-perms').innerHTML=PERMS.map(p=>p.grp?`<div class="grp">${p.grp}</div>`:`<span>${p.nome}</span><button class="switch${set.has(p.id)?' on':''}" data-p="${p.id}" role="switch" aria-checked="${set.has(p.id)}" aria-label="${p.nome}"></button>`).join('');
   $('u-perms').querySelectorAll('.switch').forEach(b=>b.onclick=()=>{b.classList.toggle('on');b.setAttribute('aria-checked',b.classList.contains('on'));$('u-perfil').value='Personalizado'});
 }
 $('u-perfil').onchange=()=>{const p=$('u-perfil').value;if(p!=='Personalizado')renderPerms(new Set(PERFIS[p]))};
-$('u-new').onclick=()=>{UEDIT=null;fillUser()};$('u-cancel').onclick=()=>{UEDIT=null;fillUser()};
+$('u-new').onclick=()=>{UEDIT=null;fillUser()};
+$('u-senha-gen').onclick=()=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';let p='';const r=new Uint32Array(10);crypto.getRandomValues(r);r.forEach(x=>p+=a[x%a.length]);$('u-senha').type='text';$('u-senha').value=p;$('u-senha').select()};$('u-cancel').onclick=()=>{UEDIT=null;fillUser()};
 $('u-save').onclick=async()=>{
   const nome=$('u-nome').value.trim(),login=$('u-login').value.trim().toLowerCase(),senha=$('u-senha').value;
   if(!nome||!login){toast('Preencha nome e login');return}
@@ -1286,11 +1360,19 @@ $('u-save').onclick=async()=>{
   if(S.users.some(u=>u.login===login&&u!==UEDIT)){toast('Já existe usuário com este login');return}
   const perms=[...$('u-perms').querySelectorAll('.switch.on')].map(b=>b.dataset.p);
   if(UEDIT===USER&&!perms.includes('cfg.usuarios')){toast('Você não pode remover sua própria permissão de usuários');return}
-  const obj={nome,login,perfil:$('u-perfil').value,perms,ativo:$('u-ativo').value==='1'};
+  const obras=[...$('u-obras').querySelectorAll('input:checked')].map(i=>i.dataset.ob);
+  const contratadas=[...$('u-cts').querySelectorAll('input:checked')].map(i=>i.dataset.uct);
+  const obj={nome,login,perfil:$('u-perfil').value,perms,ativo:$('u-ativo').value==='1',obras,contratadas};
   $('u-save').disabled=true;
   try{
     if(UEDIT){
-      if(UEDIT===USER&&senha){const {error}=await sb.auth.updateUser({password:senha});if(error)throw error}
+      if(senha){
+        if(senha.length<6)throw new Error('a nova senha precisa ter pelo menos 6 caracteres');
+        if(UEDIT===USER){const {error}=await sb.auth.updateUser({password:senha});if(error)throw error}
+        else{const {error}=await sb.rpc('admin_set_password',{target:UEDIT.id,new_password:senha});if(error)throw error}
+        audit('usuario.senha',`${UEDIT===USER?'Alterou a própria senha':'Redefiniu a senha de '+UEDIT.nome+' ('+UEDIT.login+')'}`,{entidade:'usuário '+UEDIT.login});
+        toast(UEDIT===USER?'Sua senha foi alterada':`Senha de ${UEDIT.nome} redefinida — informe ao usuário`);
+      }
       audit('usuario.salvar',`Alterou usuário ${nome} (${login}) — perfil ${obj.perfil}, ${perms.length} permissões${obj.ativo?'':', inativo'}`,{entidade:'usuário '+login,antes:JSON.stringify({nome:UEDIT.nome,perfil:UEDIT.perfil,perms:UEDIT.perms,ativo:UEDIT.ativo}),depois:JSON.stringify(obj)});
       Object.assign(UEDIT,obj);
       if(UEDIT===USER){$('who-name').textContent=USER.nome;$('who-role').textContent=USER.perfil;buildNav();CFGTAB='usuarios';go('cfg')}
@@ -1314,12 +1396,44 @@ function renderColab(){
   $('c-need').hidden=!need.length;$('c-need').textContent=need.length?`Cadastre antes ao menos uma ${need.join(' e uma ')} nas abas correspondentes.`:'';
   $('c-save').disabled=!!need.length;
   const q=$('c-busca').value.trim().toLowerCase();
-  const l=S.colab.filter(c=>{const e=emp(c.empresaId);return !q||[c.nome,c.qr,e?e.nome:''].some(x=>x.toLowerCase().includes(q))});
-  $('c-table').innerHTML=`<thead><tr><th>QR Code</th><th>Nome</th><th>Empresa</th><th>Obra</th><th></th></tr></thead><tbody>${l.map(c=>{const e=emp(c.empresaId),o=obra(c.obraId);return `<tr><td class="mono">${esc(c.qr)}</td><td>${esc(c.nome)}${c.ativo?'':' <span class="pill bad">inativo</span>'}</td><td>${esc(e?e.nome:'—')}</td><td>${esc(o?o.nome:'—')}</td><td><button class="btn sec sm" data-c="${c.id}">Editar</button></td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Nenhum colaborador cadastrado. Leia o QR Code do crachá para começar.</td></tr>'}</tbody>`;
+  const l=S.colab.filter(c=>obraOk(c.obraId)).filter(c=>{const e=emp(c.empresaId);return !q||[c.nome,c.qr,e?e.nome:''].some(x=>x.toLowerCase().includes(q))});
+  renderRealoc();
+  $('c-table').innerHTML=`<thead><tr><th>QR Code</th><th>Nome</th><th>Empresa</th><th>Obra</th><th></th></tr></thead><tbody>${l.map(c=>{const e=emp(c.empresaId),o=obra(c.obraId);return `<tr><td class="mono">${esc(c.qr)}</td><td>${esc(c.nome)}${c.ativo?'':' <span class="pill bad">inativo</span>'}</td><td>${esc(e?e.nome:'—')}${e&&e.ativo===false?' <span class="pill bad">inativa</span>':''}</td><td>${esc(o?o.nome:'—')}${c.realocacoes&&c.realocacoes.length?` <span class="pill neutral" title="realocações">${c.realocacoes.length}×</span>`:''}</td><td><button class="btn sec sm" data-c="${c.id}">Editar</button></td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Nenhum colaborador cadastrado. Leia o QR Code do crachá para começar.</td></tr>'}</tbody>`;
   $('c-table').querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{CEDIT=S.colab.find(c=>c.id===b.dataset.c);fillColab()});
 }
-function fillColab(){const c=CEDIT||{qr:'',nome:'',empresaId:S.empresas[0]&&S.empresas[0].id,obraId:S.obras[0]&&S.obras[0].id,ativo:true};
-  $('c-form-title').textContent=CEDIT?'Editar colaborador':'Novo colaborador';$('c-qr').value=c.qr;$('c-qr').readOnly=true;$('c-nome').value=c.nome;$('c-emp').value=c.empresaId||'';$('c-obra').value=c.obraId||'';$('c-ativo').value=c.ativo?'1':'0'}
+function fillColab(){const c=CEDIT||{qr:'',nome:'',empresaId:(S.empresas.find(e=>e.ativo!==false)||{}).id,obraId:(S.obras.find(o=>o.ativo!==false&&obraOk(o.id))||{}).id,ativo:true};
+  $('c-form-title').textContent=CEDIT?'Editar colaborador':'Novo colaborador';$('c-qr').value=c.qr;$('c-qr').readOnly=true;$('c-nome').value=c.nome;
+  fillSelect($('c-emp'),S.empresas.filter(e=>e.ativo!==false||e.id===c.empresaId),c.empresaId);fillSelect($('c-obra'),S.obras.filter(o=>(o.ativo!==false&&obraOk(o.id))||o.id===c.obraId),c.obraId);
+  $('c-emp').value=c.empresaId||'';$('c-obra').value=c.obraId||'';$('c-ativo').value=c.ativo?'1':'0';
+  $('c-emp').disabled=!!CEDIT;$('c-obra').disabled=!!CEDIT;$('c-realoc-hint').hidden=!CEDIT;$('c-realoc').hidden=!CEDIT}
+function renderRealoc(){
+  const q=($('rl-busca').value||'').trim().toLowerCase();
+  const rows=[];S.colab.forEach(c=>(c.realocacoes||[]).forEach(r=>rows.push({...r,colab:c.nome,qr:c.qr})));
+  rows.sort((a,b)=>a.em<b.em?1:-1);
+  const l=rows.filter(r=>!q||[r.colab,r.deEmpresa,r.paraEmpresa,r.deObra,r.paraObra,r.motivo].join(' ').toLowerCase().includes(q));
+  $('rl-table').innerHTML=`<thead><tr><th>Data</th><th>Colaborador</th><th>Empresa</th><th>Obra</th><th>Motivo</th><th>Por</th></tr></thead><tbody>${l.map(r=>`<tr><td class="num">${brdt(r.em)}</td><td>${esc(r.colab)}<div class="small muted mono">${esc(r.qr)}</div></td><td>${r.deEmpresa===r.paraEmpresa?esc(r.paraEmpresa):`<span class="muted">${esc(r.deEmpresa)}</span> → <b>${esc(r.paraEmpresa)}</b>`}</td><td>${r.deObra===r.paraObra?esc(r.paraObra):`<span class="muted">${esc(r.deObra)}</span> → <b>${esc(r.paraObra)}</b>`}</td><td>${esc(r.motivo)}</td><td>${esc(r.usuario)}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">Nenhuma realocação registrada.</td></tr>'}</tbody>`;
+}
+$('rl-busca').oninput=renderRealoc;
+$('c-realoc').onclick=()=>{
+  if(!CEDIT)return;const c=CEDIT;const e0=emp(c.empresaId),o0=obra(c.obraId);
+  infoModal(`Realocar — ${esc(c.nome)}`,`<div class="stack">
+    <div class="notice info small">Atual: <b>${esc(e0?e0.nome:'—')}</b> / <b>${esc(o0?o0.nome:'—')}</b>. Altere a empresa, a obra ou ambas e informe o motivo.</div>
+    <div class="grid2"><div class="field"><label for="rl-emp">Nova empresa</label><select id="rl-emp"></select></div><div class="field"><label for="rl-obra">Nova obra</label><select id="rl-obra"></select></div></div>
+    <div class="field"><label for="rl-motivo">Motivo da realocação (obrigatório)</label><textarea id="rl-motivo" rows="3" placeholder="ex.: transferido para a obra X a pedido do gestor"></textarea></div>
+    <div id="rl-err" class="notice bad" hidden></div>
+    <button class="btn" id="rl-go">Confirmar realocação</button></div>`);
+  fillSelect($('rl-emp'),S.empresas.filter(e=>e.ativo!==false||e.id===c.empresaId),c.empresaId);fillSelect($('rl-obra'),S.obras.filter(o=>(o.ativo!==false&&obraOk(o.id))||o.id===c.obraId),c.obraId);
+  $('rl-go').onclick=()=>{
+    const ne=$('rl-emp').value,no=$('rl-obra').value,motivo=$('rl-motivo').value.trim();const err=$('rl-err');
+    if(ne===c.empresaId&&no===c.obraId){err.hidden=false;err.textContent='Nada mudou: escolha outra empresa e/ou outra obra.';return}
+    if(motivo.length<5){err.hidden=false;err.textContent='Informe o motivo da realocação.';return}
+    const e1=emp(ne),o1=obra(no);
+    const rl={id:uid(),em:new Date().toISOString(),usuario:USER.nome,deEmpresaId:c.empresaId,deEmpresa:e0?e0.nome:'',paraEmpresaId:ne,paraEmpresa:e1?e1.nome:'',deObraId:c.obraId,deObra:o0?o0.nome:'',paraObraId:no,paraObra:o1?o1.nome:'',motivo};
+    c.realocacoes=c.realocacoes||[];c.realocacoes.push(rl);c.empresaId=ne;c.obraId=no;
+    audit('colab.realocar',`${c.nome}: ${rl.deEmpresa} / ${rl.deObra} → ${rl.paraEmpresa} / ${rl.paraObra} — motivo: ${motivo}`,{obra:rl.paraObra,empresa:rl.paraEmpresa,entidade:'colaborador '+c.qr,antes:`${rl.deEmpresa} / ${rl.deObra}`,depois:`${rl.paraEmpresa} / ${rl.paraObra}`});
+    save();$('info-modal').classList.remove('on');toast('Colaborador realocado');fillColab();renderColab();
+  };
+};
 $('c-busca').oninput=renderColab;$('c-new').onclick=()=>{CEDIT=null;fillColab()};$('c-cancel').onclick=()=>{CEDIT=null;fillColab()};
 $('btn-scan-colab').onclick=()=>openScanner('Ler QR Code do crachá para cadastro',code=>{
   const dup=S.colab.find(x=>x.qr.toLowerCase()===code.toLowerCase()&&x!==CEDIT);
@@ -1334,20 +1448,20 @@ $('c-save').onclick=()=>{
   if(!nome){toast('Informe o nome do colaborador');return}
   if(!$('c-emp').value||!$('c-obra').value){toast('Selecione empresa e obra');return}
   if(S.colab.some(c=>c.qr.toLowerCase()===qr.toLowerCase()&&c!==CEDIT)){toast('Este QR Code já está cadastrado para outro colaborador');return}
-  const obj={qr,nome,empresaId:$('c-emp').value,obraId:$('c-obra').value,ativo:$('c-ativo').value==='1'};
+  const obj={qr,nome,empresaId:CEDIT?CEDIT.empresaId:$('c-emp').value,obraId:CEDIT?CEDIT.obraId:$('c-obra').value,ativo:$('c-ativo').value==='1'};
   const ce=emp(obj.empresaId),co=obra(obj.obraId);audit('colab.salvar',`${CEDIT?'Alterou':'Cadastrou'} colaborador ${nome} — QR ${qr} — ${ce?ce.nome:''} / ${co?co.nome:''}${obj.ativo?'':' — inativo'}`,{obra:co?co.nome:'',empresa:ce?ce.nome:'',entidade:'colaborador '+qr,antes:CEDIT?JSON.stringify({nome:CEDIT.nome,qr:CEDIT.qr,empresa:(emp(CEDIT.empresaId)||{}).nome,obra:(obra(CEDIT.obraId)||{}).nome,ativo:CEDIT.ativo}):null,depois:JSON.stringify({nome,qr,empresa:ce&&ce.nome,obra:co&&co.nome,ativo:obj.ativo})});
   if(CEDIT)Object.assign(CEDIT,obj);else S.colab.push({id:uid(),...obj});
   save();toast('Colaborador salvo');CEDIT=null;fillColab();renderColab();renderSetup();
 };
 /* empresas */
 function renderEmpresas(){
-  $('e-list').innerHTML=S.empresas.map(e=>`<div class="item">${e.logo?`<img class="logo-thumb" src="${e.logo}" alt="">`:`<div class="avatar">${ini(e.nome)}</div>`}<div class="t"><b>${esc(e.nome)}</b><span>${e.cnpj?esc(e.cnpj)+' · ':''}${S.colab.filter(c=>c.empresaId===e.id).length} colaboradores · próximo BM ${e.proximoBM||1}${e.logo?'':' · <span style="color:var(--warn)">sem logotipo</span>'}</span></div><button class="btn sec sm" data-e="${e.id}">Editar</button></div>`).join('')||'<div class="small muted">Nenhuma empresa cadastrada.</div>';
+  $('e-list').innerHTML=S.empresas.map(e=>`<div class="item">${e.logo?`<img class="logo-thumb" src="${e.logo}" alt="">`:`<div class="avatar">${ini(e.nome)}</div>`}<div class="t"><b>${esc(e.nome)}${e.ativo===false?' <span class="pill bad">inativa</span>':''}</b><span>${e.cnpj?esc(e.cnpj)+' · ':''}${S.colab.filter(c=>c.empresaId===e.id).length} colaboradores · próximo BM ${e.proximoBM||1}${e.logo?'':' · <span style="color:var(--warn)">sem logotipo</span>'}</span></div><button class="btn sec sm" data-e="${e.id}">Editar</button></div>`).join('')||'<div class="small muted">Nenhuma empresa cadastrada.</div>';
   $('e-list').querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{EEDIT=emp(b.dataset.e);fillEmpresa()});
   if(!$('e-ct').parentElement.querySelector('[data-ct]'))fillEmpresa();
 }
 function fillEmpresa(){
   const e=EEDIT||{nome:'',cnpj:'',proximoBM:1,logo:null,contrato:{}};
-  $('e-form-title').textContent=EEDIT?'Editar empresa':'Nova empresa';$('e-nome').value=e.nome;$('e-cnpj').value=e.cnpj||'';$('e-prox').value=e.proximoBM||1;
+  $('e-form-title').textContent=EEDIT?'Editar empresa':'Nova empresa';$('e-nome').value=e.nome;$('e-cnpj').value=e.cnpj||'';$('e-prox').value=e.proximoBM||1;$('e-ativo').value=e.ativo===false?'0':'1';
   ELOGO=e.logo?{data:e.logo,w:e.logoW,h:e.logoH}:null;showLogo();
   const grid=$('e-ct').parentElement;grid.querySelectorAll('[data-ct]').forEach(x=>x.remove());
   TIPOS.forEach(t=>{const c=(e.contrato||{})[t.id]||{};grid.insertAdjacentHTML('beforeend',`<div data-ct>${t.curto}</div><input data-ct data-k="qtd" data-t="${t.id}" type="number" min="0" value="${c.qtd||''}" placeholder="—"><input data-ct data-k="acumQtd" data-t="${t.id}" type="number" min="0" value="${c.acumQtd||''}" placeholder="0"><input data-ct data-k="acumVal" data-t="${t.id}" type="number" min="0" step="0.01" value="${c.acumVal||''}" placeholder="0,00">`)});
@@ -1368,15 +1482,17 @@ $('e-save').onclick=()=>{
   const nome=$('e-nome').value.trim();if(!nome){toast('Informe o nome da empresa');return}
   if(S.empresas.some(x=>x.nome.toLowerCase()===nome.toLowerCase()&&x!==EEDIT)){toast('Já existe empresa com este nome');return}
   const contrato={};$('e-ct').parentElement.querySelectorAll('input[data-ct]').forEach(i=>{const v=parseFloat(i.value);if(!contrato[i.dataset.t])contrato[i.dataset.t]={};contrato[i.dataset.t][i.dataset.k]=isNaN(v)?null:v});
-  const obj={nome,cnpj:$('e-cnpj').value.trim(),proximoBM:parseInt($('e-prox').value,10)||1,logo:ELOGO?ELOGO.data:null,logoW:ELOGO?ELOGO.w:null,logoH:ELOGO?ELOGO.h:null,contrato};
-  audit('empresa.salvar',`${EEDIT?'Alterou':'Cadastrou'} empresa ${nome}${obj.cnpj?' — CNPJ '+obj.cnpj:''}${ELOGO?' — com logotipo':''} — próximo BM ${obj.proximoBM}`,{empresa:nome,entidade:'empresa '+nome});
+  const obj={nome,cnpj:$('e-cnpj').value.trim(),proximoBM:parseInt($('e-prox').value,10)||1,logo:ELOGO?ELOGO.data:null,logoW:ELOGO?ELOGO.w:null,logoH:ELOGO?ELOGO.h:null,contrato,ativo:$('e-ativo').value==='1'};
+  audit('empresa.salvar',`${EEDIT?'Alterou':'Cadastrou'} empresa ${nome}${obj.cnpj?' — CNPJ '+obj.cnpj:''}${ELOGO?' — com logotipo':''} — próximo BM ${obj.proximoBM}${obj.ativo?'':' — INATIVA'}`,{empresa:nome,entidade:'empresa '+nome});
   if(EEDIT){Object.assign(EEDIT,obj);S.registros.forEach(r=>{if(r.empresaId===EEDIT.id)r.empresaNome=nome})}else S.empresas.push({id:uid(),...obj});
   save();toast('Empresa salva');EEDIT=null;fillEmpresa();renderEmpresas();renderSetup();
 };
 /* obras */
 function renderObras(){
-  $('o-list').innerHTML=S.obras.map(o=>`<div class="item"><div class="avatar">${ini(o.nome)}</div><div class="t"><b>${esc(o.nome)}</b><span>${o.endereco?esc(o.endereco)+' · ':''}${S.colab.filter(c=>c.obraId===o.id).length} colaboradores${o.ativo===false?' · encerrada':''}</span></div><button class="btn sec sm" data-o="${o.id}">Editar</button></div>`).join('')||'<div class="small muted">Nenhuma obra cadastrada.</div>';
+  $('o-list').innerHTML=S.obras.filter(o=>obraOk(o.id)).map(o=>`<div class="item"><div class="avatar">${ini(o.nome)}</div><div class="t"><b>${esc(o.nome)}</b><span>${o.endereco?esc(o.endereco)+' · ':''}${S.colab.filter(c=>c.obraId===o.id).length} colaboradores · restaurante: ${esc((S.contratadas||[]).filter(c=>(c.obras||[]).includes(o.id)).map(c=>c.nome).join(', ')||'nenhum')}${o.ativo===false?' · encerrada':''}</span></div><button class="btn sec sm" data-func="${o.id}">Funcionários</button><button class="btn sec sm" data-o="${o.id}">Editar</button></div>`).join('')||'<div class="small muted">Nenhuma obra cadastrada.</div>';
   $('o-list').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{OEDIT=obra(b.dataset.o);fillObra()});
+  $('o-list').querySelectorAll('[data-func]').forEach(b=>b.onclick=()=>{const o=obra(b.dataset.func);const l=S.colab.filter(c=>c.obraId===o.id).sort((a,c)=>a.nome.localeCompare(c.nome));
+    infoModal(`Funcionários — ${esc(o.nome)} (${l.length})`,`<div class="tablewrap"><table><thead><tr><th>#</th><th>Nome</th><th>Empresa</th><th>QR Code</th><th>Situação</th></tr></thead><tbody>${l.map((c,i)=>{const e=emp(c.empresaId);return `<tr><td class="num">${i+1}</td><td>${esc(c.nome)}</td><td>${esc(e?e.nome:'—')}</td><td class="mono">${esc(c.qr)}</td><td>${c.ativo?'<span class="pill ok">ativo</span>':'<span class="pill bad">inativo</span>'}</td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Nenhum colaborador alocado nesta obra.</td></tr>'}</tbody></table></div>`)});
 }
 function fillObra(){const o=OEDIT||{nome:'',endereco:'',ativo:true};$('o-form-title').textContent=OEDIT?'Editar obra':'Nova obra';$('o-nome').value=o.nome;$('o-end').value=o.endereco||'';$('o-ativo').value=o.ativo===false?'0':'1'}
 $('o-new').onclick=()=>{OEDIT=null;fillObra()};$('o-cancel').onclick=()=>{OEDIT=null;fillObra()};
@@ -1413,10 +1529,39 @@ $('p-save').onclick=()=>{
   err.hidden=true;S.precos.push({id:uid(),tipo:tp,valor:Math.round(v*100)/100,vigencia:vig,criadoEm:new Date().toISOString(),usuario:USER.nome,just:just||(isChange?'':'Cadastro inicial')});
   save();$('p-valor').value='';$('p-just').value='';toast(isChange?'Preço alterado — histórico registrado':'Preço cadastrado');renderPrecos();renderSetup();
 };
-/* contratada */
-function renderContratada(){const K=S.contratada;$('k-contratada').value=K.nome;$('k-cnpj').value=K.cnpj;$('k-gestor').value=K.gestor;$('k-cargo').value=K.cargo;$('k-servico').value=K.servico||'FORNECIMENTO DE REFEIÇÕES'}
-$('k-save').onclick=()=>{const K=S.contratada;K.nome=$('k-contratada').value.trim();K.cnpj=$('k-cnpj').value.trim();K.gestor=$('k-gestor').value.trim();K.cargo=$('k-cargo').value.trim();const kAntes=JSON.stringify(K);K.servico=$('k-servico').value.trim()||'FORNECIMENTO DE REFEIÇÕES';audit('contratada.salvar',`Contratada: ${K.nome} — gestor ${K.gestor}`,{entidade:'contratada',antes:kAntes,depois:JSON.stringify(K)});save();toast('Contratada salva');renderSetup()};
+/* contratadas (restaurantes) */
+let KEDIT=null;
+function chipToggle(i){i.parentElement.style.cssText='cursor:pointer;font-family:var(--font);'+(i.checked?'border-style:solid;border-color:var(--accent);color:var(--accent-2)':'')}
+function chipsHtml(items,sel,attr){return items.map(o=>`<label class="chip" style="cursor:pointer;font-family:var(--font);${sel.has(o.id)?'border-style:solid;border-color:var(--accent);color:var(--accent-2)':''}"><input type="checkbox" ${attr}="${o.id}" ${sel.has(o.id)?'checked':''} style="width:auto;margin:0 6px 0 0;vertical-align:middle">${esc(o.nome)}${o.ativo===false?' (inativa)':''}</label>`).join('')}
+function renderContratada(){
+  ctMigrarLegado();
+  $('k-list').innerHTML=(S.contratadas||[]).map(c=>{const ob=(c.obras||[]).map(id=>(obra(id)||{}).nome).filter(Boolean);const nu=S.users.filter(u=>!u.contratadas||!u.contratadas.length||u.contratadas.includes(c.id)).length;
+    return `<div class="item"><div class="avatar">${ini(c.nome)}</div><div class="t"><b>${esc(c.nome)}${c.ativo===false?' <span class="pill bad">inativa</span>':''}</b><span>${c.cnpj?esc(c.cnpj)+' · ':''}${ob.length} obra(s): ${esc(ob.join(', ')||'—')} · ${nu} usuário(s) com acesso</span></div><button class="btn sec sm" data-k="${c.id}">Editar</button></div>`}).join('')||'<div class="small muted">Nenhuma contratada cadastrada.</div>';
+  $('k-list').querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{KEDIT=ct(b.dataset.k);fillContratada()});
+  if(!$('k-obras').innerHTML)fillContratada();
+}
+function fillContratada(){
+  const c=KEDIT||{nome:'',cnpj:'',gestor:'',cargo:'',servico:'FORNECIMENTO DE REFEIÇÕES',obras:[],ativo:true};
+  $('k-form-title').textContent=KEDIT?'Editar contratada':'Nova contratada';
+  $('k-contratada').value=c.nome;$('k-cnpj').value=c.cnpj||'';$('k-gestor').value=c.gestor||'';$('k-cargo').value=c.cargo||'';$('k-servico').value=c.servico||'FORNECIMENTO DE REFEIÇÕES';$('k-ativo').value=c.ativo===false?'0':'1';$('k-err').hidden=true;
+  $('k-obras').innerHTML=chipsHtml(S.obras,new Set(c.obras||[]),'data-kob')||'<span class="small muted">Cadastre as obras primeiro (aba Obras).</span>';
+  $('k-obras').querySelectorAll('input').forEach(i=>i.onchange=()=>chipToggle(i));
+}
+$('k-new').onclick=()=>{KEDIT=null;fillContratada()};$('k-cancel').onclick=()=>{KEDIT=null;fillContratada()};
+$('k-save').onclick=()=>{
+  const err=$('k-err');const show=m=>{err.hidden=false;err.textContent=m};
+  const nome=$('k-contratada').value.trim();if(!nome)return show('Informe a razão social do restaurante.');
+  if((S.contratadas||[]).some(x=>x.nome.toLowerCase()===nome.toLowerCase()&&x!==KEDIT))return show('Já existe contratada com este nome.');
+  const obras=[...$('k-obras').querySelectorAll('input:checked')].map(i=>i.dataset.kob);
+  if(!obras.length)return show('Vincule a contratada a pelo menos uma obra.');
+  const obj={nome,cnpj:$('k-cnpj').value.trim(),gestor:$('k-gestor').value.trim(),cargo:$('k-cargo').value.trim(),servico:$('k-servico').value.trim()||'FORNECIMENTO DE REFEIÇÕES',obras,ativo:$('k-ativo').value==='1'};
+  const nomesOb=obras.map(id=>(obra(id)||{}).nome).join(', ');
+  audit('contratada.salvar',`${KEDIT?'Alterou':'Cadastrou'} contratada ${nome} — obras: ${nomesOb}${obj.ativo?'':' — INATIVA'}`,{entidade:'contratada '+nome,antes:KEDIT?JSON.stringify({nome:KEDIT.nome,obras:(KEDIT.obras||[]).map(id=>(obra(id)||{}).nome),ativo:KEDIT.ativo}):null,depois:JSON.stringify({nome,obras:nomesOb,ativo:obj.ativo})});
+  if(KEDIT)Object.assign(KEDIT,obj);else S.contratadas.push({id:uid(),...obj});
+  save();toast('Contratada salva');KEDIT=null;fillContratada();renderContratada();renderSetup();
+};
 /* =================== AUDITORIA (tela) =================== */
+let AUD_PAGE=1;const AUD_PP=25;
 function renderAud(){
   const A=S.audit;
   const keep=(id)=>$(id).value;
@@ -1425,16 +1570,20 @@ function renderAud(){
   const setOpts=(id,list,label,fmt)=>{const sel=$(id);const v=sel.value;sel.innerHTML=`<option value="">${label}</option>`+list.map(x=>`<option value="${esc(x)}"${x===v?' selected':''}>${esc(fmt?fmt(x):x)}</option>`).join('')};
   setOpts('a-user',users,'Todos');setOpts('a-obra',obras,'Todas');setOpts('a-emp',emps,'Todas');setOpts('a-acao',acoes,'Todas',x=>ACOES[x]||x);setOpts('a-aba',Object.keys(ABAS).filter(k=>A.some(e=>e.aba===k)),'Todas',x=>ABAS[x]);
   const u=keep('a-user'),ab=keep('a-aba'),ac=keep('a-acao'),ob=keep('a-obra'),em=keep('a-emp'),de=keep('a-de'),ate=keep('a-ate'),q=keep('a-busca').trim().toLowerCase();
-  const rows=A.filter(e=>{const d=e.em.slice(0,10);return (!u||e.usuario===u)&&(!ab||e.aba===ab)&&(!ac||e.acao===ac)&&(!ob||e.obra===ob)&&(!em||e.empresa===em)&&(!de||d>=de)&&(!ate||d<=ate)&&(!q||[e.descricao,e.entidade,e.usuario,ACOES[e.acao]||''].join(' ').toLowerCase().includes(q))}).sort((a,b)=>a.em<b.em?1:-1);
+  const rows=A.filter(e=>!e.obra||obraNomeOk(e.obra)).filter(e=>{const d=e.em.slice(0,10);return (!u||e.usuario===u)&&(!ab||e.aba===ab)&&(!ac||e.acao===ac)&&(!ob||e.obra===ob)&&(!em||e.empresa===em)&&(!de||d>=de)&&(!ate||d<=ate)&&(!q||[e.descricao,e.entidade,e.usuario,ACOES[e.acao]||''].join(' ').toLowerCase().includes(q))}).sort((a,b)=>a.em<b.em?1:-1);
   const byUser={};rows.forEach(e=>byUser[e.usuario]=(byUser[e.usuario]||0)+1);const top=Object.entries(byUser).sort((a,b)=>b[1]-a[1])[0];
   const mov=rows.filter(e=>!/^nav|^login|^logout/.test(e.acao)).length;
   $('aud-tiles').innerHTML=`<div class="tile total"><div class="k">Eventos filtrados</div><div class="v num">${rows.length}</div><div class="s">de ${A.length} no total</div></div><div class="tile almoco"><div class="k">Movimentações</div><div class="v num">${mov}</div><div class="s">exclui navegação e login</div></div><div class="tile jantar"><div class="k">Usuários</div><div class="v num">${Object.keys(byUser).length}</div><div class="s">${top?esc(top[0])+' · '+top[1]+' eventos':'—'}</div></div><div class="tile lanche"><div class="k">Dispositivos</div><div class="v num">${new Set(rows.map(e=>e.dispositivo)).size}</div><div class="s">${new Set(rows.map(e=>e.ip).filter(Boolean)).size} IP(s) distintos</div></div>`;
-  $('aud-count').textContent=`${rows.length} evento(s)${rows.length>500?' — exibindo os 500 mais recentes':''}`;
-  $('aud-table').innerHTML=`<thead><tr><th>Data / hora</th><th>Usuário</th><th>Aba</th><th>Ação</th><th>Descrição</th><th>Obra</th><th>Empresa</th><th>Antes → Depois</th><th>Dispositivo</th><th>IP</th></tr></thead><tbody>${rows.slice(0,500).map(e=>`<tr><td class="num">${brdt(e.em)}:${pad(new Date(e.em).getSeconds())}</td><td><b>${esc(e.usuario)}</b><div class="small muted">${esc(e.perfil)}</div></td><td>${esc(ABAS[e.aba]||e.aba)}</td><td>${esc(ACOES[e.acao]||e.acao)}</td><td style="max-width:360px">${esc(e.descricao)}${e.entidade?`<div class="small muted">${esc(e.entidade)}</div>`:''}</td><td>${esc(e.obra||'—')}</td><td>${esc(e.empresa||'—')}</td><td class="small mono" style="max-width:220px;overflow-wrap:anywhere">${e.antes===null&&e.depois===null?'—':`${fmtAD(e.antes)} → ${fmtAD(e.depois)}`}</td><td class="mono">${esc(e.dispositivo)}</td><td class="mono small">${e.ip?esc(e.ip):'<span class="muted">—</span>'}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">Nenhum evento com esses filtros.</td></tr>'}</tbody>`;
+  const pages=Math.max(1,Math.ceil(rows.length/AUD_PP));if(AUD_PAGE>pages)AUD_PAGE=pages;if(AUD_PAGE<1)AUD_PAGE=1;
+  const i0=(AUD_PAGE-1)*AUD_PP;const pageRows=rows.slice(i0,i0+AUD_PP);
+  $('aud-count').textContent=rows.length?`${i0+1}–${i0+pageRows.length} de ${rows.length} evento(s)`:'0 eventos';
+  $('aud-pager').innerHTML=pages>1?`<button class="btn sec sm" data-pg="1" ${AUD_PAGE===1?'disabled':''}>« Primeira</button><button class="btn sec sm" data-pg="${AUD_PAGE-1}" ${AUD_PAGE===1?'disabled':''}>‹ Anterior</button><span class="small num" style="padding:0 8px">Página <b>${AUD_PAGE}</b> de ${pages}</span><button class="btn sec sm" data-pg="${AUD_PAGE+1}" ${AUD_PAGE===pages?'disabled':''}>Próxima ›</button><button class="btn sec sm" data-pg="${pages}" ${AUD_PAGE===pages?'disabled':''}>Última »</button>`:'';
+  $('aud-pager').querySelectorAll('[data-pg]').forEach(b=>b.onclick=()=>{AUD_PAGE=+b.dataset.pg;renderAud()});
+  $('aud-table').innerHTML=`<thead><tr><th>Data / hora</th><th>Usuário</th><th>Aba</th><th>Ação</th><th>Descrição</th><th>Obra</th><th>Empresa</th><th>Antes → Depois</th><th>Dispositivo</th><th>IP</th></tr></thead><tbody>${pageRows.map(e=>`<tr><td class="num">${brdt(e.em)}:${pad(new Date(e.em).getSeconds())}</td><td><b>${esc(e.usuario)}</b><div class="small muted">${esc(e.perfil)}</div></td><td>${esc(ABAS[e.aba]||e.aba)}</td><td>${esc(ACOES[e.acao]||e.acao)}</td><td style="max-width:360px">${esc(e.descricao)}${e.entidade?`<div class="small muted">${esc(e.entidade)}</div>`:''}</td><td>${esc(e.obra||'—')}</td><td>${esc(e.empresa||'—')}</td><td class="small mono" style="max-width:220px;overflow-wrap:anywhere">${e.antes===null&&e.depois===null?'—':`${fmtAD(e.antes)} → ${fmtAD(e.depois)}`}</td><td class="mono">${esc(e.dispositivo)}</td><td class="mono small">${e.ip?esc(e.ip):'<span class="muted">—</span>'}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">Nenhum evento com esses filtros.</td></tr>'}</tbody>`;
 }
 function fmtAD(v){if(v===null||v===undefined)return '—';if(typeof v==='number')return money(v);const s=String(v);return esc(s.length>90?s.slice(0,90)+'…':s)}
-['a-user','a-aba','a-acao','a-obra','a-emp','a-de','a-ate'].forEach(id=>$(id).onchange=renderAud);$('a-busca').oninput=renderAud;
-$('a-limpar').onclick=()=>{['a-user','a-aba','a-acao','a-obra','a-emp','a-de','a-ate','a-busca'].forEach(id=>$(id).value='');renderAud()};
+['a-user','a-aba','a-acao','a-obra','a-emp','a-de','a-ate'].forEach(id=>$(id).onchange=()=>{AUD_PAGE=1;renderAud()});$('a-busca').oninput=()=>{AUD_PAGE=1;renderAud()};
+$('a-limpar').onclick=()=>{AUD_PAGE=1;['a-user','a-aba','a-acao','a-obra','a-emp','a-de','a-ate','a-busca'].forEach(id=>$(id).value='');renderAud()};
 $('aud-csv').onclick=async()=>{
   const cols=['Data/hora','Usuário','Perfil','Aba','Ação','Descrição','Obra','Empresa','Entidade','Antes','Depois','Dispositivo','IP','Navegador'];
   const cell=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
