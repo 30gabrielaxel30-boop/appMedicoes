@@ -86,7 +86,7 @@ main{flex:1;min-width:0;overflow:auto;padding:16px 16px calc(84px + env(safe-are
 .tabbar button.on,.sidenav button.on{color:var(--nav-on);background:var(--nav-on-bg)}
 @media (min-width:900px){
   .tabbar{display:none}
-  .sidenav{display:flex;flex-direction:column;gap:4px;width:210px;padding:14px 10px;background:var(--nav-bg);border-right:1px solid var(--nav-line)}
+  .sidenav{display:flex;flex-direction:column;gap:4px;width:210px;overflow:auto;padding:14px 10px;background:var(--nav-bg);border-right:1px solid var(--nav-line)}
   .sidenav .nav-title{color:var(--nav-title);font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:6px 12px 10px;opacity:.7}
   .sidenav button{flex:0 0 auto;flex-direction:row;justify-content:flex-start;gap:10px;padding:10px 12px;font-size:13.5px}
   main{padding:24px 28px 40px}
@@ -239,6 +239,26 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 .coll.open .chev{transform:rotate(180deg)}
 @media (prefers-reduced-motion:reduce){.chev{transition:none}}
 .coll-b{padding:10px 12px}
+/* sidebar usuário + menu */
+.sidenav .nav-user{margin-top:auto;display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:transparent;border:1px solid var(--nav-line);color:var(--nav-title);text-align:left;width:100%}
+.sidenav .nav-user:hover{background:var(--nav-on-bg)}
+.nav-user .av{width:32px;height:32px;border-radius:50%;background:var(--nav-on-bg);color:var(--nav-on);display:grid;place-items:center;font-family:var(--display);font-weight:700;flex:0 0 auto}
+.nav-user .nm{min-width:0;flex:1}.nav-user .nm b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nav-user .nm span{font-size:11px;color:var(--nav-ink)}
+.who-m{display:flex;flex-direction:column;align-items:flex-end;line-height:1.15;margin-left:auto;background:none;border:0;padding:2px 4px;text-align:right;min-width:0}
+.who-m b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40vw}.who-m span{font-size:11px;color:var(--ink-3)}
+@media (min-width:900px){.who-m{display:none}.topbar .spacer{margin-left:auto}}
+.umenu{position:fixed;z-index:70;width:240px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:12px}
+.umenu .row{gap:8px}
+.bell{position:relative;padding:6px 8px}.bell svg{width:18px;height:18px}
+.bell .badge{position:absolute;top:-6px;right:-6px;margin:0;background:var(--bad)}
+.nitem{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line-2);align-items:flex-start}.nitem:last-child{border-bottom:0}
+.nitem .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);margin-top:6px;flex:0 0 auto}.nitem.lida .dot{background:transparent;border:1px solid var(--line)}
+.nitem .t{flex:1;min-width:0}.nitem .t small{display:block;color:var(--ink-3);font-size:11.5px;margin-top:2px}
+.conv{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;border:1px solid var(--line-2);background:var(--surface);width:100%;text-align:left}
+.conv:hover{border-color:var(--accent)}.conv .t{flex:1;min-width:0}.conv .t b{display:block}.conv .t span{display:block;font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.thread{display:flex;flex-direction:column;gap:6px;max-height:48vh;overflow:auto;padding:4px 2px}
+.bub{max-width:78%;padding:8px 11px;border-radius:12px;font-size:13.5px;background:var(--surface-2);border:1px solid var(--line-2);align-self:flex-start;white-space:pre-wrap;overflow-wrap:anywhere}
+.bub.mine{align-self:flex-end;background:var(--accent-soft);border-color:transparent}.bub small{display:block;font-size:10.5px;color:var(--ink-3);margin-top:3px}
 .steps{display:flex;gap:0;flex-wrap:wrap;margin-bottom:10px}
 .steps span{font-size:11px;font-weight:600;padding:4px 10px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-3);margin-right:-1px}
 .steps span:first-child{border-radius:6px 0 0 6px}.steps span:last-child{border-radius:0 6px 6px 0}
@@ -250,21 +270,40 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 <div id="login">
   <div class="box card">
     <div class="brand" style="margin-bottom:14px"><div class="logo">BM</div><div><h1>SISMED</h1><div class="sub" id="l-sub">Sistema de Medição de Refeições</div></div></div>
+    <div class="subtabs" id="l-tabs"><button data-lt="login" class="on">Entrar</button><button data-lt="signup">Criar conta</button></div>
     <div class="stack">
       <div id="l-form">
         <div class="stack">
-          <div class="field"><label for="l-user">Usuário</label><input id="l-user" autocomplete="username" placeholder="login" autocapitalize="none"></div>
+          <div class="field"><label for="l-user">Usuário ou e-mail</label><input id="l-user" autocomplete="username" placeholder="USUÁRIO" autocapitalize="characters"></div>
           <div class="field"><label for="l-pass">Senha</label><input id="l-pass" type="password" autocomplete="current-password" placeholder="••••••"></div>
           <div id="l-err" class="notice bad" hidden>Usuário ou senha inválidos.</div>
           <button class="btn big" id="l-go">Entrar</button>
         </div>
+      </div>
+      <div id="l-signup" hidden>
+        <div class="stack">
+          <div class="field"><label for="su-user">Usuário</label><input id="su-user" autocomplete="off" placeholder="EX.: JOAO.SILVA" style="text-transform:uppercase"></div>
+          <div class="field"><label for="su-email">E-mail corporativo</label><input id="su-email" type="email" autocomplete="email" placeholder="NOME@EMPRESA.COM.BR" style="text-transform:uppercase"></div>
+          <div class="grid2"><div class="field"><label for="su-pass">Senha</label><input id="su-pass" type="password" autocomplete="new-password"></div><div class="field"><label for="su-pass2">Repita a senha</label><input id="su-pass2" type="password" autocomplete="new-password"></div></div>
+          <div class="small muted">Mínimo de 6 caracteres, com pelo menos 1 número. Enviaremos um link de confirmação para o e-mail; depois, o administrador aprova a conta.</div>
+          <div id="su-err" class="notice bad" hidden></div>
+          <button class="btn big" id="su-go">Criar conta</button>
+        </div>
+      </div>
+      <div id="l-sent" hidden>
+        <div class="notice ok"><b>Confirme seu e-mail.</b><br>Enviamos um link de confirmação para <b id="l-sent-email"></b>. Abra o e-mail e clique no link; em seguida sua conta fica aguardando a aprovação do administrador.</div>
+        <div class="row" style="margin-top:10px"><button class="btn sec" id="l-sent-back">Voltar para o login</button><button class="btn sec" id="l-sent-sim" hidden>Simular clique no link (teste)</button></div>
+      </div>
+      <div id="l-wait" hidden>
+        <div class="notice warn"><b>Aguardando aprovação.</b><br>Seu e-mail foi confirmado. O administrador precisa autorizar a conta <b id="l-wait-user"></b> antes do primeiro acesso.</div>
+        <div class="row" style="margin-top:10px"><button class="btn" id="l-wait-check">Verificar novamente</button><button class="btn sec" id="l-wait-out">Sair</button></div>
       </div>
       <div id="l-boot" hidden>
         <div class="notice info small" style="margin-bottom:10px">Primeiro acesso ao sistema: crie o usuário <b>Administrador</b>. Ele terá todas as permissões e cadastrará os demais usuários.</div>
         <div class="stack">
           <div class="field"><label for="b-nome">Nome</label><input id="b-nome"></div>
           <div class="field"><label for="b-login">Login</label><input id="b-login" autocapitalize="none" placeholder="ex.: marcelo"></div>
-          <div class="field"><label for="b-pass">Senha (mínimo 6 caracteres)</label><input id="b-pass" type="password" autocomplete="new-password"></div>
+          <div class="field"><label for="b-pass">Senha (mínimo 6 caracteres, 1 número)</label><input id="b-pass" type="password" autocomplete="new-password"></div>
           <div id="b-err" class="notice bad" hidden></div>
           <button class="btn big" id="b-go">Criar administrador e entrar</button>
         </div>
@@ -278,10 +317,12 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 <div id="app">
   <header class="topbar">
     <div class="brand"><div class="logo">BM</div><div><h1>SISMED</h1></div></div>
-    <div class="who"><b id="who-name"></b><span id="who-role"></span></div>
-    <span id="sync-dot" class="sync" title="Sincronizado"></span><button class="btn-ghost" id="theme-btn" aria-label="Alternar modo escuro/claro"><svg id="theme-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"></svg><span id="theme-txt">Escuro</span></button>
-    <button class="btn-ghost" id="logout">Sair</button>
+    <span class="spacer"></span>
+    <button class="who-m" id="who-btn" type="button"><b id="who-name"></b><span id="who-role"></span></button>
+    <span id="sync-dot" class="sync" title="Sincronizado"></span>
+    <button class="btn-ghost bell" id="bell" aria-label="Notificações e mensagens"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="badge" id="bell-badge" hidden></span></button><button class="btn-ghost" id="theme-btn" aria-label="Alternar modo escuro/claro"><svg id="theme-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"></svg><span id="theme-txt">Escuro</span></button>
   </header>
+  <div class="umenu" id="user-menu" hidden></div>
   <div class="body">
     <nav class="sidenav" id="sidenav"></nav>
     <main>
@@ -408,17 +449,35 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         <div class="subtabs" id="cfg-tabs"></div>
 
         <div id="cfg-usuarios" class="cfg-pane">
+          <div class="card" id="u-pend-card" style="margin-bottom:14px;border-left:4px solid var(--warn)" hidden><h3>Solicitações de acesso</h3><div class="small muted" style="margin-bottom:6px">Contas criadas pela tela de login, com e-mail confirmado, aguardando sua aprovação.</div><div class="list" id="u-pend"></div></div>
           <div class="cols">
             <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Usuários</h3><button class="btn sm" id="u-new">Novo usuário</button></div><div class="list" id="u-list" style="margin-top:8px"></div></div>
             <div class="card"><h3 id="u-form-title">Novo usuário</h3>
               <div class="stack">
-                <div class="grid2"><div class="field"><label for="u-nome">Nome</label><input id="u-nome"></div><div class="field"><label for="u-login">Login</label><input id="u-login" autocomplete="off"></div></div>
-                <div class="grid2"><div class="field"><label for="u-senha">Senha</label><input id="u-senha" type="password" autocomplete="new-password"><div class="small muted" id="u-senha-hint" style="margin-top:4px" hidden>Redefinir senha: digite a nova e salve. <button class="link small" id="u-senha-gen" type="button" style="background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer">Gerar senha temporária</button></div></div><div class="field"><label for="u-perfil">Perfil</label><select id="u-perfil"><option>Administrador</option><option>Restaurante</option><option>Suprimentos</option><option>Personalizado</option></select></div></div>
+                <div class="grid2"><div class="field"><label for="u-nome">Nome</label><input id="u-nome"></div><div class="field"><label for="u-login">Usuário (login)</label><input id="u-login" autocomplete="off" style="text-transform:uppercase"></div></div>
+                <div class="field"><label for="u-email">E-mail (opcional — se ficar em branco, o acesso é só pelo usuário)</label><input id="u-email" type="email" autocomplete="off" style="text-transform:uppercase"></div>
+                <div class="grid2"><div class="field"><label for="u-senha">Senha</label><input id="u-senha" type="password" autocomplete="new-password"><div class="small muted" id="u-senha-hint" style="margin-top:4px" hidden>Redefinir senha: digite a nova e salve. <button class="link small" id="u-senha-gen" type="button" style="background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer">Gerar senha temporária</button></div></div><div class="field"><label for="u-perfil">Perfil</label><select id="u-perfil"></select><select id="u-tipo" style="margin-top:6px" title="Tipo do perfil personalizado"><option>Adm</option><option>Suprimentos</option><option>Obra</option><option>Restaurante</option></select></div></div>
                 <div class="field"><label for="u-ativo">Situação</label><select id="u-ativo"><option value="1">Ativo</option><option value="0">Inativo</option></select></div>
                 <div class="coll" data-coll><button type="button" class="coll-h" aria-expanded="false"><span>Obras que este usuário enxerga <span class="coll-note">(nenhuma ligada = todas)</span></span><span class="coll-sum" id="u-obras-sum"></span><span class="chev" aria-hidden="true">▾</span></button><div class="coll-b" hidden><div class="perm-grid" id="u-obras"></div></div></div>
                 <div class="coll" data-coll><button type="button" class="coll-h" aria-expanded="false"><span>Restaurantes (contratadas) que este usuário acessa <span class="coll-note">(nenhum ligado = todos)</span></span><span class="coll-sum" id="u-cts-sum"></span><span class="chev" aria-hidden="true">▾</span></button><div class="coll-b" hidden><div class="perm-grid" id="u-cts"></div></div></div>
                 <div class="coll" data-coll><button type="button" class="coll-h" aria-expanded="false"><span>Permissões — o que este usuário pode ver ou alterar</span><span class="coll-sum" id="u-perms-sum"></span><span class="chev" aria-hidden="true">▾</span></button><div class="coll-b" hidden><div class="perm-grid" id="u-perms"></div></div></div>
-                <div class="row"><button class="btn" id="u-save">Salvar usuário</button><button class="btn sec" id="u-cancel">Limpar</button></div>
+                <div class="row"><button class="btn" id="u-save">Salvar usuário</button><button class="btn sec" id="u-cancel">Limpar</button><button class="btn danger" id="u-del" hidden>Excluir usuário</button></div>
+              </div></div>
+          </div>
+        </div>
+
+        <div id="cfg-perfis" class="cfg-pane" hidden>
+          <div class="cols">
+            <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Perfis</h3><button class="btn sm" id="pf-new">Novo perfil</button></div>
+              <div class="small muted" style="margin:4px 0 8px">Perfis pré-definidos: ao escolher o perfil no cadastro do usuário, as permissões são aplicadas automaticamente. Alterar o perfil atualiza todos os usuários dele.</div>
+              <div class="list" id="pf-list"></div></div>
+            <div class="card"><h3 id="pf-form-title">Novo perfil</h3>
+              <div class="stack">
+                <div class="grid2"><div class="field"><label for="pf-nome">Nome do perfil</label><input id="pf-nome" placeholder="ex.: Engenheiro de obra"></div><div class="field"><label for="pf-tipo">Tipo</label><select id="pf-tipo"><option>Adm</option><option>Suprimentos</option><option>Obra</option><option>Restaurante</option></select></div></div>
+                <div class="small muted" id="pf-adm-note" hidden>Perfis do tipo <b>Adm</b> recebem todas as permissões, podem excluir usuários e ver todas as conversas.</div>
+                <div class="coll" data-coll><button type="button" class="coll-h" aria-expanded="false"><span>Ações (permissões) do perfil</span><span class="coll-sum" id="pf-perms-sum"></span><span class="chev" aria-hidden="true">▾</span></button><div class="coll-b" hidden><div class="perm-grid" id="pf-perms"></div></div></div>
+                <div id="pf-err" class="notice bad" hidden></div>
+                <div class="row"><button class="btn" id="pf-save">Salvar perfil</button><button class="btn sec" id="pf-cancel">Limpar</button><button class="btn danger" id="pf-del" hidden>Excluir perfil</button></div>
               </div></div>
           </div>
         </div>
@@ -488,7 +547,6 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
             <div class="card"><h3 id="ctr-form-title">Novo contrato</h3>
               <div class="stack">
                 <div class="grid2"><div class="field"><label for="ctr-num">Nº do contrato (até 7 caracteres)</label><input id="ctr-num" maxlength="7" class="mono" style="text-transform:uppercase"></div><div class="field"><label for="ctr-ativo">Situação</label><select id="ctr-ativo"><option value="1">Ativo</option><option value="0">Inativo</option></select></div></div>
-                <div class="field"><label for="ctr-desc">Objeto / descrição (opcional)</label><input id="ctr-desc" placeholder="ex.: Fornecimento de refeições — Sede Benevides"></div>
                 <div class="grid2"><div class="field"><label for="ctr-ini">Data de início</label><input id="ctr-ini" type="date"></div><div class="field"><label for="ctr-fim">Data de término</label><input id="ctr-fim" type="date"></div></div>
                 <div class="small muted">Fora da vigência (antes do início, depois do término) ou inativo, o restaurante não consegue registrar refeições das obras deste contrato.</div>
                 <div id="ctr-err" class="notice bad" hidden></div>
@@ -570,6 +628,15 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
       <div id="bm-prev-msg" class="notice info small" hidden></div>
       <button class="btn big" id="bm-emit-go">Gerar BM com este período</button>
     </div>
+  </div>
+</div>
+
+<!-- ============ NOTIFICAÇÕES / MENSAGENS ============ -->
+<div class="modal" id="notif-modal">
+  <div class="sheet narrow">
+    <div class="mh"><h2>Notificações</h2><button class="btn sec sm" id="notif-close">Fechar</button></div>
+    <div class="subtabs" id="notif-tabs"><button data-nt="n" class="on">Notificações <span class="badge" id="nt-n-b" hidden></span></button><button data-nt="m">Mensagens <span class="badge" id="nt-m-b" hidden></span></button></div>
+    <div id="notif-body"></div>
   </div>
 </div>
 
@@ -659,12 +726,16 @@ function uid(){return Math.random().toString(36).slice(2,9)}
 const WD=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 function wd(s){return WD[parse(s).getDay()]}
 function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-function ini(n){return (n||'?').split(' ').filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()}
+function ini(n){const w=String(n||'?').replace(/[^\p{L}\p{N}\s.]/gu,' ').split(/[\s.]+/).filter(Boolean);return (w.slice(0,2).map(x=>x[0]).join('')||'?').toUpperCase()}
 const $=id=>document.getElementById(id);
 function tipo(id){return TIPOS.find(t=>t.id===id)}
 function emp(id){return S.empresas.find(e=>e.id===id)}
 function obra(id){return S.obras.find(o=>o.id===id)}
 function can(p){return !!(USER&&USER.perms.includes(p))}
+function isAdm(u){return !!u&&(u.tipo==='Adm'||u.perfil==='Administrador')}
+function ativoOk(u){return u&&u.ativo!==false&&u.status!=='pendente'}
+function senhaOk(p){return typeof p==='string'&&p.length>=6&&/\d/.test(p)}
+const TIPOS_PERFIL=['Adm','Suprimentos','Obra','Restaurante'];
 function obraOk(obraId){if(!USER||!USER.obras||!USER.obras.length)return true;return USER.obras.includes(obraId)}
 function obraNomeOk(nome){if(!USER||!USER.obras||!USER.obras.length)return true;const o=S.obras.find(x=>x.nome===nome);return !!o&&USER.obras.includes(o.id)}
 function regOkObra(r){if(!USER||!USER.obras||!USER.obras.length)return true;return r.obraId?USER.obras.includes(r.obraId):obraNomeOk(r.obraNome)}
@@ -701,7 +772,7 @@ const ACOES={
   'refeicao.registrar':'Registrou refeição','refeicao.estornar':'Estornou refeição','sobra.registrar':'Registrou sobra','sobra.excluir':'Excluiu sobra',
   'bm.emitir':'Gerou rascunho de BM','bm.fechar':'Fechou BM','bm.validar':'Validou BM (assinatura eletrônica do restaurante)','bm.homologar':'Homologou assinatura física do restaurante','bm.assinar_sup':'Registrou assinatura do Suprimentos','bm.nf':'Informou nota fiscal','bm.pdf':'Exportou BM em PDF','bm.imprimir':'Imprimiu BM','bm.anexar':'Anexou BM assinado','bm.anexo_remover':'Removeu anexo do BM','bm.anexo_baixar':'Baixou anexo do BM',
   'usuario.salvar':'Cadastrou/alterou usuário','colab.salvar':'Cadastrou/alterou colaborador','colab.realocar':'Realocou colaborador (empresa/obra)','empresa.salvar':'Cadastrou/alterou empresa','obra.salvar':'Cadastrou/alterou obra','preco.salvar':'Cadastrou/alterou preço','contrato.salvar':'Cadastrou/alterou contrato',
-  'contratada.salvar':'Cadastrou/alterou contratada (restaurante)','usuario.senha':'Redefiniu senha de usuário','auditoria.csv':'Exportou auditoria em CSV','dados.apagar':'Apagou todos os dados','bm.excluir':'Excluiu boletim de medição','empresa.excluir':'Excluiu empresa','obra.excluir':'Excluiu obra','auditoria.arquivo':'Baixou arquivo compactado da auditoria'
+  'contratada.salvar':'Cadastrou/alterou contratada (restaurante)','usuario.senha':'Redefiniu senha de usuário','auditoria.csv':'Exportou auditoria em CSV','dados.apagar':'Apagou todos os dados','perfil.salvar':'Cadastrou/alterou perfil','perfil.excluir':'Excluiu perfil','usuario.excluir':'Excluiu usuário','usuario.aprovar':'Aprovou conta','usuario.negar':'Negou conta','bm.excluir':'Excluiu boletim de medição','empresa.excluir':'Excluiu empresa','obra.excluir':'Excluiu obra','auditoria.arquivo':'Baixou arquivo compactado da auditoria'
 };
 let DEVICE='';try{DEVICE=localStorage.getItem('refeicoes_device')||'';if(!DEVICE){DEVICE='DEV-'+Math.random().toString(36).slice(2,8).toUpperCase();localStorage.setItem('refeicoes_device',DEVICE)}}catch(e){DEVICE='DEV-?'}
 function audit(acao,descricao,x){
@@ -717,10 +788,10 @@ if(!CFG.SUPABASE_URL||!CFG.SUPABASE_ANON_KEY){document.addEventListener('DOMCont
 const sb=window.supabase.createClient(CFG.SUPABASE_URL||'https://invalid.supabase.co',CFG.SUPABASE_ANON_KEY||'x',{auth:{persistSession:true,autoRefreshToken:true}});
 const EMAIL_DOMAIN=CFG.EMAIL_DOMAIN||'refeicoes.app';
 function toEmail(login){login=(login||'').trim().toLowerCase();return login.includes('@')?login:login.replace(/[^a-z0-9._-]/g,'')+'@'+EMAIL_DOMAIN}
-const TABLES={empresas:'empresas',obras:'obras',colab:'colaboradores',precos:'precos',contratos:'contratos',contratadas:'contratadas',registros:'registros',sobras:'sobras',bms:'bms',users:'usuarios'};
+const TABLES={perfis:'perfis',empresas:'empresas',obras:'obras',colab:'colaboradores',precos:'precos',contratos:'contratos',contratadas:'contratadas',registros:'registros',sobras:'sobras',bms:'bms',users:'usuarios'};
 const CACHE_KEY='refeicoes_cache_v1';
 let LAST={}, AUDIT_SEEN=new Set(), SYNC={pending:false,running:false,offline:false,timer:null,retry:null};
-function fresh(){return {auditArq:[],users:[],empresas:[],obras:[],colab:[],precos:[],contratos:[],contratadas:[],registros:[],sobras:[],bms:[],audit:[],contratada:{nome:'',cnpj:'',gestor:'',cargo:'',servico:'FORNECIMENTO DE REFEIÇÕES'}}}
+function fresh(){return {perfis:[],auditArq:[],users:[],empresas:[],obras:[],colab:[],precos:[],contratos:[],contratadas:[],registros:[],sobras:[],bms:[],audit:[],contratada:{nome:'',cnpj:'',gestor:'',cargo:'',servico:'FORNECIMENTO DE REFEIÇÕES'}}}
 function rowOf(key,r){const o={...r};delete o.senha;if(key==='users')delete o.id;return o}
 function snapshot(){LAST={};Object.keys(TABLES).forEach(k=>{LAST[k]={};(S[k]||[]).forEach(r=>LAST[k][r.id]=JSON.stringify(rowOf(k,r)))});LAST.contratada=JSON.stringify(S.contratada);AUDIT_SEEN=new Set((S.audit||[]).map(e=>e.id))}
 function setSync(state,msg){const d=$('sync-dot');if(!d)return;d.className='sync'+(state==='pend'?' pend':state==='off'?' off':'');d.title=msg||(state==='pend'?'Enviando alterações…':state==='off'?'Sem conexão — alterações guardadas neste aparelho e enviadas quando voltar':'Sincronizado')}
@@ -738,7 +809,7 @@ async function loadAll(){
   ns.audit=a.error?[]:a.data.map(r=>({...r.data,id:r.id,ip:r.ip,navegador:r.user_agent||r.data.navegador,em:r.created_at||r.data.em})).reverse();
   // preserva registros ainda não sincronizados (offline)
   if(S&&SYNC.pending){Object.keys(TABLES).forEach(k=>{(S[k]||[]).forEach(r=>{if(!LAST[k]||LAST[k][r.id]!==JSON.stringify(rowOf(k,r))){const i=ns[k].findIndex(x=>x.id===r.id);if(i>=0)ns[k][i]=r;else ns[k].push(r)}})});(S.audit||[]).forEach(e=>{if(!AUDIT_SEEN.has(e.id))ns.audit.push(e)})}
-  ns.users.forEach(u=>{if(u.perfil==='Administrador')u.perms=[...PERFIS.Administrador]});
+  ns.perfis=ns.perfis||[];ns.users.forEach(u=>{if(isAdm(u))u.perms=[...PERFIS.Administrador]});
   ns.contratadas=ns.contratadas||[];ns.contratos=ns.contratos||[];
   S=ns;snapshot();
   try{localStorage.setItem(CACHE_KEY,JSON.stringify(S))}catch(e){}
@@ -785,6 +856,9 @@ renderThemeBtn();
 
 /* =================== LOGIN (Supabase Auth) =================== */
 function lstatus(m,bad){const e=$('l-status');e.textContent=m||'';e.style.color=bad?'var(--bad)':''}
+function lshow(which){['l-form','l-signup','l-sent','l-wait','l-boot'].forEach(id=>$(id).hidden=id!==which);$('l-tabs').hidden=!(which==='l-form'||which==='l-signup');
+  $('l-tabs').querySelectorAll('button').forEach(b=>b.classList.toggle('on',(b.dataset.lt==='login'&&which==='l-form')||(b.dataset.lt==='signup'&&which==='l-signup')))}
+$('l-tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{lshow(b.dataset.lt==='login'?'l-form':'l-signup');lstatus('')});
 async function enterApp(){
   try{await loadAll()}catch(e){
     let cached=null;try{cached=JSON.parse(localStorage.getItem(CACHE_KEY))}catch(x){}
@@ -794,44 +868,156 @@ async function enterApp(){
   const {data:{user}}=await sb.auth.getUser();
   USER=S.users.find(u=>u.id===(user&&user.id));
   if(!USER){lstatus('Seu usuário ainda não está liberado no sistema. Peça ao administrador.',true);await sb.auth.signOut();return false}
-  if(USER.ativo===false){lstatus('Usuário inativo. Procure o administrador.',true);await sb.auth.signOut();return false}
+  if(USER.status==='pendente'){$('l-wait-user').textContent=(USER.login||'').toUpperCase();lshow('l-wait');lstatus('');USER=null;return false}
+  if(USER.ativo===false){lstatus('Usuário inativo. Procure o administrador.',true);await sb.auth.signOut();USER=null;return false}
   $('login').style.display='none';$('app').classList.add('on');
-  $('who-name').textContent=USER.nome;$('who-role').textContent=USER.perfil;
+  $('who-name').textContent=USER.nome;$('who-role').textContent=USER.tipo||USER.perfil;
   audit('login.ok','',{aba:'login'});save();
-  buildNav();return true;
+  seedPerfis();buildNav();loadSocial();return true;
 }
+async function resolveEmail(login){login=login.trim();if(login.includes('@'))return login.toLowerCase();
+  try{const {data}=await sb.rpc('email_por_login',{p_login:login});if(data)return data}catch(e){}return toEmail(login)}
 async function doLogin(){
   const login=$('l-user').value.trim(),pass=$('l-pass').value;if(!login||!pass)return;
   $('l-go').disabled=true;$('l-err').hidden=true;lstatus('Entrando…');
-  const {error}=await sb.auth.signInWithPassword({email:toEmail(login),password:pass});
+  const {error}=await sb.auth.signInWithPassword({email:await resolveEmail(login),password:pass});
   $('l-go').disabled=false;
-  if(error){$('l-err').hidden=false;$('l-err').textContent=/confirm/i.test(error.message)?'E-mail não confirmado: desative "Confirm email" em Authentication › Providers › Email no Supabase.':'Usuário ou senha inválidos.';lstatus('');return}
+  if(error){$('l-err').hidden=false;$('l-err').textContent=/confirm/i.test(error.message)?'E-mail ainda não confirmado. Abra o link de confirmação que enviamos para o seu e-mail.':'Usuário ou senha inválidos.';lstatus('');return}
   lstatus('Carregando dados…');await enterApp();lstatus('');
+}
+async function doSignup(){
+  const err=$('su-err');const show=m=>{err.hidden=false;err.textContent=m};
+  const login=$('su-user').value.trim().toUpperCase(),email=$('su-email').value.trim().toUpperCase(),p1=$('su-pass').value,p2=$('su-pass2').value;
+  if(!/^[A-Z0-9._-]{3,30}$/.test(login))return show('Usuário: de 3 a 30 caracteres, apenas letras, números, ponto, hífen ou sublinhado.');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return show('Informe um e-mail corporativo válido.');
+  if(!senhaOk(p1))return show('A senha precisa ter no mínimo 6 caracteres e pelo menos 1 número.');
+  if(p1!==p2)return show('As senhas não conferem.');
+  err.hidden=true;$('su-go').disabled=true;
+  try{const {data:ex}=await sb.rpc('email_por_login',{p_login:login});if(ex){$('su-go').disabled=false;return show('Este usuário já existe. Escolha outro.')}}catch(e){}
+  const {data,error}=await sb.auth.signUp({email:email.toLowerCase(),password:p1,options:{data:{nome:login,login},emailRedirectTo:location.origin+location.pathname}});
+  $('su-go').disabled=false;
+  if(error)return show(/already|registered/i.test(error.message)?'Já existe uma conta com este e-mail.':/rate/i.test(error.message)?'Limite de envio de e-mails atingido no servidor. Tente novamente em alguns minutos.':'Erro: '+error.message);
+  if(data.session){await enterApp();return}
+  $('l-sent-email').textContent=email;$('l-sent-sim').hidden=!window.__simularConfirmacao;lshow('l-sent');
 }
 async function doBootstrap(){
   const nome=$('b-nome').value.trim(),login=$('b-login').value.trim(),pass=$('b-pass').value;const err=$('b-err');
-  if(!nome||!login||pass.length<6){err.hidden=false;err.textContent='Preencha nome, login e uma senha com pelo menos 6 caracteres.';return}
+  if(!nome||!login||!senhaOk(pass)){err.hidden=false;err.textContent='Preencha nome, login e uma senha com pelo menos 6 caracteres e 1 número.';return}
   err.hidden=true;$('b-go').disabled=true;
   const {data,error}=await sb.auth.signUp({email:toEmail(login),password:pass,options:{data:{nome,login}}});
   $('b-go').disabled=false;
   if(error){err.hidden=false;err.textContent=error.message;return}
-  if(!data.session){err.hidden=false;err.textContent='Usuário criado, mas o Supabase exige confirmação de e-mail. Desative "Confirm email" em Authentication › Providers › Email e entre com o login criado.';$('l-boot').hidden=true;$('l-form').hidden=false;return}
-  $('l-boot').hidden=true;$('l-form').hidden=false;await enterApp();
+  if(!data.session){err.hidden=false;err.textContent='Usuário criado. Confirme o e-mail pelo link enviado e depois entre.';lshow('l-form');return}
+  lshow('l-form');await enterApp();
 }
 $('l-go').onclick=doLogin;$('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
-$('b-go').onclick=doBootstrap;
-$('logout').onclick=async()=>{closeScanner();if(USER){audit('logout','');save();if(SYNC.pending){await sync()}}USER=null;await sb.auth.signOut();$('app').classList.remove('on');$('login').style.display='grid';$('l-pass').value='';$('l-boot').hidden=true;$('l-form').hidden=false;lstatus('')};
+$('l-user').addEventListener('input',e=>{if(!e.target.value.includes('@'))e.target.value=e.target.value.toUpperCase()});
+$('su-user').addEventListener('input',e=>e.target.value=e.target.value.toUpperCase());$('su-email').addEventListener('input',e=>e.target.value=e.target.value.toUpperCase());
+$('su-go').onclick=doSignup;$('b-go').onclick=doBootstrap;
+$('l-sent-back').onclick=()=>{lshow('l-form');lstatus('')};
+$('l-sent-sim').onclick=async()=>{if(window.__simularConfirmacao){await window.__simularConfirmacao($('l-sent-email').textContent.toLowerCase());await enterApp()}};
+$('l-wait-check').onclick=async()=>{lstatus('Verificando…');if(await enterApp())lstatus('');else if(!$('l-wait').hidden)lstatus('Ainda aguardando aprovação.')};
+$('l-wait-out').onclick=async()=>{await sb.auth.signOut();lshow('l-form');lstatus('')};
+async function doLogout(){closeScanner();$('user-menu').hidden=true;if(USER){audit('logout','');save();if(SYNC.pending){await sync()}}USER=null;await sb.auth.signOut();$('app').classList.remove('on');$('login').style.display='grid';$('l-pass').value='';lshow('l-form');lstatus('')}
 async function boot(){
   S=fresh();
   try{
     const {data:{session}}=await sb.auth.getSession();
-    if(session){lstatus('Carregando dados…');if(await enterApp()){lstatus('');return}}
+    if(session){lstatus('Carregando dados…');if(await enterApp()){lstatus('');return}if(!$('l-wait').hidden)return}
     const {data:need,error}=await sb.rpc('bootstrap_needed');
     if(error)throw error;
-    if(need){$('l-form').hidden=true;$('l-boot').hidden=false;lstatus('Nenhum usuário cadastrado ainda.')}
-    else lstatus('');
+    if(need){lshow('l-boot');lstatus('Nenhum usuário cadastrado ainda.')}
+    else{lshow('l-form');lstatus('')}
   }catch(e){lstatus('Sem conexão com o servidor: '+(e.message||e),true)}
 }
+
+/* =================== MENU DO USUÁRIO =================== */
+function userMenu(anchor){
+  const m=$('user-menu');if(!m.hidden){m.hidden=true;return}
+  m.innerHTML=`<div class="row" style="flex-wrap:nowrap"><div class="avatar">${ini(USER.nome)}</div><div style="min-width:0"><b style="display:block">${esc(USER.nome)}</b><span class="small muted mono">${esc((USER.login||'').toUpperCase())}</span></div></div>
+    <div class="kv" style="margin:10px 0;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:12.5px"><span class="muted">Tipo de perfil</span><span><span class="pill ${isAdm(USER)?'warn':'neutral'}">${esc(USER.tipo||'—')}</span></span><span class="muted">Perfil</span><span>${esc(USER.perfil||'—')}</span></div>
+    <button class="btn danger" id="um-sair" style="width:100%">Sair</button>`;
+  $('um-sair').onclick=doLogout;
+  const r=anchor.getBoundingClientRect();m.hidden=false;
+  if(innerWidth>=900){m.style.left=r.left+'px';m.style.top='';m.style.right='';m.style.bottom=(innerHeight-r.top+8)+'px'}
+  else{m.style.right='12px';m.style.left='';m.style.bottom='';m.style.top=(r.bottom+8)+'px'}
+}
+document.addEventListener('click',e=>{const m=$('user-menu');if(!m.hidden&&!m.contains(e.target)&&!e.target.closest('#nav-user,#who-btn'))m.hidden=true});
+$('who-btn').onclick=e=>userMenu(e.currentTarget);
+
+/* =================== NOTIFICAÇÕES E MENSAGENS =================== */
+let NOTIFS=[],MSGS=[],NTAB='n',MSG_PAIR=null;
+function seenGet(k,d){try{const v=localStorage.getItem('sismed_'+k+'_'+USER.id);return v?JSON.parse(v):d}catch(e){return d}}
+function seenSet(k,v){try{localStorage.setItem('sismed_'+k+'_'+USER.id,JSON.stringify(v))}catch(e){}}
+function pairKey(a,b){return [a,b].sort().join('|')}
+function uname(id){const u=S.users.find(x=>x.id===id);return u?u.nome:'(usuário removido)'}
+async function loadSocial(){
+  if(!USER)return;
+  try{const n=await sb.from('notificacoes').select('id,data,created_at').order('created_at',{ascending:false}).limit(150);
+    NOTIFS=n.error?[]:(n.data||[]).map(r=>({...r.data,id:r.id,em:r.created_at||r.data.em})).filter(x=>(x.para||[]).includes(USER.id)).sort((a,b)=>a.em<b.em?1:-1)}catch(e){}
+  try{const since=new Date(Date.now()-7*864e5).toISOString();const m=await sb.from('mensagens').select('id,de,para,texto,created_at').gte('created_at',since).order('created_at',{ascending:true});
+    MSGS=m.error?[]:(m.data||[]).filter(x=>x.created_at>=since&&(isAdm(USER)||x.de===USER.id||x.para===USER.id)).sort((a,b)=>a.created_at<b.created_at?-1:1)}catch(e){}
+  updBell();if(!$('notif-modal').hidden&&$('notif-modal').classList.contains('on'))renderNotif();
+}
+function unread(){const sn=seenGet('n','');const sm=seenGet('m',{});
+  const n=NOTIFS.filter(x=>x.em>sn).length;const m=MSGS.filter(x=>x.para===USER.id&&x.created_at>(sm[pairKey(x.de,x.para)]||'')).length;return {n,m}}
+function updBell(){if(!USER)return;const u=unread();const t=u.n+u.m;$('bell-badge').hidden=!t;$('bell-badge').textContent=t>99?'99+':t;
+  $('nt-n-b').hidden=!u.n;$('nt-n-b').textContent=u.n;$('nt-m-b').hidden=!u.m;$('nt-m-b').textContent=u.m}
+function notify(tipo,texto,para,extra){
+  const ids=[...new Set((para||[]).filter(id=>id&&(!USER||id!==USER.id)))];if(!ids.length)return;
+  sb.from('notificacoes').insert({id:uid(),data:{tipo,texto,para:ids,de:USER?USER.nome:'SISMED',em:new Date().toISOString(),...(extra||{})}}).then(()=>{},()=>{});
+}
+function destRest(ctId){return S.users.filter(u=>ativoOk(u)&&(u.perms||[]).includes('rest.validar')&&(!u.contratadas||!u.contratadas.length||u.contratadas.includes(ctId))).map(u=>u.id)}
+function destSup(){return S.users.filter(u=>ativoOk(u)&&((u.perms||[]).includes('sup.bm')||(u.perms||[]).includes('sup.ver')||isAdm(u))).map(u=>u.id)}
+$('bell').onclick=()=>{const u=unread();NTAB=u.n?'n':u.m?'m':NTAB;MSG_PAIR=null;$('notif-modal').classList.add('on');renderNotif()};
+$('notif-close').onclick=()=>{$('notif-modal').classList.remove('on');MSG_PAIR=null};
+$('notif-tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{NTAB=b.dataset.nt;MSG_PAIR=null;renderNotif()});
+function renderNotif(){
+  $('notif-tabs').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.nt===NTAB));
+  const B=$('notif-body');
+  if(NTAB==='n'){
+    const sn=seenGet('n','');
+    B.innerHTML=NOTIFS.length?NOTIFS.map(x=>`<div class="nitem${x.em>sn?'':' lida'}"><span class="dot"></span><div class="t">${esc(x.texto)}<small>${brdt(x.em)} · ${esc(x.de||'')}</small></div>${x.bmId&&S.bms.find(b=>b.id===x.bmId)?`<button class="btn sec sm" data-nbm="${x.bmId}">Abrir BM</button>`:''}${x.tipo==='conta.pendente'&&can('cfg.usuarios')?`<button class="btn sec sm" data-npend="1">Ver solicitação</button>`:''}</div>`).join(''):'<div class="small muted" style="padding:10px 0">Nenhuma notificação.</div>';
+    B.querySelectorAll('[data-nbm]').forEach(b=>b.onclick=()=>{$('notif-modal').classList.remove('on');openBM(S.bms.find(x=>x.id===b.dataset.nbm))});
+    B.querySelectorAll('[data-npend]').forEach(b=>b.onclick=()=>{$('notif-modal').classList.remove('on');CFGTAB='usuarios';go('cfg')});
+    seenSet('n',new Date().toISOString());updBell();return;
+  }
+  // mensagens
+  const outros=S.users.filter(u=>ativoOk(u)&&u.id!==USER.id).sort((a,b)=>a.nome.localeCompare(b.nome));
+  if(MSG_PAIR){
+    const [a,b]=MSG_PAIR.split('|');const parte=a===USER.id||b===USER.id;const other=a===USER.id?b:a;
+    const l=MSGS.filter(m=>pairKey(m.de,m.para)===MSG_PAIR);
+    B.innerHTML=`<div class="row" style="justify-content:space-between;margin-bottom:8px"><button class="btn sec sm" id="msg-back">‹ Conversas</button><b>${parte?esc(uname(other)):esc(uname(a))+' ↔ '+esc(uname(b))}</b></div>
+      ${parte?'':'<div class="notice info small" style="margin-bottom:8px">Visualização de administrador — somente leitura.</div>'}
+      <div class="thread" id="msg-thread">${l.map(m=>`<div class="bub${m.de===USER.id?' mine':''}">${parte?'':`<b style="font-size:11.5px">${esc(uname(m.de))}</b><br>`}${esc(m.texto)}<small>${brdt(m.created_at)}</small></div>`).join('')||'<div class="small muted">Sem mensagens nos últimos 7 dias.</div>'}</div>
+      ${parte?`<div class="row" style="flex-wrap:nowrap;margin-top:8px"><textarea id="msg-reply" rows="2" maxlength="1000" placeholder="Escreva uma mensagem…"></textarea><button class="btn" id="msg-send-r">Enviar</button></div>`:''}`;
+    $('msg-back').onclick=()=>{MSG_PAIR=null;renderNotif()};
+    const th=$('msg-thread');th.scrollTop=th.scrollHeight;
+    if(parte){$('msg-send-r').onclick=()=>sendMsg(other,$('msg-reply').value,$('msg-send-r'));const sm=seenGet('m',{});sm[MSG_PAIR]=new Date().toISOString();seenSet('m',sm);updBell()}
+    return;
+  }
+  const pares={};MSGS.forEach(m=>{const k=pairKey(m.de,m.para);(pares[k]=pares[k]||[]).push(m)});
+  const sm=seenGet('m',{});
+  const lista=Object.entries(pares).map(([k,l])=>({k,l,last:l[l.length-1]})).sort((x,y)=>x.last.created_at<y.last.created_at?1:-1);
+  B.innerHTML=`<div class="card" style="padding:12px;margin-bottom:12px"><div class="stack" style="gap:8px">
+      <div class="field"><label for="msg-to">Enviar mensagem para</label><select id="msg-to"><option value="">Selecione o usuário…</option>${outros.map(u=>`<option value="${u.id}">${esc(u.nome)} — ${esc(u.tipo||u.perfil||'')}</option>`).join('')}</select></div>
+      <textarea id="msg-text" rows="2" maxlength="1000" placeholder="Mensagem (visível por 7 dias, somente para vocês dois)"></textarea>
+      <div class="row" style="justify-content:flex-end"><button class="btn" id="msg-send">Enviar</button></div></div></div>
+    ${isAdm(USER)?'<div class="small muted" style="margin-bottom:6px">Como administrador, você vê todas as conversas.</div>':''}
+    <div class="stack" style="gap:6px">${lista.map(({k,l,last})=>{const [a,b]=k.split('|');const parte=a===USER.id||b===USER.id;const other=a===USER.id?b:a;const nu=l.filter(m=>m.para===USER.id&&m.created_at>(sm[k]||'')).length;
+      return `<button class="conv" data-pair="${k}"><div class="avatar">${ini(parte?uname(other):uname(a))}</div><div class="t"><b>${parte?esc(uname(other)):esc(uname(a))+' ↔ '+esc(uname(b))}</b><span>${esc(last.texto)}</span></div><span class="small muted num">${hm(last.created_at)}</span>${nu?`<span class="badge">${nu}</span>`:''}</button>`}).join('')||'<div class="small muted">Nenhuma conversa nos últimos 7 dias.</div>'}</div>`;
+  $('msg-send').onclick=()=>sendMsg($('msg-to').value,$('msg-text').value,$('msg-send'),true);
+  B.querySelectorAll('[data-pair]').forEach(b=>b.onclick=()=>{MSG_PAIR=b.dataset.pair;renderNotif()});
+}
+async function sendMsg(para,texto,btn,abrir){
+  texto=(texto||'').trim();if(!para){toast('Selecione o destinatário');return}if(!texto){toast('Escreva a mensagem');return}
+  btn.disabled=true;
+  const {error}=await sb.from('mensagens').insert({id:uid(),de:USER.id,para,texto:texto.slice(0,1000)});
+  btn.disabled=false;
+  if(error){toast('Não foi possível enviar: '+error.message);return}
+  await loadSocial();if(abrir)MSG_PAIR=pairKey(USER.id,para);renderNotif();
+}
+setInterval(()=>{if(USER&&!document.hidden)loadSocial()},30000);
 
 /* =================== NAV =================== */
 const ICONS={aud:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>',rest:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3M4 12h16"/></svg>',
@@ -848,8 +1034,9 @@ function navItems(){
 let PAGE=null;
 function buildNav(){
   const it=navItems();const h=it.map(i=>`<button data-p="${i.id}">${ICONS[i.id]}<span>${i.n}</span><span class="badge" data-badge="${i.id}" hidden></span></button>`).join('');
-  $('tabbar').innerHTML=h;$('sidenav').innerHTML='<div class="nav-title">Menu</div>'+h;
-  document.querySelectorAll('#tabbar button,#sidenav button').forEach(b=>b.onclick=()=>go(b.dataset.p));
+  $('tabbar').innerHTML=h;$('sidenav').innerHTML='<div class="nav-title">Menu</div>'+h+`<button class="nav-user" id="nav-user" type="button" aria-haspopup="true"><span class="av">${ini(USER.nome)}</span><span class="nm"><b>${esc(USER.nome)}</b><span>${esc(USER.tipo||USER.perfil||'')}</span></span><span style="color:var(--nav-ink)">▴</span></button>`;
+  document.querySelectorAll('#tabbar button,#sidenav button[data-p]').forEach(b=>b.onclick=()=>go(b.dataset.p));
+  $('nav-user').onclick=e=>userMenu(e.currentTarget);
   refreshBadges();
   go(it[0]?it[0].id:null);
 }
@@ -1279,13 +1466,13 @@ function renderBM(){
   on('bm-fechar',()=>{
     b.status='fechado';b.fechadoEm=new Date().toISOString();b.fechadoPor=USER.nome;
     S.registros.forEach(r=>{if(r.empresaId===b.empresaId&&ctOf(r)===ctOf(b)&&r.data>=b.ini&&r.data<=b.fim&&!r.bmId)r.bmId=b.id});
-    S.bms.push(b);if(E)E.proximoBM=b.numero+1;audit('bm.fechar',`BM ${b.numero} — ${b.empresaNome} — ${br(b.ini)} à ${br(b.fim)} — ${b.qtd} refeições — líquido ${money(b.liquido)}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,depois:'fechado'});save();toast(`BM ${b.numero} fechado e enviado ao restaurante`);renderBM();renderSup();
+    S.bms.push(b);if(E)E.proximoBM=b.numero+1;audit('bm.fechar',`BM ${b.numero} — ${b.empresaNome} — ${br(b.ini)} à ${br(b.fim)} — ${b.qtd} refeições — líquido ${money(b.liquido)}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,depois:'fechado'});save();notify('bm.fechado',`BM nº ${b.numero} — ${b.empresaNome} — período ${br(b.ini)} à ${br(b.fim)} fechado e aguardando validação do restaurante`,destRest(ctOf(b)),{bmId:b.id});toast(`BM ${b.numero} fechado e enviado ao restaurante`);renderBM();renderSup();
   });
-  on('bm-validar',()=>{b.status='assinado_restaurante';b.assRest={tipo:'eletronica',usuario:USER.nome,em:new Date().toISOString()};audit('bm.validar',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:'fechado',depois:'assinado_restaurante'});save();toast(`BM ${b.numero} validado — devolvido ao Suprimentos assinado`);$('bm-modal').classList.remove('on');refreshBadges();if(can('sup.ver')){go('sup');openBM(b)}else renderRest()});
-  on('bm-homologar',()=>{b.status='assinado_restaurante';b.assRest={tipo:'fisica',usuario:K.nome||'Restaurante',por:USER.nome,em:new Date().toISOString()};audit('bm.homologar',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:'fechado',depois:'assinado_restaurante'});save();toast('Assinatura física do restaurante homologada');renderBM();renderSup()});
-  on('bm-ass-sup',()=>{b.status='assinado';b.assSup={tipo:'fisica',usuario:K.gestor||USER.nome,por:USER.nome,em:new Date().toISOString()};audit('bm.assinar_sup',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:'assinado_restaurante',depois:'assinado'});save();toast('Assinatura do Suprimentos registrada');renderBM();renderSup()});
+  on('bm-validar',()=>{b.status='assinado_restaurante';b.assRest={tipo:'eletronica',usuario:USER.nome,em:new Date().toISOString()};audit('bm.validar',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:'fechado',depois:'assinado_restaurante'});save();notify('bm.validado',`BM nº ${b.numero} — ${b.empresaNome} validado (assinatura eletrônica) pelo restaurante ${bmK(b).nome}`,destSup(),{bmId:b.id});toast(`BM ${b.numero} validado — devolvido ao Suprimentos assinado`);$('bm-modal').classList.remove('on');refreshBadges();if(can('sup.ver')){go('sup');openBM(b)}else renderRest()});
+  on('bm-homologar',()=>{b.status='assinado_restaurante';b.assRest={tipo:'fisica',usuario:K.nome||'Restaurante',por:USER.nome,em:new Date().toISOString()};audit('bm.homologar',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:'fechado',depois:'assinado_restaurante'});save();notify('bm.validado',`BM nº ${b.numero} — ${b.empresaNome}: assinatura física do restaurante homologada`,destSup().concat(destRest(ctOf(b))),{bmId:b.id});toast('Assinatura física do restaurante homologada');renderBM();renderSup()});
+  on('bm-ass-sup',()=>{b.status='assinado';b.assSup={tipo:'fisica',usuario:K.gestor||USER.nome,por:USER.nome,em:new Date().toISOString()};audit('bm.assinar_sup',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:'assinado_restaurante',depois:'assinado'});save();notify('bm.concluido',`BM nº ${b.numero} — ${b.empresaNome} concluído: assinado pelo restaurante e pelo Suprimentos`,destSup().concat(destRest(ctOf(b))),{bmId:b.id});toast('Assinatura do Suprimentos registrada');renderBM();renderSup()});
   on('bm-print',()=>exportBM(b,true));
-  on('bm-nf-save',()=>{const nfAntes=b.nf;b.nf=$('bm-nf').value.trim();if(b.nf)b.status='faturado';audit('bm.nf',`BM ${b.numero} — NF ${b.nf}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:nfAntes||null,depois:b.nf});save();toast('Nota fiscal registrada — pronta para inclusão em pagamento');renderBM();renderSup()});
+  on('bm-nf-save',()=>{const nfAntes=b.nf;b.nf=$('bm-nf').value.trim();if(b.nf)b.status='faturado';audit('bm.nf',`BM ${b.numero} — NF ${b.nf}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:nfAntes||null,depois:b.nf});save();notify('bm.nf',`BM nº ${b.numero} — ${b.empresaNome}: nota fiscal ${b.nf} registrada`,destSup(),{bmId:b.id});toast('Nota fiscal registrada — pronta para inclusão em pagamento');renderBM();renderSup()});
   $('bm-pdf').disabled=!(can('sup.bm')||can('rest.validar'));
 }
 
@@ -1407,25 +1594,77 @@ function renderSetup(){
   $('setup-list').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{CFGTAB=b.dataset.t;renderCfg()});
 }
 function renderCfg(){
-  const tabs=[];if(can('cfg.usuarios'))tabs.push(['usuarios','Usuários']);if(can('cfg.colab'))tabs.push(['colab','Colaboradores']);if(can('cfg.empresas'))tabs.push(['empresas','Empresas']);if(can('cfg.obras'))tabs.push(['obras','Obras']);if(can('cfg.contratos'))tabs.push(['contratos','Contratos']);if(can('cfg.precos'))tabs.push(['precos','Preços']);if(can('cfg.contratada'))tabs.push(['contratada','Contratadas']);
+  const tabs=[];if(can('cfg.usuarios'))tabs.push(['usuarios','Usuários'],['perfis','Perfis']);if(can('cfg.colab'))tabs.push(['colab','Colaboradores']);if(can('cfg.empresas'))tabs.push(['empresas','Empresas']);if(can('cfg.obras'))tabs.push(['obras','Obras']);if(can('cfg.contratos'))tabs.push(['contratos','Contratos']);if(can('cfg.precos'))tabs.push(['precos','Preços']);if(can('cfg.contratada'))tabs.push(['contratada','Contratadas']);
   if(!tabs.some(t=>t[0]===CFGTAB))CFGTAB=tabs[0]&&tabs[0][0];
   $('cfg-tabs').innerHTML=tabs.map(t=>`<button data-t="${t[0]}" class="${CFGTAB===t[0]?'on':''}">${t[1]}</button>`).join('');
   $('cfg-tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(CFGTAB!==b.dataset.t){audit('nav.cfg','Configurações › '+b.textContent);save()}CFGTAB=b.dataset.t;renderCfg()});
   document.querySelectorAll('.cfg-pane').forEach(p=>p.hidden=p.id!=='cfg-'+CFGTAB);
   renderSetup();
-  ({usuarios:renderUsers,colab:renderColab,empresas:renderEmpresas,obras:renderObras,precos:renderPrecos,contratos:renderContratos,contratada:renderContratada}[CFGTAB]||(()=>{}))();
+  ({perfis:renderPerfis,usuarios:renderUsers,colab:renderColab,empresas:renderEmpresas,obras:renderObras,precos:renderPrecos,contratos:renderContratos,contratada:renderContratada}[CFGTAB]||(()=>{}))();
 }
 /* users */
+/* perfis */
+let PFEDIT=null;
+function seedPerfis(){
+  if((S.perfis||[]).length||!can('cfg.usuarios'))return;
+  const base=[['Administrador','Adm',PERFIS.Administrador],['Suprimentos','Suprimentos',PERFIS.Suprimentos],['Restaurante','Restaurante',PERFIS.Restaurante],['Obra','Obra',['sup.ver']]];
+  base.forEach(([nome,tipo,perms])=>S.perfis.push({id:'pf-'+tipo.toLowerCase(),nome,tipo,perms:[...perms]}));
+  S.users.forEach(u=>{const pf=S.perfis.find(p=>p.nome===u.perfil);if(pf&&!u.perfilId){u.perfilId=pf.id;u.tipo=u.tipo||pf.tipo}});
+  save();
+}
+function perfil(id){return (S.perfis||[]).find(p=>p.id===id)}
+function renderPerfis(){
+  $('pf-list').innerHTML=(S.perfis||[]).map(p=>{const n=S.users.filter(u=>u.perfilId===p.id).length;return `<div class="item"><div class="avatar">${ini(p.nome)}</div><div class="t"><b>${esc(p.nome)} <span class="pill ${p.tipo==='Adm'?'warn':'neutral'}">${esc(p.tipo)}</span></b><span>${p.tipo==='Adm'?'todas as':p.perms.length} permissões · ${n} usuário(s)</span></div><button class="btn sec sm" data-pf="${p.id}">Editar</button></div>`}).join('')||'<div class="small muted">Nenhum perfil.</div>';
+  $('pf-list').querySelectorAll('[data-pf]').forEach(b=>b.onclick=()=>{PFEDIT=perfil(b.dataset.pf);fillPerfil()});
+  if(!$('pf-perms').innerHTML)fillPerfil();
+}
+function fillPerfil(){
+  const p=PFEDIT||{nome:'',tipo:'Obra',perms:[]};
+  $('pf-form-title').textContent=PFEDIT?'Editar perfil':'Novo perfil';$('pf-nome').value=p.nome;$('pf-tipo').value=p.tipo;$('pf-err').hidden=true;
+  $('pf-del').hidden=!PFEDIT;renderPfPerms(new Set(p.tipo==='Adm'?PERFIS.Administrador:p.perms));
+}
+function renderPfPerms(set){
+  const adm=$('pf-tipo').value==='Adm';$('pf-adm-note').hidden=!adm;
+  $('pf-perms').innerHTML=PERMS.map(q=>q.grp?`<div class="grp">${q.grp}</div>`:`<span>${q.nome}</span><button type="button" class="switch${adm||set.has(q.id)?' on':''}" data-pp="${q.id}" role="switch" aria-checked="${adm||set.has(q.id)}" ${adm?'disabled':''} aria-label="${q.nome}"></button>`).join('');
+  const upd=()=>{$('pf-perms-sum').textContent=`${$('pf-perms').querySelectorAll('.switch.on').length} de ${PERMS.filter(q=>q.id).length} ligadas`};
+  $('pf-perms').querySelectorAll('.switch').forEach(b=>b.onclick=()=>{b.classList.toggle('on');b.setAttribute('aria-checked',b.classList.contains('on'));upd()});upd();
+}
+$('pf-tipo').onchange=()=>renderPfPerms(new Set([...$('pf-perms').querySelectorAll('.switch.on')].map(b=>b.dataset.pp)));
+$('pf-new').onclick=()=>{PFEDIT=null;fillPerfil()};$('pf-cancel').onclick=()=>{PFEDIT=null;fillPerfil()};
+$('pf-save').onclick=()=>{
+  const err=$('pf-err');const show=m=>{err.hidden=false;err.textContent=m};
+  const nome=$('pf-nome').value.trim(),tipo=$('pf-tipo').value;if(!nome)return show('Informe o nome do perfil.');
+  if(S.perfis.some(p=>p.nome.toLowerCase()===nome.toLowerCase()&&p!==PFEDIT))return show('Já existe perfil com este nome.');
+  const perms=tipo==='Adm'?[...PERFIS.Administrador]:[...$('pf-perms').querySelectorAll('.switch.on')].map(b=>b.dataset.pp);
+  if(PFEDIT&&PFEDIT.tipo==='Adm'&&tipo!=='Adm'&&S.users.some(u=>u.perfilId===PFEDIT.id&&u.id===USER.id))return show('Você não pode tirar o tipo Adm do seu próprio perfil.');
+  audit('perfil.salvar',`${PFEDIT?'Alterou':'Criou'} perfil ${nome} (${tipo}) — ${perms.length} permissões`,{entidade:'perfil '+nome,antes:PFEDIT?JSON.stringify({nome:PFEDIT.nome,tipo:PFEDIT.tipo,perms:PFEDIT.perms}):null,depois:JSON.stringify({nome,tipo,perms})});
+  if(PFEDIT){Object.assign(PFEDIT,{nome,tipo,perms});S.users.filter(u=>u.perfilId===PFEDIT.id).forEach(u=>{u.perms=[...perms];u.perfil=nome;u.tipo=tipo})}
+  else S.perfis.push({id:uid(),nome,tipo,perms});
+  save();toast('Perfil salvo');PFEDIT=null;fillPerfil();renderPerfis();
+};
+$('pf-del').onclick=()=>{if(!PFEDIT)return;const n=S.users.filter(u=>u.perfilId===PFEDIT.id).length;if(n){toast(`Há ${n} usuário(s) com este perfil — troque o perfil deles antes`);return}
+  const p=PFEDIT;confirmDelete({titulo:`Excluir perfil ${esc(p.nome)}`,resumo:'<div class="notice warn">O perfil deixa de aparecer no cadastro de usuários.</div>',botao:'Excluir perfil',onOk:async(_,motivo)=>{S.perfis=S.perfis.filter(x=>x!==p);audit('perfil.excluir',`${p.nome} — motivo: ${motivo}`,{entidade:'perfil '+p.nome});save();PFEDIT=null;fillPerfil();renderPerfis()}})};
 function renderUsers(){
-  $('u-list').innerHTML=S.users.map(u=>`<div class="item"><div class="avatar">${ini(u.nome)}</div><div class="t"><b>${esc(u.nome)}</b><span>${esc(u.perfil)} · <span class="mono">${esc(u.login)}</span> · ${u.perms.length} permissões · ${u.obras&&u.obras.length?u.obras.length+' obra(s)':'todas as obras'} · ${u.contratadas&&u.contratadas.length?u.contratadas.map(id=>(ct(id)||{}).nome).filter(Boolean).join(', '):'todos os restaurantes'}</span></div>${u.ativo?'':'<span class="pill bad">inativo</span>'}<button class="btn sec sm" data-u="${u.id}">Editar</button></div>`).join('');
+  const pend=S.users.filter(u=>u.status==='pendente');$('u-pend-card').hidden=!pend.length;
+  $('u-pend').innerHTML=pend.map(u=>`<div class="item"><div class="avatar">${ini(u.login||u.nome)}</div><div class="t"><b class="mono">${esc((u.login||'').toUpperCase())}</b><span>${esc((u.email||'').toUpperCase())}</span></div><select data-pp-pf="${u.id}" style="width:auto">${(S.perfis||[]).map(p=>`<option value="${p.id}">${esc(p.nome)} (${esc(p.tipo)})</option>`).join('')}</select><button class="btn good sm" data-ap="${u.id}">Aprovar</button>${isAdm(USER)?`<button class="btn danger sm" data-ng="${u.id}">Negar</button>`:''}</div>`).join('');
+  $('u-pend').querySelectorAll('[data-ap]').forEach(b=>b.onclick=()=>{const u=S.users.find(x=>x.id===b.dataset.ap);const pf=perfil($('u-pend').querySelector(`[data-pp-pf="${u.id}"]`).value);if(!pf){toast('Cadastre um perfil antes');return}
+    Object.assign(u,{status:'aprovado',ativo:true,perfilId:pf.id,perfil:pf.nome,tipo:pf.tipo,perms:pf.tipo==='Adm'?[...PERFIS.Administrador]:[...pf.perms],nome:u.nome||u.login});
+    audit('usuario.aprovar',`${(u.login||'').toUpperCase()} (${u.email}) aprovado com o perfil ${pf.nome}`,{entidade:'usuário '+u.login});notify('conta.aprovada',`Sua conta foi aprovada com o perfil ${pf.nome}. Bem-vindo ao SISMED!`,[u.id]);save();toast('Conta aprovada');renderUsers()});
+  $('u-pend').querySelectorAll('[data-ng]').forEach(b=>b.onclick=()=>{const u=S.users.find(x=>x.id===b.dataset.ng);
+    confirmDelete({titulo:`Negar conta ${esc((u.login||'').toUpperCase())}`,resumo:`<div class="notice warn">A conta ${esc(u.email)} será excluída. A pessoa poderá se cadastrar de novo.</div>`,botao:'Negar e excluir',onOk:async(_,motivo)=>{const {error}=await sb.rpc('admin_delete_user',{target:u.id});if(error)throw error;S.users=S.users.filter(x=>x!==u);audit('usuario.negar',`${(u.login||'').toUpperCase()} (${u.email}) — motivo: ${motivo}`,{entidade:'usuário '+u.login});save();renderUsers()}})});
+  $('u-list').innerHTML=S.users.filter(u=>u.status!=='pendente').map(u=>`<div class="item"><div class="avatar">${ini(u.nome)}</div><div class="t"><b>${esc(u.nome)} <span class="pill ${isAdm(u)?'warn':'neutral'}">${esc(u.tipo||'—')}</span></b><span>${esc(u.perfil)} · <span class="mono">${esc(u.login)}</span> · ${u.perms.length} permissões · ${u.obras&&u.obras.length?u.obras.length+' obra(s)':'todas as obras'} · ${u.contratadas&&u.contratadas.length?u.contratadas.map(id=>(ct(id)||{}).nome).filter(Boolean).join(', '):'todos os restaurantes'}</span></div>${u.ativo?'':'<span class="pill bad">inativo</span>'}<button class="btn sec sm" data-u="${u.id}">Editar</button></div>`).join('');
   $('u-list').querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{UEDIT=S.users.find(u=>u.id===b.dataset.u);fillUser()});
   if(!$('u-perms').innerHTML)fillUser();
 }
 function fillUser(){
-  const u=UEDIT||{nome:'',login:'',senha:'',perfil:'Restaurante',perms:[...PERFIS.Restaurante],ativo:true};
+  const pfR=(S.perfis||[]).find(p=>p.tipo==='Restaurante')||(S.perfis||[])[0];
+  const u=UEDIT||{nome:'',login:'',senha:'',perfilId:pfR&&pfR.id,perfil:pfR?pfR.nome:'',tipo:pfR?pfR.tipo:'Restaurante',perms:pfR?[...pfR.perms]:[...PERFIS.Restaurante],ativo:true};
   $('u-form-title').textContent=UEDIT?'Editar usuário':'Novo usuário';
-  $('u-nome').value=u.nome;$('u-login').value=u.login;$('u-senha').value='';$('u-perfil').value=u.perfil;$('u-ativo').value=u.ativo?'1':'0';
-  $('u-login').disabled=!!UEDIT;$('u-senha').placeholder=UEDIT?'nova senha — deixe em branco para manter':'mínimo 6 caracteres';$('u-senha').disabled=false;$('u-senha').type='password';$('u-senha-hint').hidden=!UEDIT;
+  $('u-perfil').innerHTML=(S.perfis||[]).map(p=>`<option value="${p.id}">${esc(p.nome)} (${esc(p.tipo)})</option>`).join('')+'<option value="custom">Personalizado</option>';
+  const pfId=u.perfilId&&perfil(u.perfilId)?u.perfilId:((S.perfis||[]).find(p=>p.nome===u.perfil)||{}).id;
+  $('u-nome').value=u.nome;$('u-login').value=(u.login||'').toUpperCase();$('u-email').value=(UEDIT&&u.email||'').toUpperCase();$('u-email').disabled=!!UEDIT;$('u-senha').value='';$('u-perfil').value=pfId||'custom';$('u-tipo').value=u.tipo||'Obra';$('u-tipo').disabled=$('u-perfil').value!=='custom';$('u-ativo').value=u.ativo?'1':'0';
+  $('u-del').hidden=!(UEDIT&&isAdm(USER)&&!isAdm(UEDIT)&&UEDIT!==USER);
+  $('u-login').disabled=!!UEDIT;$('u-senha').placeholder=UEDIT?'nova senha — deixe em branco para manter':'mín. 6 caracteres, 1 número';$('u-senha').disabled=false;$('u-senha').type='password';$('u-senha-hint').hidden=!UEDIT;
   renderPerms(new Set(u.perms));
   renderSwitchList('u-obras',S.obras.map(o=>({id:o.id,nome:o.nome+(o.ativo===false?' (encerrada)':'')})),new Set(u.obras||[]),'data-ob','todas');
   renderSwitchList('u-cts',(S.contratadas||[]).map(c=>({id:c.id,nome:c.nome+(c.ativo===false?' (inativa)':'')})),new Set(u.contratadas||[]),'data-uct','todos');
@@ -1440,26 +1679,31 @@ document.querySelectorAll('.coll[data-coll] .coll-h').forEach(h=>h.onclick=()=>{
 function renderPerms(set){
   $('u-perms').innerHTML=PERMS.map(p=>p.grp?`<div class="grp">${p.grp}</div>`:`<span>${p.nome}</span><button class="switch${set.has(p.id)?' on':''}" data-p="${p.id}" role="switch" aria-checked="${set.has(p.id)}" aria-label="${p.nome}"></button>`).join('');
   const upd=()=>{$('u-perms-sum').textContent=`${$('u-perms').querySelectorAll('.switch.on').length} de ${PERMS.filter(p=>p.id).length} ligadas`};
-  $('u-perms').querySelectorAll('.switch').forEach(b=>b.onclick=()=>{b.classList.toggle('on');b.setAttribute('aria-checked',b.classList.contains('on'));$('u-perfil').value='Personalizado';upd()});upd();
+  $('u-perms').querySelectorAll('.switch').forEach(b=>b.onclick=()=>{b.classList.toggle('on');b.setAttribute('aria-checked',b.classList.contains('on'));$('u-perfil').value='custom';$('u-tipo').disabled=false;upd()});upd();
 }
-$('u-perfil').onchange=()=>{const p=$('u-perfil').value;if(p!=='Personalizado')renderPerms(new Set(PERFIS[p]))};
+$('u-perfil').onchange=()=>{const pf=perfil($('u-perfil').value);$('u-tipo').disabled=!!pf;if(pf){$('u-tipo').value=pf.tipo;renderPerms(new Set(pf.tipo==='Adm'?PERFIS.Administrador:pf.perms))}};
+$('u-del').onclick=()=>{const u=UEDIT;if(!u||!isAdm(USER)||isAdm(u))return;
+  confirmDelete({titulo:`Excluir usuário ${esc(u.nome)}`,resumo:`<div class="notice warn">A conta <b>${esc((u.login||'').toUpperCase())}</b> (${esc(u.email||'')}) perde o acesso imediatamente. Os registros feitos por ela continuam no histórico e na auditoria.</div>`,botao:'Excluir usuário',
+    onOk:async(_,motivo)=>{const {error}=await sb.rpc('admin_delete_user',{target:u.id});if(error)throw error;S.users=S.users.filter(x=>x!==u);if(LAST.users)delete LAST.users[u.id];audit('usuario.excluir',`${u.nome} (${u.login}) — motivo: ${motivo}`,{entidade:'usuário '+u.login});save();toast('Usuário excluído');UEDIT=null;fillUser();renderUsers()}})};
 $('u-new').onclick=()=>{UEDIT=null;fillUser()};
 $('u-senha-gen').onclick=()=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';let p='';const r=new Uint32Array(10);crypto.getRandomValues(r);r.forEach(x=>p+=a[x%a.length]);$('u-senha').type='text';$('u-senha').value=p;$('u-senha').select()};$('u-cancel').onclick=()=>{UEDIT=null;fillUser()};
 $('u-save').onclick=async()=>{
-  const nome=$('u-nome').value.trim(),login=$('u-login').value.trim().toLowerCase(),senha=$('u-senha').value;
-  if(!nome||!login){toast('Preencha nome e login');return}
-  if(!UEDIT&&senha.length<6){toast('Senha com pelo menos 6 caracteres');return}
-  if(S.users.some(u=>u.login===login&&u!==UEDIT)){toast('Já existe usuário com este login');return}
+  const nome=$('u-nome').value.trim(),login=$('u-login').value.trim().toUpperCase(),senha=$('u-senha').value,emailIn=$('u-email').value.trim().toLowerCase();
+  if(!nome||!login){toast('Preencha nome e usuário');return}
+  if(!UEDIT&&!senhaOk(senha)){toast('Senha: mínimo 6 caracteres e pelo menos 1 número');return}
+  if(S.users.some(u=>(u.login||'').toUpperCase()===login&&u!==UEDIT)){toast('Já existe usuário com este login');return}
   const perms=[...$('u-perms').querySelectorAll('.switch.on')].map(b=>b.dataset.p);
   if(UEDIT===USER&&!perms.includes('cfg.usuarios')){toast('Você não pode remover sua própria permissão de usuários');return}
   const obras=[...$('u-obras').querySelectorAll('.switch.on')].map(i=>i.dataset.ob);
   const contratadas=[...$('u-cts').querySelectorAll('.switch.on')].map(i=>i.dataset.uct);
-  const obj={nome,login,perfil:$('u-perfil').value,perms,ativo:$('u-ativo').value==='1',obras,contratadas};
+  const pf=perfil($('u-perfil').value);const tipo=pf?pf.tipo:$('u-tipo').value;
+  if(UEDIT===USER&&isAdm(USER)&&tipo!=='Adm'){toast('Você não pode remover o tipo Adm da própria conta');return}
+  const obj={nome,login,perfilId:pf?pf.id:null,perfil:pf?pf.nome:'Personalizado',tipo,perms:tipo==='Adm'?[...PERFIS.Administrador]:perms,ativo:$('u-ativo').value==='1',obras,contratadas,status:'aprovado'};
   $('u-save').disabled=true;
   try{
     if(UEDIT){
       if(senha){
-        if(senha.length<6)throw new Error('a nova senha precisa ter pelo menos 6 caracteres');
+        if(!senhaOk(senha))throw new Error('a nova senha precisa ter pelo menos 6 caracteres e 1 número');
         if(UEDIT===USER){const {error}=await sb.auth.updateUser({password:senha});if(error)throw error}
         else{const {error}=await sb.rpc('admin_set_password',{target:UEDIT.id,new_password:senha});if(error)throw error}
         audit('usuario.senha',`${UEDIT===USER?'Alterou a própria senha':'Redefiniu a senha de '+UEDIT.nome+' ('+UEDIT.login+')'}`,{entidade:'usuário '+UEDIT.login});
@@ -1467,15 +1711,14 @@ $('u-save').onclick=async()=>{
       }
       audit('usuario.salvar',`Alterou usuário ${nome} (${login}) — perfil ${obj.perfil}, ${perms.length} permissões${obj.ativo?'':', inativo'}`,{entidade:'usuário '+login,antes:JSON.stringify({nome:UEDIT.nome,perfil:UEDIT.perfil,perms:UEDIT.perms,ativo:UEDIT.ativo}),depois:JSON.stringify(obj)});
       Object.assign(UEDIT,obj);
-      if(UEDIT===USER){$('who-name').textContent=USER.nome;$('who-role').textContent=USER.perfil;buildNav();CFGTAB='usuarios';go('cfg')}
+      if(UEDIT===USER){$('who-name').textContent=USER.nome;$('who-role').textContent=USER.tipo||USER.perfil;buildNav();CFGTAB='usuarios';go('cfg')}
     }else{
-      // cria a conta no Auth com um cliente separado (não derruba a sessão do administrador)
-      const sb2=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
-      const {data,error}=await sb2.auth.signUp({email:toEmail(login),password:senha,options:{data:{nome,login}}});
-      if(error)throw error;
-      if(!data.user)throw new Error('Supabase não retornou o usuário criado');
-      audit('usuario.salvar',`Criou usuário ${nome} (${login}) — perfil ${obj.perfil}, ${perms.length} permissões`,{entidade:'usuário '+login,depois:JSON.stringify(obj)});
-      S.users.push({id:data.user.id,email:toEmail(login),...obj});
+      // conta criada no servidor já com e-mail confirmado (não envia e-mail e não derruba a sessão do administrador)
+      const email=emailIn||toEmail(login);
+      const {data:newId,error}=await sb.rpc('admin_create_user',{p_email:email,p_password:senha,p_nome:nome,p_login:login});
+      if(error)throw error;if(!newId)throw new Error('o servidor não retornou o usuário criado');
+      audit('usuario.salvar',`Criou usuário ${nome} (${login}) — perfil ${obj.perfil}, ${obj.perms.length} permissões`,{entidade:'usuário '+login,depois:JSON.stringify(obj)});
+      S.users.push({id:newId,email,...obj});
     }
     save();toast('Usuário salvo');UEDIT=null;fillUser();renderUsers();renderSetup();
   }catch(e){toast('Erro: '+(e.message||e))}
@@ -1681,13 +1924,13 @@ function renderContratos(){
   const f=$('ctr-filtro').value;const t=today();
   const l=(S.contratos||[]).filter(c=>{const st=contratoStatus(c,t);return !f||(f==='ativos'?(st==='vigente'||st==='a iniciar'):(st==='inativo'||st==='encerrado'))}).sort((a,b)=>a.numero.localeCompare(b.numero));
   const pill={vigente:'ok','a iniciar':'warn',encerrado:'bad',inativo:'bad'};
-  $('ctr-table').innerHTML=`<thead><tr><th>Nº</th><th>Objeto</th><th>Início</th><th>Término</th><th>Situação</th><th>Obras</th><th>Preços</th><th></th></tr></thead><tbody>${l.map(c=>{const st=contratoStatus(c,t);const ob=S.obras.filter(o=>o.contratoId===c.id);const np=new Set(S.precos.filter(p=>p.contratoId===c.id).map(p=>p.tipo)).size;
-    return `<tr><td class="mono"><b>${esc(c.numero)}</b></td><td>${esc(c.descricao||'—')}</td><td class="num">${c.inicio?br(c.inicio):'<span class="muted">—</span>'}</td><td class="num">${c.fim?br(c.fim):'<span class="muted">—</span>'}</td><td><span class="pill ${pill[st]}">${st}</span></td><td class="small">${esc(ob.map(o=>o.nome).join(', ')||'—')}</td><td class="small">${np?np+' de '+TIPOS.length+' próprios':'<span class="muted">tabela geral</span>'}</td><td><button class="btn sec sm" data-ctr="${c.id}">Editar</button></td></tr>`}).join('')||'<tr><td colspan="8" class="empty">Nenhum contrato.</td></tr>'}</tbody>`;
+  $('ctr-table').innerHTML=`<thead><tr><th>Nº</th><th>Início</th><th>Término</th><th>Situação</th><th>Obras</th><th>Preços</th><th></th></tr></thead><tbody>${l.map(c=>{const st=contratoStatus(c,t);const ob=S.obras.filter(o=>o.contratoId===c.id);const np=new Set(S.precos.filter(p=>p.contratoId===c.id).map(p=>p.tipo)).size;
+    return `<tr><td class="mono"><b>${esc(c.numero)}</b></td><td class="num">${c.inicio?br(c.inicio):'<span class="muted">—</span>'}</td><td class="num">${c.fim?br(c.fim):'<span class="muted">—</span>'}</td><td><span class="pill ${pill[st]}">${st}</span></td><td class="small">${esc(ob.map(o=>o.nome).join(', ')||'—')}</td><td class="small">${np?np+' de '+TIPOS.length+' próprios':'<span class="muted">tabela geral</span>'}</td><td><button class="btn sec sm" data-ctr="${c.id}">Editar</button></td></tr>`}).join('')||'<tr><td colspan="7" class="empty">Nenhum contrato.</td></tr>'}</tbody>`;
   $('ctr-table').querySelectorAll('[data-ctr]').forEach(b=>b.onclick=()=>{CTREDIT=contrato(b.dataset.ctr);fillContrato()});
   if(!$('ctr-form-title').dataset.init){$('ctr-form-title').dataset.init=1;fillContrato()}
 }
 function fillContrato(){const c=CTREDIT||{numero:'',descricao:'',inicio:'',fim:'',ativo:true};
-  $('ctr-form-title').textContent=CTREDIT?'Editar contrato':'Novo contrato';$('ctr-num').value=c.numero;$('ctr-desc').value=c.descricao||'';$('ctr-ini').value=c.inicio||'';$('ctr-fim').value=c.fim||'';$('ctr-ativo').value=c.ativo===false?'0':'1';$('ctr-err').hidden=true;$('ctr-precos').hidden=!CTREDIT}
+  $('ctr-form-title').textContent=CTREDIT?'Editar contrato':'Novo contrato';$('ctr-num').value=c.numero;$('ctr-ini').value=c.inicio||'';$('ctr-fim').value=c.fim||'';$('ctr-ativo').value=c.ativo===false?'0':'1';$('ctr-err').hidden=true;$('ctr-precos').hidden=!CTREDIT}
 $('ctr-filtro').onchange=renderContratos;$('ctr-new').onclick=()=>{CTREDIT=null;fillContrato()};$('ctr-cancel').onclick=()=>{CTREDIT=null;fillContrato()};
 $('ctr-precos').onclick=()=>{if(!CTREDIT||!can('cfg.precos'))return;const id=CTREDIT.id;CFGTAB='precos';renderCfg();$('p-ct').value=id;renderPrecos()};
 $('ctr-save').onclick=()=>{
@@ -1696,7 +1939,7 @@ $('ctr-save').onclick=()=>{
   if(!numero)return show('Informe o Nº do contrato.');if(numero.length>7)return show('O Nº do contrato tem no máximo 7 caracteres.');
   if((S.contratos||[]).some(c=>c.numero.toUpperCase()===numero&&c!==CTREDIT))return show('Já existe contrato com este número.');
   if(ini&&fim&&fim<ini)return show('A data de término não pode ser anterior à de início.');
-  const obj={numero,descricao:$('ctr-desc').value.trim(),inicio:ini,fim,ativo:$('ctr-ativo').value==='1'};
+  const obj={numero,descricao:CTREDIT?CTREDIT.descricao||'':'',inicio:ini,fim,ativo:$('ctr-ativo').value==='1'};
   audit('contrato.salvar',`${CTREDIT?'Alterou':'Cadastrou'} contrato ${numero} — ${ini?br(ini):'sem início'} a ${fim?br(fim):'sem término'}${obj.ativo?'':' — INATIVO'}`,{entidade:'contrato '+numero,antes:CTREDIT?JSON.stringify({numero:CTREDIT.numero,inicio:CTREDIT.inicio,fim:CTREDIT.fim,ativo:CTREDIT.ativo}):null,depois:JSON.stringify({numero,inicio:ini,fim,ativo:obj.ativo})});
   if(CTREDIT)Object.assign(CTREDIT,obj);else S.contratos.push({id:uid(),...obj});
   save();toast('Contrato salvo');CTREDIT=null;fillContrato();renderContratos();renderSetup();
