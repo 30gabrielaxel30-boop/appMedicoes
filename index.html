@@ -370,13 +370,19 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
             </div>
             <div class="card" id="sobras-card">
               <h3>Sobras de refeições</h3>
-              <div class="small muted" style="margin-bottom:10px">Refeições preparadas que não foram consumidas. Preenchimento manual pelo restaurante.</div>
+              <div class="small muted" style="margin-bottom:10px">Refeições preparadas e não consumidas. <b>São cobradas</b>: entram na contagem de refeições e no BM da empresa, pelo preço do contrato da obra.</div>
               <div class="stack">
+                <div class="grid2">
+                  <div class="field"><label for="s-emp">Empresa *</label><select id="s-emp"></select></div>
+                  <div class="field"><label for="s-obra">Obra *</label><select id="s-obra"></select></div>
+                </div>
                 <div class="grid2">
                   <div class="field"><label for="s-tipo">Tipo de refeição</label><select id="s-tipo"></select></div>
                   <div class="field"><label for="s-qtd">Quantidade que sobrou</label><input id="s-qtd" type="number" min="1" step="1" inputmode="numeric" placeholder="0"></div>
                 </div>
                 <div class="field"><label for="s-colab">Nome do colaborador que sobrou</label><input id="s-colab" list="colab-names" placeholder="digite ou escolha da lista"><datalist id="colab-names"></datalist></div>
+                <div class="small muted" id="s-preco"></div>
+                <div id="s-msg" class="notice warn" hidden></div>
                 <button class="btn" id="s-save">Registrar sobra</button>
               </div>
               <div class="list" id="sobras-list" style="margin-top:10px"></div>
@@ -406,7 +412,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         </div>
         <div class="card" id="sup-notif" style="margin-top:14px;border-left:4px solid var(--good)" hidden><h3>Boletins assinados pelo restaurante — prontos para impressão e assinatura do Suprimentos</h3><div class="list" id="sup-notif-list"></div></div>
         <div class="card" style="margin-top:14px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Registros</h3><span class="small muted" id="sup-count"></span></div><div class="tablewrap" style="margin-top:8px"><table id="sup-table"></table></div></div>
-        <div class="card"><h3>Sobras informadas na semana</h3><div class="tablewrap"><table id="sup-sobras"></table></div></div>
+        <div class="card"><h3>Sobras informadas na semana <span class="small muted" style="font-weight:400">— cobradas no BM</span></h3><div class="tablewrap"><table id="sup-sobras"></table></div></div>
         <div class="card"><h3>Boletins emitidos</h3><div class="tablewrap"><table id="bm-list"></table></div><input id="bm-anexo-file" type="file" accept="application/pdf,image/*" hidden></div>
       </section>
 
@@ -826,7 +832,13 @@ async function sync(){
       const ups=[],dels=[];
       for(const id in cur){if(LAST[k][id]!==cur[id])ups.push({id,data:JSON.parse(cur[id])})}
       if(k!=='users'){for(const id in LAST[k]){if(!(id in cur))dels.push(id)}}
-      if(ups.length){const {error}=await sb.from(t).upsert(ups);if(error)throw error}
+      if(ups.length){
+        const velhos=ups.filter(r=>LAST[k][r.id]!==undefined);let resto=ups.filter(r=>LAST[k][r.id]===undefined);
+        if(velhos.length){const {data,error}=await sb.rpc('sync_update',{p_table:t,p_rows:velhos});
+          if(error){if(/sync_update|PGRST202|function/i.test((error.message||'')+(error.code||'')))resto=ups;else throw error}
+          else{const ok=new Set(data||[]);resto=resto.concat(velhos.filter(r=>!ok.has(r.id)))}}
+        if(resto.length){const {error}=await sb.from(t).upsert(resto);if(error)throw error}
+      }
       if(dels.length){const {error}=await sb.from(t).delete().in('id',dels);if(error)throw error}
       LAST[k]=cur;
     }
@@ -1107,7 +1119,8 @@ function renderRest(){
   $('rest-setup').hidden=!missing.length;$('rest-setup').textContent=missing.length?`Antes de registrar refeições, cadastre em Configurações: ${missing.join(' e ')}.`:'';
   setupDateManual('dm');
   const regs=S.registros.filter(r=>r.data===t&&regOk(r)&&(!RC||ctOf(r)===RC.id));
-  $('rest-tiles').innerHTML=TIPOS.map(tp=>{const l=regs.filter(r=>r.tipo===tp.id);return `<div class="tile ${tp.id}"><div class="k">${tp.curto} hoje</div><div class="v num">${l.length}</div><div class="s num">${money(l.reduce((s,r)=>s+r.valor,0))}</div></div>`}).join('');
+  const sobHoje=(S.sobras||[]).filter(s=>s.data===t&&sobraOk(s)&&(!RC||ctOf(s)===RC.id));
+  $('rest-tiles').innerHTML=TIPOS.map(tp=>{const l=regs.filter(r=>r.tipo===tp.id);const so=sobHoje.filter(s=>s.tipo===tp.id);const ns=so.reduce((a,s)=>a+s.qtd,0);const v=l.reduce((a,r)=>a+r.valor,0)+so.reduce((a,s)=>a+sobraTotal(s),0);return `<div class="tile ${tp.id}"><div class="k">${tp.curto} hoje</div><div class="v num">${l.length+ns}</div><div class="s num">${money(v)}${ns?` · inclui ${ns} sobra${ns>1?'s':''}`:''}</div></div>`}).join('');
   const recent=S.registros.filter(r=>regOk(r)&&(!RC||ctOf(r)===RC.id)&&(r.data===t||r.registradoEm.slice(0,10)===t)).sort((a,b)=>a.registradoEm<b.registradoEm?1:-1).slice(0,12);
   // notificações de BM fechado
   const pend=pendRest();$('rest-notif').hidden=!(pend.length&&can('rest.validar'));
@@ -1122,8 +1135,11 @@ function renderRest(){
   $('sobras-card').hidden=!can('rest.sobras');
   if(!$('s-tipo').options.length)TIPOS.forEach(tp=>{const o=document.createElement('option');o.value=tp.id;o.textContent=tp.curto;$('s-tipo').appendChild(o)});
   $('colab-names').innerHTML=S.colab.filter(c=>c.ativo).map(c=>`<option value="${esc(c.nome)}">`).join('');
-  const sob=S.sobras.filter(s=>s.data===t&&(!RC||ctOf(s)===RC.id)).sort((a,b)=>a.registradoEm<b.registradoEm?1:-1);
-  $('sobras-list').innerHTML=sob.length?sob.map(s=>`<div class="item"><span class="pill ${s.tipo}">${tipo(s.tipo).curto}</span><div class="t"><b>${s.qtd} ${s.qtd===1?'refeição':'refeições'} — ${esc(s.colabNome)}</b><span>${esc(s.empresaNome||'empresa não identificada')} · ${hm(s.registradoEm)}</span></div>${can('del.sobras')?`<button class="btn sec sm" data-sdel="${s.id}">Excluir</button>`:''}</div>`).join(''):'<div class="small muted">Nenhuma sobra informada hoje.</div>';
+  fillSelect($('s-emp'),S.empresas.filter(e=>e.ativo!==false),$('s-emp').value,'Selecione…');
+  fillSelect($('s-obra'),S.obras.filter(o=>o.ativo!==false&&obraOk(o.id)&&RC&&(RC.obras||[]).includes(o.id)),$('s-obra').value,'Selecione…');
+  sobraPrecoHint();
+  const sob=sobHoje.slice().sort((a,b)=>a.registradoEm<b.registradoEm?1:-1);
+  $('sobras-list').innerHTML=sob.length?sob.map(s=>{const bm=s.bmId?S.bms.find(x=>x.id===s.bmId):null;return `<div class="item"><span class="pill ${s.tipo}">${tipo(s.tipo).curto}</span><div class="t"><b>${s.qtd} ${s.qtd===1?'refeição':'refeições'} — ${esc(s.colabNome)}</b><span>${esc(s.empresaNome||'empresa não informada')} · ${esc(s.obraNome||'obra não informada')} · ${money(sobraTotal(s))} · ${hm(s.registradoEm)}</span></div>${bm?`<span class="pill neutral">BM ${bm.numero}</span>`:can('del.sobras')?`<button class="btn sec sm" data-sdel="${s.id}">Excluir</button>`:''}</div>`}).join(''):'<div class="small muted">Nenhuma sobra informada hoje.</div>';
   $('sobras-list').querySelectorAll('[data-sdel]').forEach(b=>b.onclick=()=>excluirSobra(b.dataset.sdel,renderRest));
 }
 /* ---- data manual (permissão rest.data_manual) ---- */
@@ -1201,15 +1217,29 @@ $('m-save').onclick=()=>{
 $('btn-scan-rest').onclick=()=>openScanner('Ler QR Code do crachá',lookup);
 $('qr-manual-go').onclick=()=>lookup($('qr-manual').value);
 $('qr-manual').addEventListener('keydown',e=>{if(e.key==='Enter')lookup(e.target.value)});
+/* sobras: cobradas como refeições consumidas — empresa e obra obrigatórias, preço do contrato da obra */
+function sobraPrecoHint(){
+  const el=$('s-preco');if(!el)return;const obraId=$('s-obra').value,tp=$('s-tipo').value,q=parseInt($('s-qtd').value,10)||0;
+  if(!obraId||!tp){el.textContent='Selecione empresa e obra para ver o preço cobrado.';return}
+  const p=precoVigente(tp,today(),cidOf(obraId));
+  el.textContent=p===null?`${tipo(tp).curto} sem preço cadastrado para o contrato desta obra.`:`Preço unitário ${money(p)}${q>0?` · total ${money(Math.round(q*p*100)/100)}`:''} — entra no BM da empresa selecionada.`;
+}
+['s-emp','s-obra','s-tipo'].forEach(id=>$(id).addEventListener('change',()=>{$('s-msg').hidden=true;sobraPrecoHint()}));$('s-qtd').addEventListener('input',sobraPrecoHint);
 $('s-save').onclick=()=>{
-  const q=parseInt($('s-qtd').value,10),n=$('s-colab').value.trim();
-  if(!(q>0)){toast('Informe a quantidade que sobrou');return}
-  if(!n){toast('Informe o nome do colaborador');return}
-  const c=S.colab.find(x=>x.nome.toLowerCase()===n.toLowerCase());const e=c?emp(c.empresaId):null;
-  const RC=restCt();
-  S.sobras.push({id:uid(),data:today(),contratadaId:RC?RC.id:null,contratadaNome:RC?RC.nome:'',tipo:$('s-tipo').value,qtd:q,colabNome:c?c.nome:n,colabId:c?c.id:null,empresaId:c?c.empresaId:null,empresaNome:e?e.nome:'',registradoEm:new Date().toISOString(),usuario:USER.nome});
-  audit('sobra.registrar',`${q} ${tipo($('s-tipo').value).curto} — ${c?c.nome:n}`,{empresa:e?e.nome:'',obra:c&&obra(c.obraId)?obra(c.obraId).nome:''});
-  save();$('s-qtd').value='';$('s-colab').value='';toast('Sobra registrada');renderRest();
+  const q=parseInt($('s-qtd').value,10),n=$('s-colab').value.trim().replace(/\s+/g,' '),empId=$('s-emp').value,obraId=$('s-obra').value,tp=$('s-tipo').value,t=today();
+  const msg=$('s-msg');const show=m=>{msg.hidden=false;msg.textContent=m};msg.hidden=true;
+  if(!empId||!obraId)return show('Informe a empresa e a obra da sobra (obrigatórias).');
+  if(!(q>0))return show('Informe a quantidade que sobrou.');
+  if(!n)return show('Informe o nome do colaborador.');
+  const RC=restCt();if(!RC)return show('Nenhuma contratada (restaurante) disponível.');
+  if(!(RC.obras||[]).includes(obraId))return show(`O restaurante ${RC.nome} não atende esta obra.`);
+  const E=emp(empId),o=obra(obraId);if(!E||E.ativo===false)return show('Empresa inativa — sobra não registrada.');
+  const cerr=contratoErro(obraId,t);if(cerr)return show(cerr.replace('refeição não registrada','sobra não registrada'));
+  const p=precoVigente(tp,t,cidOf(obraId));if(p===null)return show(`${tipo(tp).curto} não tem preço cadastrado para o contrato desta obra.`);
+  const c=S.colab.find(x=>x.nome.toLowerCase()===n.toLowerCase());const total=Math.round(q*p*100)/100;
+  S.sobras.push({id:uid(),data:t,contratadaId:RC.id,contratadaNome:RC.nome,tipo:tp,qtd:q,valorUnit:p,valor:total,colabNome:c?c.nome:n,colabId:c?c.id:null,empresaId:empId,empresaNome:E.nome,obraId,obraNome:o?o.nome:'',contratoId:cidOf(obraId)||undefined,contratoNumero:(contrato(cidOf(obraId))||{}).numero||undefined,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null});
+  audit('sobra.registrar',`${q} ${tipo(tp).curto} — ${c?c.nome:n} — ${money(p)} cada = ${money(total)} (cobrada)`,{empresa:E.nome,obra:o?o.nome:''});
+  save();$('s-qtd').value='';$('s-colab').value='';$('s-emp').value='';$('s-obra').value='';toast(`Sobra registrada — ${q} ${tipo(tp).curto} · ${money(total)}`);renderRest();
 };
 
 /* =================== SUPRIMENTOS =================== */
@@ -1217,6 +1247,13 @@ let WK=mondayOf(today());
 const STATUS={rascunho:['Rascunho','warn'],fechado:['Aguardando restaurante','warn'],assinado_restaurante:['Assinado pelo restaurante','ok'],assinado:['Assinado (ambos)','ok'],faturado:['Faturado','ok']};
 function statusPill(b){const s=STATUS[b.status]||[b.status,'neutral'];return `<span class="pill ${s[1]}">${s[0]}</span>`}
 function periodRegs(ini,fim,empId,ctId){return S.registros.filter(r=>r.data>=ini&&r.data<=fim&&(!empId||r.empresaId===empId)&&(!ctId||ctOf(r)===ctId))}
+/* sobras entram na medição como refeições (1 unidade por refeição que sobrou) */
+function sobraOk(s){return ctOk(ctOf(s))&&(s.obraId?obraOk(s.obraId):(!s.obraNome||obraNomeOk(s.obraNome)))}
+function sobraUnit(s){if(s.valorUnit!=null)return s.valorUnit;const p=precoVigente(s.tipo,s.data,s.contratoId||cidOf(s.obraId));return p===null?0:p}
+function sobraTotal(s){return Math.round((s.qtd||0)*sobraUnit(s)*100)/100}
+function sobraUnits(s){const v=sobraUnit(s);return Array.from({length:s.qtd||0},(_,i)=>({id:s.id+'#'+i,data:s.data,tipo:s.tipo,valor:v,empresaId:s.empresaId,empresaNome:s.empresaNome,obraId:s.obraId,obraNome:s.obraNome||'',contratadaId:s.contratadaId,bmId:s.bmId||null,sobra:true,sobraId:s.id,registradoEm:s.registradoEm,usuario:s.usuario,nome:'Sobra'}))}
+function periodSobras(ini,fim,empId,ctId){return (S.sobras||[]).filter(s=>s.empresaId&&s.data>=ini&&s.data<=fim&&(!empId||s.empresaId===empId)&&(!ctId||ctOf(s)===ctId))}
+function periodItens(ini,fim,empId,ctId){return periodRegs(ini,fim,empId,ctId).concat(...periodSobras(ini,fim,empId,ctId).map(sobraUnits))}
 function renderSup(){
   const fim=addDays(WK,6);
   $('wk-label').textContent=`${br(WK)} a ${br(fim)}`;
@@ -1226,15 +1263,17 @@ function renderSup(){
   const empId=$('f-emp').value,ctF=$('f-ct').value,tp=$('f-tipo').value,q=$('f-busca').value.trim().toLowerCase();
   const regs=periodRegs(WK,fim).filter(r=>regOk(r)&&(!ctF||ctOf(r)===ctF)&&(!empId||r.empresaId===empId)&&(!tp||r.tipo===tp)&&(!q||r.nome.toLowerCase().includes(q))).sort((a,b)=>a.registradoEm<b.registradoEm?1:-1);
   const tot=regs.reduce((s,r)=>s+r.valor,0);
-  $('sup-count').textContent=`${regs.length} registro(s) na semana`;
+  const sob=S.sobras.filter(s=>s.data>=WK&&s.data<=fim&&sobraOk(s)&&(!ctF||ctOf(s)===ctF)&&(!empId||s.empresaId===empId)&&(!tp||s.tipo===tp)).sort((a,b)=>a.data<b.data?1:a.data>b.data?-1:(a.registradoEm<b.registradoEm?1:-1));
+  const qs=sob.reduce((a,s)=>a+s.qtd,0),vs=sob.reduce((a,s)=>a+sobraTotal(s),0);
+  $('sup-count').textContent=qs?`${regs.length} registro(s) + ${qs} sobra(s) = ${regs.length+qs} refeições na semana · ${money(tot+vs)}`:`${regs.length} registro(s) na semana · ${money(tot)}`;
   // notificações: assinados pelo restaurante
   const ps=pendSup();$('sup-notif').hidden=!(ps.length&&can('sup.bm'));
   $('sup-notif-list').innerHTML=ps.map(b=>`<div class="item"><span class="pill ok">Assinado</span><div class="t"><b>BM nº ${b.numero} — ${esc(b.empresaNome)}</b><span>Período ${br(b.ini)} à ${br(b.fim)} · assinatura ${b.assRest.tipo==='eletronica'?'eletrônica':'física homologada'} em ${brdt(b.assRest.em)} · ${money(b.liquido)}</span></div><button class="btn sm" data-vbm="${b.id}">Ver / imprimir</button></div>`).join('');
   $('sup-notif-list').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
   $('sup-table').innerHTML=`<thead><tr><th>Data refeição</th><th>Colaborador</th><th>Empresa</th><th>Obra</th><th>Restaurante</th><th>Tipo</th><th class="r">Valor</th><th>Registrado em</th><th>Por</th><th>Nº BM</th></tr></thead><tbody>${regs.slice(0,400).map(r=>{const b=r.bmId?S.bms.find(x=>x.id===r.bmId):null;return `<tr><td class="num">${br(r.data)}${r.dataManual?' <span class="pill warn" title="data informada manualmente">manual</span>':''}</td><td>${esc(r.nome)}${r.manual?`<div class="small muted">manual${r.terceirizada?' · terc.: '+esc(r.terceirizada):''}</div>`:''}</td><td>${esc(r.empresaNome)}</td><td>${esc(r.obraNome)}</td><td>${esc((ct(ctOf(r))||{}).nome||r.contratadaNome||'—')}</td><td><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span></td><td class="r num">${money(r.valor)}</td><td class="num">${brdt(r.registradoEm)}</td><td>${esc(r.usuario)}</td><td>${b?`<button class="btn sec sm num" data-vbm="${b.id}">BM ${b.numero}</button>`:'<span class="pill neutral">em aberto</span>'}</td></tr>`}).join('')||'<tr><td colspan="10" class="empty">Nenhum registro com esses filtros.</td></tr>'}</tbody>`;
   $('sup-table').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
-  const sob=S.sobras.filter(s=>s.data>=WK&&s.data<=fim&&ctOk(ctOf(s))&&(!ctF||ctOf(s)===ctF)&&(!s.obraNome||obraNomeOk(s.obraNome))&&(!empId||s.empresaId===empId)&&(!tp||s.tipo===tp)).sort((a,b)=>a.data<b.data?1:-1);
-  $('sup-sobras').innerHTML=`<thead><tr><th>Data</th><th>Tipo</th><th class="r">Qtd</th><th>Colaborador</th><th>Empresa</th><th>Informado por</th><th></th></tr></thead><tbody>${sob.map(s=>`<tr><td class="num">${br(s.data)}</td><td><span class="pill ${s.tipo}">${tipo(s.tipo).curto}</span></td><td class="r num">${s.qtd}</td><td>${esc(s.colabNome)}</td><td>${esc(s.empresaNome||'—')}</td><td>${esc(s.usuario)}</td><td>${can('del.sobras')?`<button class="btn danger sm" data-sdel2="${s.id}">Excluir</button>`:''}</td></tr>`).join('')||'<tr><td colspan="7" class="empty">Nenhuma sobra informada na semana.</td></tr>'}</tbody>`;
+  $('sup-sobras').innerHTML=`<thead><tr><th>Data</th><th>Tipo</th><th class="r">Qtd</th><th class="r">Preço unit.</th><th class="r">Total</th><th>Colaborador</th><th>Empresa</th><th>Obra</th><th>Restaurante</th><th>Informado por</th><th>Nº BM</th><th></th></tr></thead><tbody>${sob.map(s=>{const b=s.bmId?S.bms.find(x=>x.id===s.bmId):null;return `<tr><td class="num">${br(s.data)}</td><td><span class="pill ${s.tipo}">${tipo(s.tipo).curto}</span></td><td class="r num">${s.qtd}</td><td class="r num">${money(sobraUnit(s))}</td><td class="r num">${money(sobraTotal(s))}</td><td>${esc(s.colabNome)}</td><td>${s.empresaId?esc(s.empresaNome||'—'):'<span class="pill bad" title="Sem empresa: não entra em BM. Exclua e registre novamente.">sem empresa</span>'}</td><td>${s.obraId?esc(s.obraNome||'—'):'<span class="pill warn">não informada</span>'}</td><td>${esc((ct(ctOf(s))||{}).nome||s.contratadaNome||'—')}</td><td>${esc(s.usuario)}</td><td>${b?`<button class="btn sec sm num" data-vbm="${b.id}">BM ${b.numero}</button>`:'<span class="pill neutral">em aberto</span>'}</td><td>${can('del.sobras')&&!s.bmId?`<button class="btn danger sm" data-sdel2="${s.id}">Excluir</button>`:''}</td></tr>`}).join('')||'<tr><td colspan="12" class="empty">Nenhuma sobra informada na semana.</td></tr>'}</tbody>`;
+  $('sup-sobras').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
   $('sup-sobras').querySelectorAll('[data-sdel2]').forEach(b=>b.onclick=()=>excluirSobra(b.dataset.sdel2,renderSup));
   $('btn-emitir').disabled=!can('sup.bm')||!S.empresas.length;
   $('btn-emitir').onclick=openEmitir;
@@ -1250,20 +1289,21 @@ $('wk-prev').onclick=()=>{WK=addDays(WK,-7);renderSup()};$('wk-next').onclick=()
 
 function excluirSobra(id,after){
   const ss=S.sobras.find(s=>s.id===id);if(!ss||!can('del.sobras'))return;
-  confirmDelete({titulo:'Excluir sobra informada',resumo:`<div class="notice warn">${br(ss.data)} · ${ss.qtd} ${tipo(ss.tipo).curto} — ${esc(ss.colabNome)} (${esc(ss.empresaNome||'—')}), informada por ${esc(ss.usuario)}.</div>`,botao:'Excluir sobra',
-    onOk:async(_,motivo)=>{S.sobras=S.sobras.filter(s=>s.id!==id);audit('sobra.excluir',`${br(ss.data)} — ${ss.qtd} ${tipo(ss.tipo).curto} — ${ss.colabNome} — motivo: ${motivo}`,{empresa:ss.empresaNome});save();toast('Sobra excluída');after()}});
+  if(ss.bmId){const b=S.bms.find(x=>x.id===ss.bmId);toast(`Sobra já está no BM nº ${b?b.numero:''} — exclua o BM antes`);return}
+  confirmDelete({titulo:'Excluir sobra informada',resumo:`<div class="notice warn">${br(ss.data)} · ${ss.qtd} ${tipo(ss.tipo).curto} — ${esc(ss.colabNome)} (${esc(ss.empresaNome||'—')} · ${esc(ss.obraNome||'—')}) · ${money(sobraTotal(ss))}, informada por ${esc(ss.usuario)}.</div>`,botao:'Excluir sobra',
+    onOk:async(_,motivo)=>{S.sobras=S.sobras.filter(s=>s.id!==id);audit('sobra.excluir',`${br(ss.data)} — ${ss.qtd} ${tipo(ss.tipo).curto} — ${ss.colabNome} — ${money(sobraTotal(ss))} — motivo: ${motivo}`,{empresa:ss.empresaNome,obra:ss.obraNome||''});save();toast('Sobra excluída');after()}});
 }
 /* ---- exclusão de BM: só o último de cada empresa ---- */
 function bmPosterior(b){return S.bms.filter(x=>x.empresaId===b.empresaId&&x.id!==b.id&&(x.numero>b.numero||(x.numero===b.numero&&x.emitidoEm>b.emitidoEm))).sort((a,c)=>c.numero-a.numero)[0]||null}
 function excluirBM(b){
   if(!b||!can('del.bm'))return;const post=bmPosterior(b);if(post){toast(`Não é possível: existe o BM ${post.numero} posterior desta empresa`);return}
-  const n=S.registros.filter(r=>r.bmId===b.id).length;
+  const nsb=(S.sobras||[]).filter(s=>s.bmId===b.id).reduce((a,s)=>a+s.qtd,0);const n=S.registros.filter(r=>r.bmId===b.id).length+nsb;
   confirmDelete({titulo:`Excluir BM nº ${b.numero} — ${esc(b.empresaNome)}`,
-    resumo:`<div class="notice warn">Período ${br(b.ini)} à ${br(b.fim)} · ${statusPill(b)} · ${money(b.liquido)}.<br>As <b>${n} refeições</b> voltam a ficar "em aberto" (podem entrar em um novo BM), ${b.anexo?'o anexo assinado é apagado, ':''}e o próximo número de BM da empresa volta para <b>${b.numero}</b>.${b.nf?`<br><b>Atenção:</b> este BM já tem a nota fiscal ${esc(b.nf)} informada.`:''}</div>`,
+    resumo:`<div class="notice warn">Período ${br(b.ini)} à ${br(b.fim)} · ${statusPill(b)} · ${money(b.liquido)}.<br>As <b>${n} refeições</b>${nsb?` (${nsb} de sobras)`:''} voltam a ficar "em aberto" (podem entrar em um novo BM), ${b.anexo?'o anexo assinado é apagado, ':''}e o próximo número de BM da empresa volta para <b>${b.numero}</b>.${b.nf?`<br><b>Atenção:</b> este BM já tem a nota fiscal ${esc(b.nf)} informada.`:''}</div>`,
     botao:'Excluir BM',
     onOk:async(_,motivo)=>{
       if(b.anexo&&b.anexo.path){try{await sb.storage.from('anexos').remove([b.anexo.path])}catch(e){}}
-      S.registros.forEach(r=>{if(r.bmId===b.id)r.bmId=null});
+      S.registros.forEach(r=>{if(r.bmId===b.id)r.bmId=null});(S.sobras||[]).forEach(s=>{if(s.bmId===b.id)s.bmId=null});
       S.bms=S.bms.filter(x=>x.id!==b.id);
       const E=emp(b.empresaId);if(E&&(E.proximoBM||1)===b.numero+1)E.proximoBM=b.numero;
       audit('bm.excluir',`BM ${b.numero} — ${b.empresaNome} — ${br(b.ini)} à ${br(b.fim)} — ${n} refeições liberadas — motivo: ${motivo}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:b.status,depois:'excluído'});
@@ -1323,10 +1363,10 @@ function openEmitir(){
 function previewBM(){
   const ini=$('bm-ini').value,fim=$('bm-fim').value,empId=$('bm-emp').value,ctId=$('bm-ct').value;const msg=$('bm-prev-msg');
   if(!ini||!fim||fim<ini){$('bm-prev-tiles').innerHTML='';msg.hidden=false;msg.className='notice bad small';msg.textContent='Informe um período válido (fim igual ou posterior ao início).';$('bm-emit-go').disabled=true;return}
-  const all=periodRegs(ini,fim,empId,ctId);const livres=all.filter(r=>!r.bmId);const presos=all.length-livres.length;
+  const all=periodItens(ini,fim,empId,ctId);const livres=all.filter(r=>!r.bmId);const presos=all.length-livres.length;const nsob=livres.filter(r=>r.sobra).length;
   $('bm-prev-tiles').innerHTML=TIPOS.map(t=>{const l=livres.filter(r=>r.tipo===t.id);return `<div class="tile ${t.id}"><div class="k">${t.curto}</div><div class="v num">${l.length}</div><div class="s num">${money(l.reduce((s,r)=>s+r.valor,0))}</div></div>`}).join('')+`<div class="tile total"><div class="k">Total</div><div class="v num">${livres.length}</div><div class="s num">${money(livres.reduce((s,r)=>s+r.valor,0))}</div></div>`;
   const dias=Math.round((parse(fim)-parse(ini))/864e5)+1;
-  let t=`${dias} dia(s) · ${livres.length} refeições em aberto.`;if(presos)t+=` ${presos} registro(s) do período já pertencem a outro BM e ficam de fora.`;
+  let t=`${dias} dia(s) · ${livres.length} refeições em aberto${nsob?` (inclui ${nsob} de sobras)`:''}.`;if(presos)t+=` ${presos} refeição(ões) do período já pertencem a outro BM e ficam de fora.`;
   msg.hidden=false;msg.className='notice '+(livres.length?'info':'warn')+' small';msg.textContent=t;
   $('bm-emit-go').disabled=!livres.length||dias>62;if(dias>62){msg.className='notice bad small';msg.textContent='Período máximo de 62 dias.'}
 }
@@ -1344,10 +1384,11 @@ $('emp-close').onclick=()=>$('emp-modal').classList.remove('on');
 
 /* ---- BM build ---- */
 function buildBM(ini,fim,empId,ctId){
-  const E=emp(empId);const C=ct(ctId)||{};const regs=periodRegs(ini,fim,empId,ctId).filter(r=>!r.bmId);
+  const E=emp(empId);const C=ct(ctId)||{};const regs=periodItens(ini,fim,empId,ctId).filter(r=>!r.bmId);
   const contr=E.contrato||{};
+  const antesAll=S.registros.filter(r=>r.empresaId===empId&&ctOf(r)===ctId&&r.data<ini&&r.bmId).concat(...(S.sobras||[]).filter(s=>s.empresaId===empId&&ctOf(s)===ctId&&s.data<ini&&s.bmId).map(sobraUnits));
   const itens=TIPOS.map((t,i)=>{
-    const c=contr[t.id]||{};const antes=S.registros.filter(r=>r.empresaId===empId&&ctOf(r)===ctId&&r.tipo===t.id&&r.data<ini&&r.bmId);
+    const c=contr[t.id]||{};const antes=antesAll.filter(r=>r.tipo===t.id);
     const acumQtd=(c.acumQtd||0)+antes.length;const acumVal=(c.acumVal||0)+antes.reduce((s,r)=>s+r.valor,0);
     const atual=regs.filter(r=>r.tipo===t.id);const atualQtd=atual.length;const atualVal=atual.reduce((s,r)=>s+r.valor,0);
     const preco=atual.length?atual[atual.length-1].valor:precoVigente(t.id,fim);const qtdCt=c.qtd||null;const totalCt=qtdCt&&preco!==null?Math.trunc(qtdCt*preco*100)/100:null;
@@ -1356,8 +1397,8 @@ function buildBM(ini,fim,empId,ctId){
   const dias=[];for(let d=ini;d<=fim;d=addDays(d,1)){const l=regs.filter(r=>r.data===d);dias.push({d,porTipo:TIPOS.map(t=>l.filter(r=>r.tipo===t.id).length),total:l.length,valor:l.reduce((s,r)=>s+r.valor,0)})}
   const obrasN=[...new Set(regs.map(r=>r.obraNome))];
   const obras=obrasN.map(o=>{const l=regs.filter(r=>r.obraNome===o);return {o,porTipo:TIPOS.map(t=>l.filter(r=>r.tipo===t.id).length),total:l.length,valor:l.reduce((s,r)=>s+r.valor,0)}});
-  const valor=regs.reduce((s,r)=>s+r.valor,0);
-  return {id:uid(),numero:E.proximoBM||1,empresaId:empId,empresaNome:E.nome,empresaCnpj:E.cnpj||'',contratadaId:ctId,contratadaNome:C.nome||'',contratadaCnpj:C.cnpj||'',gestor:C.gestor||'',cargo:C.cargo||'',servico:C.servico||'FORNECIMENTO DE REFEIÇÕES',ini,fim,itens,dias,obras,qtd:regs.length,valor,deducoes:0,adiant:0,liquido:valor,status:'rascunho',emitidoEm:new Date().toISOString(),usuario:USER.nome,nf:'',obs:'',assRest:null,assSup:null};
+  const valor=regs.reduce((s,r)=>s+r.valor,0);const sobU=regs.filter(r=>r.sobra);
+  return {id:uid(),sobrasQtd:sobU.length,sobrasValor:sobU.reduce((s,r)=>s+r.valor,0),numero:E.proximoBM||1,empresaId:empId,empresaNome:E.nome,empresaCnpj:E.cnpj||'',contratadaId:ctId,contratadaNome:C.nome||'',contratadaCnpj:C.cnpj||'',gestor:C.gestor||'',cargo:C.cargo||'',servico:C.servico||'FORNECIMENTO DE REFEIÇÕES',ini,fim,itens,dias,obras,qtd:regs.length,valor,deducoes:0,adiant:0,liquido:valor,status:'rascunho',emitidoEm:new Date().toISOString(),usuario:USER.nome,nf:'',obs:'',assRest:null,assSup:null};
 }
 function bmK(b){const C=ct(ctOf(b))||{};const L=S.contratada||{};return {nome:b.contratadaNome||C.nome||L.nome||'',cnpj:b.contratadaCnpj||C.cnpj||L.cnpj||'',gestor:b.gestor||C.gestor||L.gestor||'',cargo:b.cargo||C.cargo||L.cargo||'',servico:b.servico||C.servico||L.servico||'FORNECIMENTO DE REFEIÇÕES'}}
 let BM=null, BMTAB='bm'; const LISTA_VISTA=new Set();
@@ -1367,19 +1408,27 @@ function bmRegs(b){
   const l=b.status==='rascunho'?periodRegs(b.ini,b.fim,b.empresaId,ctOf(b)).filter(r=>!r.bmId):S.registros.filter(r=>r.bmId===b.id);
   return l.sort((a,c)=>a.data<c.data?-1:a.data>c.data?1:(TIPO_ORD[a.tipo]-TIPO_ORD[c.tipo])||(a.registradoEm<c.registradoEm?-1:1));
 }
+function bmSobras(b){
+  const l=b.status==='rascunho'?periodSobras(b.ini,b.fim,b.empresaId,ctOf(b)).filter(s=>!s.bmId):(S.sobras||[]).filter(s=>s.bmId===b.id);
+  return l.sort((a,c)=>a.data<c.data?-1:a.data>c.data?1:(a.registradoEm<c.registradoEm?-1:1));
+}
+function bmQtdLista(b){return bmRegs(b).length+bmSobras(b).reduce((a,s)=>a+s.qtd,0)}
 function bmGrupos(b){
-  const g=[];const regs=bmRegs(b);
-  for(let d=b.ini;d<=b.fim;d=addDays(d,1))TIPOS.forEach(t=>{const l=regs.filter(r=>r.data===d&&r.tipo===t.id);if(l.length)g.push({d,tipo:t,regs:l})});
+  const g=[];const regs=bmRegs(b),sob=bmSobras(b);
+  for(let d=b.ini;d<=b.fim;d=addDays(d,1))TIPOS.forEach(t=>{const l=regs.filter(r=>r.data===d&&r.tipo===t.id);const so=sob.filter(s=>s.data===d&&s.tipo===t.id);if(l.length||so.length)g.push({d,tipo:t,regs:l,sobras:so,total:l.length+so.reduce((a,s)=>a+s.qtd,0)})});
   return g;
 }
+function sobraLinha(s){return `Sobra — ${s.qtd} ${s.qtd===1?'refeição':'refeições'}${s.colabNome?' · '+s.colabNome:''}`}
+function sobraAssTxt(s){return `Sobra informada · ${hm(s.registradoEm)} · por ${s.usuario}`}
 function assinaturaTxt(r){return r.manual?`Manual · ${hm(r.registradoEm)} · ${r.terceirizada?'terc.: '+r.terceirizada+' · ':''}por ${r.usuario}`:`QR Code · ${hm(r.registradoEm)}`}
 function renderLista(b){
-  const g=bmGrupos(b);const tot=g.reduce((s,x)=>s+x.regs.length,0);
+  const g=bmGrupos(b);const tot=g.reduce((s,x)=>s+x.total,0);const ts=g.reduce((s,x)=>s+x.sobras.reduce((a,o)=>a+o.qtd,0),0);
   if(!g.length)return '<div class="notice warn">Nenhuma refeição no período.</div>';
-  return `<div class="notice info small" style="margin-bottom:10px">${tot} refeições em ${g.length} lista(s) por dia e tipo. <b>Assinatura digital</b> = leitura do QR Code do crachá do colaborador; registros <b>manuais</b> são de terceirizados sem crachá, lançados pelo restaurante.</div>`+
-  g.map((x,i)=>`<div class="card" style="margin-bottom:10px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${i+1}. ${br(x.d)} — ${x.tipo.curto}</h3><span class="pill ${x.tipo.id}">${x.regs.length} refeições</span></div>
+  return `<div class="notice info small" style="margin-bottom:10px">${tot} refeições em ${g.length} lista(s) por dia e tipo${ts?`, das quais <b>${ts} são sobras</b>`:''}. <b>Assinatura digital</b> = leitura do QR Code do crachá do colaborador; registros <b>manuais</b> são de terceirizados sem crachá, lançados pelo restaurante; <b>sobras</b> são refeições preparadas e não consumidas, informadas pelo restaurante e cobradas.</div>`+
+  g.map((x,i)=>`<div class="card" style="margin-bottom:10px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${i+1}. ${br(x.d)} — ${x.tipo.curto}</h3><span class="pill ${x.tipo.id}">${x.total} refeições</span></div>
     <div class="tablewrap" style="margin-top:8px"><table><thead><tr><th>#</th><th>Colaborador</th><th>Obra</th><th>Assinatura digital</th></tr></thead><tbody>
     ${x.regs.map((r,j)=>`<tr><td class="num">${j+1}</td><td>${esc(r.nome)}${r.manual?' <span class="pill neutral">manual</span>':''}</td><td>${esc(r.obraNome||'—')}</td><td class="small">${r.manual?'<span class="pill warn">Manual</span>':'<span class="pill ok">✓ QR Code</span>'} <span class="muted">${esc(r.manual?assinaturaTxt(r).replace(/^Manual · /,''):hm(r.registradoEm))}</span></td></tr>`).join('')}
+    ${x.sobras.map((s,k)=>`<tr><td class="num">${x.regs.length+k+1}</td><td>${esc(sobraLinha(s))} <span class="pill warn">sobra</span></td><td>${esc(s.obraNome||'—')}</td><td class="small"><span class="pill neutral">Sobra</span> <span class="muted">${esc(sobraAssTxt(s).replace(/^Sobra informada · /,''))}</span></td></tr>`).join('')}
     </tbody></table></div></div>`).join('');
 }
 $('bm-close').onclick=()=>$('bm-modal').classList.remove('on');
@@ -1402,7 +1451,7 @@ function renderBM(){
   else if(st==='assinado_restaurante')banner=`<div class="notice ok">Assinado pelo restaurante em ${brdt(b.assRest.em)}. Imprima o BM para assinatura do Suprimentos e registre a assinatura abaixo.</div>`;
   else if(st==='assinado')banner=`<div class="notice ok">BM assinado por ambas as partes. Aguardando nota fiscal do restaurante.</div>`;
   else banner=`<div class="notice ok">Nota fiscal ${esc(b.nf)} informada — BM pronto para inclusão em pagamento.</div>`;
-  const nRegs=bmRegs(b).length;
+  const nRegs=bmQtdLista(b);
   $('bm-body').innerHTML=`
   <div class="steps">${steps}</div>
   <div style="margin-bottom:10px">${banner}</div>
@@ -1427,6 +1476,7 @@ function renderBM(){
         <div class="tablewrap" style="max-height:340px;overflow:auto"><table><thead><tr><th>Data</th>${TIPOS.map(t=>`<th class="r">${t.curto}</th>`).join('')}<th class="r">Total</th><th class="r">Valor</th></tr></thead><tbody>
         ${b.dias.map(d=>`<tr><td class="num">${wd(d.d)} ${br(d.d)}</td>${d.porTipo.map(n=>`<td class="r num">${n||'–'}</td>`).join('')}<td class="r num"><b>${d.total}</b></td><td class="r num">${money(d.valor)}</td></tr>`).join('')}
         <tr class="tot"><td>Total geral</td>${TIPOS.map((t,i)=>`<td class="r num">${b.dias.reduce((s,d)=>s+d.porTipo[i],0)}</td>`).join('')}<td class="r num">${b.qtd}</td><td class="r num">${money(b.valor)}</td></tr></tbody></table></div>
+        ${b.sobrasQtd?`<div class="small muted" style="margin-top:6px">Inclui <b>${b.sobrasQtd}</b> refeições de sobras (${money(b.sobrasValor)}), cobradas pelo preço do contrato da obra.</div>`:''}
         ${b.obras.length>1?`<h3 style="margin-top:14px">Resumo por obra</h3>
         <div class="tablewrap"><table><thead><tr><th>Obra</th>${TIPOS.map(t=>`<th class="r">${t.curto}</th>`).join('')}<th class="r">Total</th><th class="r">Valor</th></tr></thead><tbody>
         ${b.obras.map(e=>`<tr><td>${esc(e.o||'—')}</td>${e.porTipo.map(n=>`<td class="r num">${n||'–'}</td>`).join('')}<td class="r num"><b>${e.total}</b></td><td class="r num">${money(e.valor)}</td></tr>`).join('')}</tbody></table></div>`:''}
@@ -1466,6 +1516,7 @@ function renderBM(){
   on('bm-fechar',()=>{
     b.status='fechado';b.fechadoEm=new Date().toISOString();b.fechadoPor=USER.nome;
     S.registros.forEach(r=>{if(r.empresaId===b.empresaId&&ctOf(r)===ctOf(b)&&r.data>=b.ini&&r.data<=b.fim&&!r.bmId)r.bmId=b.id});
+    (S.sobras||[]).forEach(s=>{if(s.empresaId===b.empresaId&&ctOf(s)===ctOf(b)&&s.data>=b.ini&&s.data<=b.fim&&!s.bmId){s.valorUnit=sobraUnit(s);s.valor=sobraTotal(s);s.bmId=b.id}});
     S.bms.push(b);if(E)E.proximoBM=b.numero+1;audit('bm.fechar',`BM ${b.numero} — ${b.empresaNome} — ${br(b.ini)} à ${br(b.fim)} — ${b.qtd} refeições — líquido ${money(b.liquido)}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,depois:'fechado'});save();notify('bm.fechado',`BM nº ${b.numero} — ${b.empresaNome} — período ${br(b.ini)} à ${br(b.fim)} fechado e aguardando validação do restaurante`,destRest(ctOf(b)),{bmId:b.id});toast(`BM ${b.numero} fechado e enviado ao restaurante`);renderBM();renderSup();
   });
   on('bm-validar',()=>{b.status='assinado_restaurante';b.assRest={tipo:'eletronica',usuario:USER.nome,em:new Date().toISOString()};audit('bm.validar',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:'fechado',depois:'assinado_restaurante'});save();notify('bm.validado',`BM nº ${b.numero} — ${b.empresaNome} validado (assinatura eletrônica) pelo restaurante ${bmK(b).nome}`,destSup(),{bmId:b.id});toast(`BM ${b.numero} validado — devolvido ao Suprimentos assinado`);$('bm-modal').classList.remove('on');refreshBadges();if(can('sup.ver')){go('sup');openBM(b)}else renderRest()});
@@ -1523,7 +1574,7 @@ function bmPdf(b){
   const line=(k,v,bold)=>{doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(bold?10:8.5);doc.text(k,fx,fy);doc.text(v,fx+fw,fy,{align:'right'});fy+=bold?7:6};
   line('VALOR DA MEDIÇÃO:',money(b.valor));line('DEDUÇÕES / DESCONTOS:',money(b.deducoes));line('ADIANTAMENTOS E OUTROS:',money(b.adiant));line('TOTAL DA FATURA:',money(b.liquido));
   doc.setDrawColor(23,33,43);doc.line(fx,fy-3,fx+fw,fy-3);line('TOTAL LÍQUIDO DA MEDIÇÃO:',money(b.liquido),true);
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text('Obs.: '+(b.obs||'—'),fx,fy+2,{maxWidth:fw});
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text('Obs.: '+(b.obs||'—')+(b.sobrasQtd?` · Inclui ${b.sobrasQtd} refeições de sobras (${money(b.sobrasValor)}).`:''),fx,fy+2,{maxWidth:fw});
   if(b.nf)doc.text('Nota fiscal: '+b.nf,fx,fy+12);
   // signatures on the last page
   doc.setPage(lastPage);
@@ -1544,13 +1595,13 @@ function bmPdf(b){
   if(grupos.length){
     doc.addPage();let ly=M+4;
     doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text(`LISTA DE COLABORADORES — BM Nº ${b.numero} — ${b.empresaNome}`,M,ly);
-    doc.setFont('helvetica','normal');doc.setFontSize(8.5);ly+=5;doc.text(`Período ${br(b.ini)} à ${br(b.fim)} · ${grupos.reduce((s,x)=>s+x.regs.length,0)} refeições · Assinatura digital = leitura do QR Code do crachá; "Manual" = terceirizado sem crachá, lançado pelo restaurante.`,M,ly);
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);ly+=5;doc.text(`Período ${br(b.ini)} à ${br(b.fim)} · ${grupos.reduce((s,x)=>s+x.total,0)} refeições · Assinatura digital = leitura do QR Code do crachá; "Manual" = terceirizado sem crachá, lançado pelo restaurante; "Sobra" = preparada e não consumida, cobrada.`,M,ly,{maxWidth:W-2*M});
     ly+=5;
     grupos.forEach((x,i)=>{
       if(ly>175){doc.addPage();ly=M+4}
-      doc.setFont('helvetica','bold');doc.setFontSize(9.5);doc.text(`${i+1}. ${br(x.d)} — ${x.tipo.curto} (${x.regs.length})`,M,ly+4);
+      doc.setFont('helvetica','bold');doc.setFontSize(9.5);doc.text(`${i+1}. ${br(x.d)} — ${x.tipo.curto} (${x.total})`,M,ly+4);
       doc.autoTable({startY:ly+6,head:[['#','Colaborador','Obra','Assinatura digital']],
-        body:x.regs.map((r,j)=>[String(j+1),r.nome,r.obraNome||'—',assinaturaTxt(r)]),
+        body:x.regs.map((r,j)=>[String(j+1),r.nome,r.obraNome||'—',assinaturaTxt(r)]).concat(x.sobras.map((o,k)=>[String(x.regs.length+k+1),sobraLinha(o),o.obraNome||'—',sobraAssTxt(o)])),
         theme:'grid',margin:{left:M,right:M,bottom:14},styles:{fontSize:8,cellPadding:1.4,lineColor:[200,208,214],lineWidth:.2,textColor:[23,33,43]},
         headStyles:{fillColor:[236,241,244],textColor:[23,33,43],fontSize:7.5},columnStyles:{0:{cellWidth:10,halign:'right'},1:{cellWidth:110},2:{cellWidth:70}}});
       ly=doc.lastAutoTable.finalY+4;
@@ -1820,7 +1871,7 @@ $('e-save').onclick=()=>{
   const contrato={};$('e-ct').parentElement.querySelectorAll('input[data-ct]').forEach(i=>{const v=parseFloat(i.value);if(!contrato[i.dataset.t])contrato[i.dataset.t]={};contrato[i.dataset.t][i.dataset.k]=isNaN(v)?null:v});
   const obj={nome,cnpj:$('e-cnpj').value.trim(),proximoBM:parseInt($('e-prox').value,10)||1,logo:ELOGO?ELOGO.data:null,logoW:ELOGO?ELOGO.w:null,logoH:ELOGO?ELOGO.h:null,contrato,ativo:$('e-ativo').value==='1'};
   audit('empresa.salvar',`${EEDIT?'Alterou':'Cadastrou'} empresa ${nome}${obj.cnpj?' — CNPJ '+obj.cnpj:''}${ELOGO?' — com logotipo':''} — próximo BM ${obj.proximoBM}${obj.ativo?'':' — INATIVA'}`,{empresa:nome,entidade:'empresa '+nome});
-  if(EEDIT){Object.assign(EEDIT,obj);S.registros.forEach(r=>{if(r.empresaId===EEDIT.id)r.empresaNome=nome})}else S.empresas.push({id:uid(),...obj});
+  if(EEDIT){Object.assign(EEDIT,obj);if(can('sup.bm')||can('del.bm')){S.registros.forEach(r=>{if(r.empresaId===EEDIT.id)r.empresaNome=nome});S.sobras.forEach(s=>{if(s.empresaId===EEDIT.id)s.empresaNome=nome})}}else S.empresas.push({id:uid(),...obj});
   save();toast('Empresa salva');EEDIT=null;fillEmpresa();renderEmpresas();renderSetup();
 };
 function excluirEmpresa(E){
@@ -1846,11 +1897,11 @@ function excluirObra(O){
   if(!O||!can('del.obras'))return;
   const daObra=r=>r.obraId?r.obraId===O.id:r.obraNome===O.nome;
   const regs=S.registros.filter(daObra),emBM=regs.filter(r=>r.bmId),livres=regs.filter(r=>!r.bmId);
-  const col=S.colab.filter(c=>c.obraId===O.id);const colIds=new Set(col.map(c=>c.id));const sob=S.sobras.filter(s=>s.colabId&&colIds.has(s.colabId));
+  const col=S.colab.filter(c=>c.obraId===O.id);const colIds=new Set(col.map(c=>c.id));const sobAll=S.sobras.filter(s=>s.obraId?s.obraId===O.id:(s.colabId&&colIds.has(s.colabId)));const sob=sobAll.filter(s=>!s.bmId);
   confirmDelete({titulo:`Excluir obra — ${esc(O.nome)}`,
-    resumo:`<div class="notice info small">Vinculados a esta obra: <b>${regs.length}</b> refeições (${emBM.length} já em BMs), <b>${sob.length}</b> sobras, <b>${col.length}</b> colaboradores. Em qualquer opção, os colaboradores ficam <b>inativos</b> e a obra sai dos restaurantes que a atendiam.</div>`,
+    resumo:`<div class="notice info small">Vinculados a esta obra: <b>${regs.length}</b> refeições (${emBM.length} já em BMs), <b>${sobAll.length}</b> sobras (${sobAll.length-sob.length} já em BMs), <b>${col.length}</b> colaboradores. Em qualquer opção, os colaboradores ficam <b>inativos</b> e a obra sai dos restaurantes que a atendiam.</div>`,
     opcoes:[{v:'so',t:'Excluir somente a obra',d:'Refeições e sobras continuam no histórico com o nome da obra.'},
-            {v:'tudo',t:'Excluir a obra e os registros vinculados',d:`Apaga ${livres.length} refeições em aberto e ${sob.length} sobras.${emBM.length?` As ${emBM.length} refeições que já estão em BMs são mantidas — exclua os BMs antes se quiser apagá-las.`:''} Não pode ser desfeito.`}],
+            {v:'tudo',t:'Excluir a obra e os registros vinculados',d:`Apaga ${livres.length} refeições em aberto e ${sob.length} sobras em aberto.${emBM.length||sobAll.length>sob.length?` Refeições e sobras que já estão em BMs são mantidas — exclua os BMs antes se quiser apagá-las.`:''} Não pode ser desfeito.`}],
     botao:'Excluir obra',
     onOk:async(opt,motivo)=>{
       if(opt==='tudo'){const ids=new Set(livres.map(r=>r.id));S.registros=S.registros.filter(r=>!ids.has(r.id));const sids=new Set(sob.map(s=>s.id));S.sobras=S.sobras.filter(s=>!sids.has(s.id))}
@@ -1882,7 +1933,7 @@ $('o-save').onclick=()=>{
   const antesCt=OEDIT?(contrato(OEDIT.contratoId)||{}).numero||'':'';
   const obj={nome,endereco:$('o-end').value.trim(),ativo:$('o-ativo').value==='1',contratoId:C.id};
   audit('obra.salvar',`${OEDIT?'Alterou':'Cadastrou'} obra ${nome} — contrato ${num}${obj.ativo?'':' — encerrada'}`,{obra:nome,entidade:'obra '+nome,antes:OEDIT&&antesCt!==num?(antesCt||'sem contrato'):null,depois:OEDIT&&antesCt!==num?num:null});
-  if(OEDIT){Object.assign(OEDIT,obj);S.registros.forEach(r=>{const c=S.colab.find(x=>x.id===r.colabId);if(c&&c.obraId===OEDIT.id)r.obraNome=nome})}else S.obras.push({id:uid(),...obj});
+  if(OEDIT){Object.assign(OEDIT,obj);if(can('sup.bm')||can('del.bm')){S.registros.forEach(r=>{const c=S.colab.find(x=>x.id===r.colabId);if(r.obraId?r.obraId===OEDIT.id:(c&&c.obraId===OEDIT.id))r.obraNome=nome});S.sobras.forEach(s=>{if(s.obraId===OEDIT.id)s.obraNome=nome})}}else S.obras.push({id:uid(),...obj});
   save();toast('Obra salva');OEDIT=null;fillObra();renderObras();renderSetup();
 };
 /* preços (por contrato) */
