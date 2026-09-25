@@ -120,14 +120,43 @@ main{flex:1;min-width:0;overflow:auto;padding:16px 16px calc(84px + env(safe-are
 .pill.warn{background:var(--warn-soft);color:var(--warn)}
 .pill.bad{background:var(--bad-soft);color:var(--bad)}
 .pill.neutral{background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:13px;box-shadow:var(--shadow);z-index:80;max-width:90vw;opacity:0;transition:opacity .2s;pointer-events:none}
-.toast.on{opacity:1}
-@media (min-width:900px){.toast{bottom:28px}}
+/* balões de mensagem — canto superior direito, com X para fechar */
+.toasts{position:fixed;z-index:95;bottom:calc(92px + env(safe-area-inset-bottom,0px));right:12px;left:12px;display:flex;flex-direction:column-reverse;gap:8px;pointer-events:none}
+@media (min-width:600px){.toasts{left:auto;width:380px}}
+@media (min-width:900px){.toasts{bottom:20px;right:20px}}
+.tmsg{pointer-events:auto;position:relative;display:flex;gap:10px;align-items:flex-start;padding:11px 40px 11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);box-shadow:0 6px 22px rgba(10,16,22,.18);font-size:13.5px;line-height:1.4;animation:tin .18s ease-out}
+.tmsg .ic{font-size:18px;line-height:1.25;flex:0 0 auto}
+.tmsg .tx{min-width:0;overflow-wrap:anywhere}
+.tmsg .tx b{display:block;font-size:14px;margin-bottom:1px}
+.tmsg.ok{background:var(--good-soft);border-color:color-mix(in srgb,var(--good) 50%,transparent)}.tmsg.ok .tx b{color:var(--good)}
+.tmsg.warn{background:var(--warn-soft);border-color:color-mix(in srgb,var(--warn) 50%,transparent)}.tmsg.warn .tx b{color:var(--warn)}
+.tmsg.bad{background:var(--bad-soft);border-color:color-mix(in srgb,var(--bad) 50%,transparent)}.tmsg.bad .tx b{color:var(--bad)}
+.tmsg.info{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 40%,transparent)}.tmsg.info .tx b{color:var(--accent-2)}
+.tmsg.out{opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s}
+@keyframes tin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.tmsg{animation:none}.tmsg.out{transition:none}}
+.xbtn{position:absolute;top:6px;right:6px;width:26px;height:26px;display:grid;place-items:center;border:0;border-radius:6px;background:none;color:inherit;font-size:18px;line-height:1;opacity:.7;padding:0}
+.xbtn:hover{opacity:1;background:color-mix(in srgb,currentColor 14%,transparent)}
 .notice{border-radius:8px;padding:10px 12px;font-size:13px;border:1px solid transparent}
 .notice.warn{background:var(--warn-soft);color:var(--warn)}
 .notice.bad{background:var(--bad-soft);color:var(--bad)}
 .notice.ok{background:var(--good-soft);color:var(--good)}
 .notice.info{background:var(--accent-soft);color:var(--accent-2)}
+.notice{position:relative;padding-right:38px}
+.avatar.sobra{background:var(--warn-soft);color:var(--warn)}
+/* barra superior escura nos dois modos, igual à lateral */
+.topbar{background:var(--nav-bg);border-bottom-color:var(--nav-line);color:var(--nav-title)}
+.topbar .logo{background:var(--nav-on);color:#0B1A20}
+.topbar .btn-ghost{border-color:var(--nav-line);color:var(--nav-ink)}
+.topbar .btn-ghost:hover{background:var(--nav-on-bg);color:var(--nav-title)}
+.topbar .who-m{color:var(--nav-title);padding-left:10px}.topbar .who-m span{color:var(--nav-ink)}
+.who-l{display:flex;align-items:center;gap:7px;min-width:0;max-width:100%}.who-l b{min-width:0}
+@media (max-width:480px){#theme-txt{display:none}}
+.nav-user .nm-top{display:flex;align-items:center;gap:8px;min-width:0}
+/* BM: cabeçalho fixo com Compartilhar no celular */
+#bm-modal .mh{position:sticky;top:-16px;z-index:3;background:var(--bg);margin:-16px -16px 12px;padding:12px 16px;flex-wrap:wrap;border-bottom:1px solid var(--line-2)}
+#bm-modal .mh .row{gap:6px}
+#bm-share svg{width:16px;height:16px}
 .notice a,.notice button.link{color:inherit;font-weight:600;text-decoration:underline;background:none;border:0;padding:0}
 .tablewrap{overflow-x:auto;border:1px solid var(--line-2);border-radius:8px}
 table{border-collapse:collapse;width:100%;font-size:13px}
@@ -318,8 +347,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
   <header class="topbar">
     <div class="brand"><div class="logo">BM</div><div><h1>SISMED</h1></div></div>
     <span class="spacer"></span>
-    <button class="who-m" id="who-btn" type="button"><b id="who-name"></b><span id="who-role"></span></button>
-    <span id="sync-dot" class="sync" title="Sincronizado"></span>
+    <button class="who-m" id="who-btn" type="button"><span class="who-l"><span class="sync" data-sync title="Sincronizado"></span><b id="who-name"></b></span><span id="who-role"></span></button>
     <button class="btn-ghost bell" id="bell" aria-label="Notificações e mensagens"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="badge" id="bell-badge" hidden></span></button><button class="btn-ghost" id="theme-btn" aria-label="Alternar modo escuro/claro"><svg id="theme-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"></svg><span id="theme-txt">Escuro</span></button>
   </header>
   <div class="umenu" id="user-menu" hidden></div>
@@ -354,7 +382,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
             </div>
             <div class="card" id="manual-card">
               <h3>Registro manual — colaborador sem QR Code (terceirizado)</h3>
-              <div class="small muted" style="margin-bottom:10px">Para quem não tem crachá do ponto. O custo é alocado à empresa escolhida; a empresa terceirizada é só informativa.</div>
+              <div class="notice info small" data-hint="rest-manual" style="margin-bottom:10px">Para quem não tem crachá do ponto. O custo é alocado à empresa escolhida; a empresa terceirizada é só informativa.</div>
               <div class="stack">
                 <div class="field"><label for="m-nome">Nome do colaborador</label><input id="m-nome" list="manual-names" autocomplete="off" placeholder="nome completo"><datalist id="manual-names"></datalist></div>
                 <div class="grid2">
@@ -370,7 +398,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
             </div>
             <div class="card" id="sobras-card">
               <h3>Sobras de refeições</h3>
-              <div class="small muted" style="margin-bottom:10px">Refeições preparadas e não consumidas. <b>São cobradas</b>: entram na contagem de refeições e no BM da empresa, pelo preço do contrato da obra.</div>
+              <div class="notice info small" data-hint="rest-sobras" style="margin-bottom:10px">Refeições preparadas e não consumidas. <b>São cobradas</b>: entram na contagem de refeições e no BM da empresa, pelo preço do contrato da obra.</div>
               <div class="stack">
                 <div class="grid2">
                   <div class="field"><label for="s-emp">Empresa *</label><select id="s-emp"></select></div>
@@ -438,12 +466,12 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         <div class="tiles" id="aud-tiles" style="margin-top:14px"></div>
         <div class="card" style="margin-top:14px">
           <div class="row" style="justify-content:space-between"><h3 style="margin:0">Movimentações</h3><span class="small muted" id="aud-count"></span></div>
-          <div class="notice info small" style="margin:8px 0">IP e navegador são gravados pelo servidor no momento do registro (não podem ser alterados pelo app). O dispositivo é identificado por um código gerado em cada aparelho.</div>
+          <div class="notice info small" data-hint="aud-ip" style="margin:8px 0">IP e navegador são gravados pelo servidor no momento do registro (não podem ser alterados pelo app). O dispositivo é identificado por um código gerado em cada aparelho.</div>
           <div class="tablewrap"><table id="aud-table"></table></div>
           <div class="row" id="aud-pager" style="justify-content:center;margin-top:10px"></div>
         </div>
         <div class="card" style="margin-top:14px"><h3>Arquivos compactados</h3>
-          <div class="small muted" style="margin-bottom:8px">Eventos antigos, compactados automaticamente ao atingir 1.000 registros. Para consultar, baixe o CSV.</div>
+          <div class="notice info small" data-hint="aud-arq" style="margin-bottom:8px">Eventos antigos, compactados automaticamente ao atingir 1.000 registros. Para consultar, baixe o CSV.</div>
           <div class="tablewrap"><table id="aud-arq"></table></div>
         </div>
       </section>
@@ -475,7 +503,6 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         <div id="cfg-perfis" class="cfg-pane" hidden>
           <div class="cols">
             <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Perfis</h3><button class="btn sm" id="pf-new">Novo perfil</button></div>
-              <div class="small muted" style="margin:4px 0 8px">Perfis pré-definidos: ao escolher o perfil no cadastro do usuário, as permissões são aplicadas automaticamente. Alterar o perfil atualiza todos os usuários dele.</div>
               <div class="list" id="pf-list"></div></div>
             <div class="card"><h3 id="pf-form-title">Novo perfil</h3>
               <div class="stack">
@@ -498,7 +525,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
                 <div id="c-need" class="notice warn" hidden></div>
                 <div class="field"><label for="c-qr">QR Code do crachá (sistema de ponto)</label>
                   <div class="row" style="flex-wrap:nowrap"><input id="c-qr" class="mono" placeholder="leia o QR Code do crachá" readonly><button class="btn" id="btn-scan-colab">Ler QR Code</button></div>
-                  <div class="small muted" style="margin-top:4px">O app lê o QR Code já existente no crachá e vincula o conteúdo lido a este cadastro. <button class="link small" id="c-qr-manual" style="background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer">Digitar manualmente</button></div></div>
+                  <div class="small muted" style="margin-top:4px"><button class="link small" id="c-qr-manual" style="background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer">Digitar manualmente</button></div></div>
                 <div class="field"><label for="c-nome">Nome</label><input id="c-nome"></div>
                 <div class="grid2"><div class="field"><label for="c-emp">Empresa</label><select id="c-emp"></select></div><div class="field"><label for="c-obra">Obra</label><select id="c-obra"></select></div></div>
                 <div id="c-realoc-hint" class="small muted" hidden>Empresa e obra de um colaborador já cadastrado só mudam por <b>Realocar</b>, com motivo registrado no histórico.</div>
@@ -513,7 +540,6 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         <div id="cfg-empresas" class="cfg-pane" hidden>
           <div class="cols">
             <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Empresas</h3><button class="btn sm" id="e-new">Nova empresa</button></div>
-              <div class="small muted" style="margin:4px 0 8px">Cada empresa recebe seu próprio BM, com a logotipo no canto superior esquerdo.</div>
               <div class="list" id="e-list"></div></div>
             <div class="card"><h3 id="e-form-title">Nova empresa</h3>
               <div class="stack">
@@ -554,7 +580,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
               <div class="stack">
                 <div class="grid2"><div class="field"><label for="ctr-num">Nº do contrato (até 7 caracteres)</label><input id="ctr-num" maxlength="7" class="mono" style="text-transform:uppercase"></div><div class="field"><label for="ctr-ativo">Situação</label><select id="ctr-ativo"><option value="1">Ativo</option><option value="0">Inativo</option></select></div></div>
                 <div class="grid2"><div class="field"><label for="ctr-ini">Data de início</label><input id="ctr-ini" type="date"></div><div class="field"><label for="ctr-fim">Data de término</label><input id="ctr-fim" type="date"></div></div>
-                <div class="small muted">Fora da vigência (antes do início, depois do término) ou inativo, o restaurante não consegue registrar refeições das obras deste contrato.</div>
+                <div class="notice info small" data-hint="ctr-vig">Fora da vigência (antes do início, depois do término) ou inativo, o restaurante não consegue registrar refeições das obras deste contrato.</div>
                 <div id="ctr-err" class="notice bad" hidden></div>
                 <div class="row"><button class="btn" id="ctr-save">Salvar contrato</button><button class="btn sec" id="ctr-cancel">Limpar</button><button class="btn sec" id="ctr-precos" hidden>Ver preços deste contrato</button></div>
               </div></div>
@@ -565,7 +591,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
           <div class="cols">
             <div class="stack">
               <div class="card"><h3 id="p-vig-title">Preços vigentes</h3><div class="tablewrap"><table id="p-table"></table></div>
-                <div class="notice info small" style="margin-top:10px">Cada refeição registrada guarda o preço vigente no momento do registro. Alterar o preço não muda o valor de registros anteriores.</div></div>
+                <div class="notice info small" data-hint="precos-info" style="margin-top:10px">Cada refeição registrada guarda o preço vigente no momento do registro. Alterar o preço não muda o valor de registros anteriores.</div></div>
               <div class="card"><h3>Histórico de alterações</h3><div class="tablewrap"><table id="p-hist"></table></div></div>
             </div>
             <div class="card"><h3 id="p-title">Cadastrar / alterar preço</h3>
@@ -583,7 +609,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         <div id="cfg-contratada" class="cfg-pane" hidden>
           <div class="cols">
             <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Contratadas (restaurantes)</h3><button class="btn sm" id="k-new">Nova contratada</button></div>
-              <div class="small muted" style="margin:4px 0 8px">Cada restaurante atende uma ou mais obras. Os registros e os BMs ficam separados por restaurante.</div>
+              <div class="notice info small" data-hint="ct-desc" style="margin:4px 0 10px">Cada restaurante atende uma ou mais obras. Os registros e os BMs ficam separados por restaurante.</div>
               <div class="list" id="k-list"></div></div>
             <div class="card"><h3 id="k-form-title">Nova contratada</h3>
               <div class="stack">
@@ -665,12 +691,12 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 <!-- ============ BM MODAL ============ -->
 <div class="modal" id="bm-modal">
   <div class="sheet">
-    <div class="mh"><h2 id="bm-title">Boletim de Medição</h2><div class="row"><button class="btn sec sm" id="bm-pdf">Exportar PDF</button><button class="btn sec sm" id="bm-close">Fechar</button></div></div>
+    <div class="mh"><h2 id="bm-title">Boletim de Medição</h2><div class="row"><button class="btn sm" id="bm-share" hidden aria-label="Compartilhar PDF do BM"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>Compartilhar</button><button class="btn sec sm" id="bm-pdf">Exportar PDF</button><button class="btn sec sm" id="bm-close">Fechar</button></div></div>
     <div id="bm-body"></div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
 
 <script>
 /* =================== CONSTANTS =================== */
@@ -757,7 +783,41 @@ function ctMigrarLegado(){
   const K=S.contratada;S.contratadas.push({id:'ct-legacy',nome:K.nome,cnpj:K.cnpj||'',gestor:K.gestor||'',cargo:K.cargo||'',servico:K.servico||'FORNECIMENTO DE REFEIÇÕES',obras:S.obras.map(o=>o.id),ativo:true});
   save();
 }
-function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2800)}
+/* ---- balões de mensagem: sucesso (verde ✅), atenção, erro, aviso — todos com X ---- */
+const BAL={ok:['✅','Sucesso',6000],warn:['⚠️','Atenção',7000],bad:['❌','Não concluído',0],info:['ℹ️','Aviso',5000]};
+function balao(tipo,m){
+  const box=$('toasts');if(!box)return;const [ic,tit,ms]=BAL[tipo]||BAL.info;
+  const el=document.createElement('div');el.className='tmsg '+tipo;el.setAttribute('role',tipo==='bad'||tipo==='warn'?'alert':'status');
+  el.innerHTML=`<span class="ic" aria-hidden="true">${ic}</span><div class="tx"><b>${tit}</b><span></span></div><button type="button" class="xbtn" aria-label="Fechar">×</button>`;
+  el.querySelector('.tx span').textContent=m;
+  const close=()=>{if(el._c)return;el._c=1;el.classList.add('out');setTimeout(()=>el.remove(),200)};
+  el.querySelector('.xbtn').onclick=close;
+  box.prepend(el);while(box.children.length>4)box.lastElementChild.remove();
+  if(ms){let t=setTimeout(close,ms);el.onmouseenter=()=>clearTimeout(t);el.onmouseleave=()=>{t=setTimeout(close,2500)}}
+  return el;
+}
+function toast(m,tipo){
+  tipo=tipo||(/^(Erro|Falha|Não foi possível|Alteração recusada)/.test(m)?'bad':/(…)$|^QR Code lido|^Logotipo carregada|criado — complete|cancelad/.test(m)?'info':'warn');
+  return balao(tipo,m);
+}
+function sucesso(m){return balao('ok',m)}
+/* grava e só mostra "Sucesso" depois que o servidor confirmar */
+function concluir(msg){
+  return save().then(()=>{sucesso(msg);return true},e=>{const m=(e&&e.message)||String(e||'');
+    if(/row-level security|permission|policy|42501|violates|JWT|not allowed|denied/i.test(m))toast(`O servidor recusou a gravação — “${msg}” não foi concluído. Verifique suas permissões. (${m.slice(0,90)})`,'bad');
+    else toast(`Sem conexão com o servidor: “${msg}” ficou guardado neste aparelho e será enviado automaticamente quando a internet voltar.`,'warn');
+    return false});
+}
+/* ---- avisos (.notice) com X; os avisos fixos (data-hint) ficam fechados neste aparelho ---- */
+const HINTS_KEY='sismed_avisos_fechados';
+function hintsOff(){try{return JSON.parse(localStorage.getItem(HINTS_KEY))||[]}catch(e){return []}}
+function addX(el){if([...el.children].some(c=>c.classList.contains('xbtn')))return;const x=document.createElement('button');x.type='button';x.className='xbtn';x.setAttribute('aria-label','Fechar aviso');x.textContent='×';
+  x.onclick=ev=>{ev.stopPropagation();el.hidden=true;const h=el.dataset.hint;if(h){const l=hintsOff();if(!l.includes(h)){l.push(h);try{localStorage.setItem(HINTS_KEY,JSON.stringify(l))}catch(e){}}}};el.appendChild(x)}
+function prepNotices(root){const l=[];if(root.classList&&root.classList.contains('notice'))l.push(root);if(root.querySelectorAll)l.push(...root.querySelectorAll('.notice'));
+  const off=l.some(e=>e.dataset.hint)?hintsOff():[];l.forEach(el=>{if(el.dataset.hint&&off.includes(el.dataset.hint)){el.hidden=true;return}addX(el)})}
+function mostrarAvisos(){try{localStorage.removeItem(HINTS_KEY)}catch(e){}document.querySelectorAll('[data-hint]').forEach(el=>{el.hidden=false;addX(el)})}
+prepNotices(document.body);
+new MutationObserver(ms=>ms.forEach(m=>{m.addedNodes.forEach(n=>{if(n.nodeType===1&&!n.classList.contains('xbtn'))prepNotices(n)});const t=m.target;if(t&&t.nodeType===1&&t.classList.contains('notice'))addX(t)})).observe(document.body,{childList:true,subtree:true});
 /* preço: primeiro o do contrato da obra; se o contrato não tiver preço próprio, usa a tabela geral */
 function precoLista(tipoId,data,cid){return S.precos.filter(p=>p.tipo===tipoId&&p.vigencia<=data&&(p.contratoId||'')===(cid||'')).sort((a,b)=>a.vigencia<b.vigencia?1:a.vigencia>b.vigencia?-1:(a.criadoEm<b.criadoEm?1:-1))}
 function precoVigente(tipoId,data,cid){
@@ -775,7 +835,7 @@ function fillSelect(sel,items,val,allLabel){sel.innerHTML=(allLabel!==undefined?
 const ABAS={login:'Login',rest:'Restaurante',sup:'Suprimentos',aud:'Auditoria',cfg:'Configurações'};
 const ACOES={
   'login.ok':'Login','login.falha':'Tentativa de login inválida','logout':'Logout','nav':'Acessou aba','nav.cfg':'Acessou seção de configurações',
-  'refeicao.registrar':'Registrou refeição','refeicao.estornar':'Estornou refeição','sobra.registrar':'Registrou sobra','sobra.excluir':'Excluiu sobra',
+  'refeicao.registrar':'Registrou refeição','refeicao.estornar':'Estornou refeição','sobra.registrar':'Registrou sobra','bm.compartilhar':'Compartilhou PDF do BM','sobra.excluir':'Excluiu sobra',
   'bm.emitir':'Gerou rascunho de BM','bm.fechar':'Fechou BM','bm.validar':'Validou BM (assinatura eletrônica do restaurante)','bm.homologar':'Homologou assinatura física do restaurante','bm.assinar_sup':'Registrou assinatura do Suprimentos','bm.nf':'Informou nota fiscal','bm.pdf':'Exportou BM em PDF','bm.imprimir':'Imprimiu BM','bm.anexar':'Anexou BM assinado','bm.anexo_remover':'Removeu anexo do BM','bm.anexo_baixar':'Baixou anexo do BM',
   'usuario.salvar':'Cadastrou/alterou usuário','colab.salvar':'Cadastrou/alterou colaborador','colab.realocar':'Realocou colaborador (empresa/obra)','empresa.salvar':'Cadastrou/alterou empresa','obra.salvar':'Cadastrou/alterou obra','preco.salvar':'Cadastrou/alterou preço','contrato.salvar':'Cadastrou/alterou contrato',
   'contratada.salvar':'Cadastrou/alterou contratada (restaurante)','usuario.senha':'Redefiniu senha de usuário','auditoria.csv':'Exportou auditoria em CSV','dados.apagar':'Apagou todos os dados','perfil.salvar':'Cadastrou/alterou perfil','perfil.excluir':'Excluiu perfil','usuario.excluir':'Excluiu usuário','usuario.aprovar':'Aprovou conta','usuario.negar':'Negou conta','bm.excluir':'Excluiu boletim de medição','empresa.excluir':'Excluiu empresa','obra.excluir':'Excluiu obra','auditoria.arquivo':'Baixou arquivo compactado da auditoria'
@@ -800,7 +860,9 @@ let LAST={}, AUDIT_SEEN=new Set(), SYNC={pending:false,running:false,offline:fal
 function fresh(){return {perfis:[],auditArq:[],users:[],empresas:[],obras:[],colab:[],precos:[],contratos:[],contratadas:[],registros:[],sobras:[],bms:[],audit:[],contratada:{nome:'',cnpj:'',gestor:'',cargo:'',servico:'FORNECIMENTO DE REFEIÇÕES'}}}
 function rowOf(key,r){const o={...r};delete o.senha;if(key==='users')delete o.id;return o}
 function snapshot(){LAST={};Object.keys(TABLES).forEach(k=>{LAST[k]={};(S[k]||[]).forEach(r=>LAST[k][r.id]=JSON.stringify(rowOf(k,r)))});LAST.contratada=JSON.stringify(S.contratada);AUDIT_SEEN=new Set((S.audit||[]).map(e=>e.id))}
-function setSync(state,msg){const d=$('sync-dot');if(!d)return;d.className='sync'+(state==='pend'?' pend':state==='off'?' off':'');d.title=msg||(state==='pend'?'Enviando alterações…':state==='off'?'Sem conexão — alterações guardadas neste aparelho e enviadas quando voltar':'Sincronizado')}
+let SYNCST={c:'sync',t:'Sincronizado'};
+function applySync(){document.querySelectorAll('[data-sync]').forEach(d=>{d.className=SYNCST.c;d.title=SYNCST.t;d.setAttribute('aria-label','Conexão: '+SYNCST.t)})}
+function setSync(state,msg){SYNCST={c:'sync'+(state==='pend'?' pend':state==='off'?' off':''),t:msg||(state==='pend'?'Enviando alterações…':state==='off'?'Sem conexão — alterações guardadas neste aparelho e enviadas quando voltar':'Sincronizado')};applySync()}
 async function loadAll(){
   const ns=fresh();
   for(const [k,t] of Object.entries(TABLES)){
@@ -823,9 +885,11 @@ async function loadAll(){
 function save(){
   try{localStorage.setItem(CACHE_KEY,JSON.stringify(S))}catch(e){}
   SYNC.pending=true;setSync('pend');clearTimeout(SYNC.timer);SYNC.timer=setTimeout(sync,350);
+  const pr=new Promise((res,rej)=>(SYNC.waiters=SYNC.waiters||[]).push({res,rej}));pr.catch(()=>{});return pr;
 }
 async function sync(){
   if(SYNC.running||!USER)return;SYNC.running=true;SYNC.pending=false;clearTimeout(SYNC.retry);
+  const batch=(SYNC.waiters||[]).splice(0);
   try{
     for(const [k,t] of Object.entries(TABLES)){
       const cur={};(S[k]||[]).forEach(r=>cur[r.id]=JSON.stringify(rowOf(k,r)));
@@ -846,10 +910,10 @@ async function sync(){
     const novos=(S.audit||[]).filter(e=>!AUDIT_SEEN.has(e.id));
     if(novos.length){const {error}=await sb.from('auditoria').insert(novos.map(e=>({id:e.id,data:e})));if(error)throw error;novos.forEach(e=>AUDIT_SEEN.add(e.id));
       if(S.audit.length>=1000){setTimeout(async()=>{try{await loadAll();if(PAGE==='aud')renderAud()}catch(e){}},300)}}
-    SYNC.offline=false;setSync(SYNC.pending?'pend':'ok');
+    SYNC.offline=false;setSync(SYNC.pending?'pend':'ok');batch.forEach(w=>w.res());
   }catch(e){
     SYNC.pending=true;SYNC.offline=true;const msg=(e&&e.message)||'';setSync('off',msg?'Falha ao enviar: '+msg:undefined);
-    if(/row-level security|permission|policy/i.test(msg))toast('Alteração recusada pelo servidor: sem permissão ('+msg.slice(0,80)+')');
+    if(batch.length)batch.forEach(w=>w.rej(e));else if(/row-level security|permission|policy/i.test(msg))toast('Alteração recusada pelo servidor: sem permissão ('+msg.slice(0,80)+')','bad');
     SYNC.retry=setTimeout(sync,15000);
   }finally{SYNC.running=false;if(SYNC.pending&&!SYNC.offline)setTimeout(sync,200)}
 }
@@ -948,8 +1012,8 @@ function userMenu(anchor){
   const m=$('user-menu');if(!m.hidden){m.hidden=true;return}
   m.innerHTML=`<div class="row" style="flex-wrap:nowrap"><div class="avatar">${ini(USER.nome)}</div><div style="min-width:0"><b style="display:block">${esc(USER.nome)}</b><span class="small muted mono">${esc((USER.login||'').toUpperCase())}</span></div></div>
     <div class="kv" style="margin:10px 0;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:12.5px"><span class="muted">Tipo de perfil</span><span><span class="pill ${isAdm(USER)?'warn':'neutral'}">${esc(USER.tipo||'—')}</span></span><span class="muted">Perfil</span><span>${esc(USER.perfil||'—')}</span></div>
-    <button class="btn danger" id="um-sair" style="width:100%">Sair</button>`;
-  $('um-sair').onclick=doLogout;
+    ${hintsOff().length?'<button class="btn sec sm" id="um-avisos" style="width:100%;margin-bottom:8px">Mostrar avisos fechados</button>':''}<button class="btn danger" id="um-sair" style="width:100%">Sair</button>`;
+  $('um-sair').onclick=doLogout;if($('um-avisos'))$('um-avisos').onclick=()=>{mostrarAvisos();m.hidden=true;sucesso('Avisos reexibidos')};
   const r=anchor.getBoundingClientRect();m.hidden=false;
   if(innerWidth>=900){m.style.left=r.left+'px';m.style.top='';m.style.right='';m.style.bottom=(innerHeight-r.top+8)+'px'}
   else{m.style.right='12px';m.style.left='';m.style.bottom='';m.style.top=(r.bottom+8)+'px'}
@@ -1027,7 +1091,7 @@ async function sendMsg(para,texto,btn,abrir){
   const {error}=await sb.from('mensagens').insert({id:uid(),de:USER.id,para,texto:texto.slice(0,1000)});
   btn.disabled=false;
   if(error){toast('Não foi possível enviar: '+error.message);return}
-  await loadSocial();if(abrir)MSG_PAIR=pairKey(USER.id,para);renderNotif();
+  sucesso('Mensagem enviada');await loadSocial();if(abrir)MSG_PAIR=pairKey(USER.id,para);renderNotif();
 }
 setInterval(()=>{if(USER&&!document.hidden)loadSocial()},30000);
 
@@ -1046,9 +1110,9 @@ function navItems(){
 let PAGE=null;
 function buildNav(){
   const it=navItems();const h=it.map(i=>`<button data-p="${i.id}">${ICONS[i.id]}<span>${i.n}</span><span class="badge" data-badge="${i.id}" hidden></span></button>`).join('');
-  $('tabbar').innerHTML=h;$('sidenav').innerHTML='<div class="nav-title">Menu</div>'+h+`<button class="nav-user" id="nav-user" type="button" aria-haspopup="true"><span class="av">${ini(USER.nome)}</span><span class="nm"><b>${esc(USER.nome)}</b><span>${esc(USER.tipo||USER.perfil||'')}</span></span><span style="color:var(--nav-ink)">▴</span></button>`;
+  $('tabbar').innerHTML=h;$('sidenav').innerHTML='<div class="nav-title">Menu</div>'+h+`<button class="nav-user" id="nav-user" type="button" aria-haspopup="true"><span class="av">${ini(USER.nome)}</span><span class="nm"><span class="nm-top"><b>${esc(USER.nome)}</b><span class="sync" data-sync></span></span><span>${esc(USER.tipo||USER.perfil||'')}</span></span><span style="color:var(--nav-ink)">▴</span></button>`;
   document.querySelectorAll('#tabbar button,#sidenav button[data-p]').forEach(b=>b.onclick=()=>go(b.dataset.p));
-  $('nav-user').onclick=e=>userMenu(e.currentTarget);
+  $('nav-user').onclick=e=>userMenu(e.currentTarget);applySync();
   refreshBadges();
   go(it[0]?it[0].id:null);
 }
@@ -1126,8 +1190,10 @@ function renderRest(){
   const pend=pendRest();$('rest-notif').hidden=!(pend.length&&can('rest.validar'));
   $('rest-notif-list').innerHTML=pend.map(b=>`<div class="item"><span class="pill warn">Atenção</span><div class="t"><b>BM nº ${b.numero} — ${esc(b.empresaNome)}</b><span>${esc(bmK(b).nome)} · Período ${br(b.ini)} à ${br(b.fim)} fechado em ${brdt(b.fechadoEm)} · ${b.qtd} refeições · ${money(b.liquido)}</span></div><button class="btn sm" data-vbm="${b.id}">Ver e validar</button></div>`).join('');
   $('rest-notif-list').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
-  $('rest-recent').innerHTML=recent.length?recent.map(r=>`<div class="item"><div class="avatar">${ini(r.nome)}</div><div class="t"><b>${esc(r.nome)}${r.manual?' <span class="pill neutral">manual</span>':''}${r.dataManual?' <span class="pill warn">data '+br(r.data)+'</span>':''}</b><span>${esc(r.empresaNome)} · ${esc(r.obraNome||'obra não informada')}${r.terceirizada?' · terc.: '+esc(r.terceirizada):''} · ${hm(r.registradoEm)}</span></div><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span>${can('rest.estornar')&&!r.bmId?`<button class="btn sec sm" data-undo="${r.id}">Estornar</button>`:''}</div>`).join(''):'<div class="small muted">Nenhum registro hoje ainda.</div>';
-  $('rest-recent').querySelectorAll('[data-undo]').forEach(b=>b.onclick=()=>{const rr=S.registros.find(r=>r.id===b.dataset.undo);S.registros=S.registros.filter(r=>r.id!==b.dataset.undo);if(rr)audit('refeicao.estornar',`${tipo(rr.tipo).curto} de ${rr.nome} (${money(rr.valor)}) registrada às ${hm(rr.registradoEm)}`,{obra:rr.obraNome,empresa:rr.empresaNome,entidade:'registro '+rr.id});save();toast('Registro estornado');renderRest()});
+  const itensRec=recent.map(r=>({em:r.registradoEm,r})).concat(sobHoje.map(o=>({em:o.registradoEm,o}))).sort((a,b)=>a.em<b.em?1:-1).slice(0,12);
+  $('rest-recent').innerHTML=itensRec.length?itensRec.map(({r,o})=>o?sobraItemRec(o):`<div class="item"><div class="avatar">${ini(r.nome)}</div><div class="t"><b>${esc(r.nome)}${r.manual?' <span class="pill neutral">manual</span>':''}${r.dataManual?' <span class="pill warn">data '+br(r.data)+'</span>':''}</b><span>${esc(r.empresaNome)} · ${esc(r.obraNome||'obra não informada')}${r.terceirizada?' · terc.: '+esc(r.terceirizada):''} · ${hm(r.registradoEm)}</span></div><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span>${can('rest.estornar')&&!r.bmId?`<button class="btn sec sm" data-undo="${r.id}">Estornar</button>`:''}</div>`).join(''):'<div class="small muted">Nenhum registro hoje ainda.</div>';
+  $('rest-recent').querySelectorAll('[data-rsdel]').forEach(b=>b.onclick=()=>excluirSobra(b.dataset.rsdel,renderRest));
+  $('rest-recent').querySelectorAll('[data-undo]').forEach(b=>b.onclick=()=>{const rr=S.registros.find(r=>r.id===b.dataset.undo);S.registros=S.registros.filter(r=>r.id!==b.dataset.undo);if(rr)audit('refeicao.estornar',`${tipo(rr.tipo).curto} de ${rr.nome} (${money(rr.valor)}) registrada às ${hm(rr.registradoEm)}`,{obra:rr.obraNome,empresa:rr.empresaNome,entidade:'registro '+rr.id});concluir('Registro estornado');renderRest()});
   $('btn-scan-rest').disabled=!can('rest.registrar');$('qr-manual-go').disabled=!can('rest.registrar');
   // registro manual (terceirizados sem QR)
   $('manual-card').hidden=!can('rest.registrar');renderManual();
@@ -1142,6 +1208,8 @@ function renderRest(){
   $('sobras-list').innerHTML=sob.length?sob.map(s=>{const bm=s.bmId?S.bms.find(x=>x.id===s.bmId):null;return `<div class="item"><span class="pill ${s.tipo}">${tipo(s.tipo).curto}</span><div class="t"><b>${s.qtd} ${s.qtd===1?'refeição':'refeições'} — ${esc(s.colabNome)}</b><span>${esc(s.empresaNome||'empresa não informada')} · ${esc(s.obraNome||'obra não informada')} · ${money(sobraTotal(s))} · ${hm(s.registradoEm)}</span></div>${bm?`<span class="pill neutral">BM ${bm.numero}</span>`:can('del.sobras')?`<button class="btn sec sm" data-sdel="${s.id}">Excluir</button>`:''}</div>`}).join(''):'<div class="small muted">Nenhuma sobra informada hoje.</div>';
   $('sobras-list').querySelectorAll('[data-sdel]').forEach(b=>b.onclick=()=>excluirSobra(b.dataset.sdel,renderRest));
 }
+function sobraItemRec(o){const bm=o.bmId?S.bms.find(x=>x.id===o.bmId):null;
+  return `<div class="item"><div class="avatar sobra" title="Sobra de refeição">S</div><div class="t"><b>Sobra — ${o.qtd} ${o.qtd===1?'refeição':'refeições'}${o.colabNome?' · '+esc(o.colabNome):''} <span class="pill warn">sobra</span></b><span>${esc(o.empresaNome||'empresa não informada')} · ${esc(o.obraNome||'obra não informada')} · ${money(sobraTotal(o))} · ${hm(o.registradoEm)}</span></div><span class="pill ${o.tipo}">${tipo(o.tipo).curto}</span>${bm?`<span class="pill neutral">BM ${bm.numero}</span>`:can('del.sobras')?`<button class="btn sec sm" data-rsdel="${o.id}">Excluir</button>`:''}</div>`}
 /* ---- data manual (permissão rest.data_manual) ---- */
 function regDate(prefix){const chk=$(prefix+'-check'),dt=$(prefix+'-date');if(can('rest.data_manual')&&chk&&chk.checked&&dt&&dt.value&&dt.value<=today())return dt.value;return today()}
 function setupDateManual(prefix){const row=$(prefix+'-row'),chk=$(prefix+'-check'),dt=$(prefix+'-date');row.hidden=!can('rest.data_manual');dt.max=today();dt.min=addDays(today(),-90);if(!dt.value)dt.value=today();
@@ -1181,7 +1249,7 @@ $('btn-confirm').onclick=()=>{
   const RC=restCt();if(!RC)return;
   S.registros.push({id:uid(),data:t,colabId:CUR.id,nome:CUR.nome,empresaId:CUR.empresaId,empresaNome:e?e.nome:'',obraId:CUR.obraId,obraNome:o?o.nome:'',contratoId:cidOf(CUR.obraId)||undefined,contratoNumero:(contrato(cidOf(CUR.obraId))||{}).numero||undefined,contratadaId:RC.id,contratadaNome:RC.nome,tipo:CURTIPO,valor:p,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null,dataManual:manualDate||undefined});
   audit('refeicao.registrar',`${tipo(CURTIPO).curto} — ${CUR.nome} (${money(p)})${manualDate?' — DATA MANUAL '+br(t):''}`,{obra:o?o.nome:'',empresa:e?e.nome:'',entidade:'colaborador '+CUR.qr});
-  save();toast(`${tipo(CURTIPO).curto} registrado — ${CUR.nome.split(' ')[0]}${manualDate?' ('+br(t)+')':''}`);
+  concluir(`${tipo(CURTIPO).curto} registrado — ${CUR.nome.split(' ')[0]}${manualDate?' ('+br(t)+')':''}`);
   CUR=null;$('confirm-card').hidden=true;$('qr-manual').value='';renderRest();
 };
 $('btn-cancel').onclick=()=>{CUR=null;$('confirm-card').hidden=true};
@@ -1211,7 +1279,7 @@ $('m-save').onclick=()=>{
   const e=emp(empId),o=obra(obraId);
   S.registros.push({id:uid(),data:t,colabId:null,manual:true,nome,empresaId:empId,empresaNome:e?e.nome:'',obraId,obraNome:o?o.nome:'',contratoId:cidOf(obraId)||undefined,contratoNumero:(contrato(cidOf(obraId))||{}).numero||undefined,contratadaId:RC.id,contratadaNome:RC.nome,terceirizada:terc,tipo:MTIPO,valor:p,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null,dataManual:manualDate||undefined});
   audit('refeicao.registrar',`${tipo(MTIPO).curto} — ${nome} (${money(p)}) — registro manual, terceirizado${terc?' de '+terc:''}${manualDate?' — DATA MANUAL '+br(t):''}`,{obra:o?o.nome:'',empresa:e?e.nome:'',entidade:'registro manual'});
-  save();toast(`${tipo(MTIPO).curto} registrado — ${nome.split(' ')[0]} (manual)`);
+  concluir(`${tipo(MTIPO).curto} registrado — ${nome.split(' ')[0]} (manual)`);
   $('m-nome').value='';$('m-terc').value='';renderRest();
 };
 $('btn-scan-rest').onclick=()=>openScanner('Ler QR Code do crachá',lookup);
@@ -1239,7 +1307,7 @@ $('s-save').onclick=()=>{
   const c=S.colab.find(x=>x.nome.toLowerCase()===n.toLowerCase());const total=Math.round(q*p*100)/100;
   S.sobras.push({id:uid(),data:t,contratadaId:RC.id,contratadaNome:RC.nome,tipo:tp,qtd:q,valorUnit:p,valor:total,colabNome:c?c.nome:n,colabId:c?c.id:null,empresaId:empId,empresaNome:E.nome,obraId,obraNome:o?o.nome:'',contratoId:cidOf(obraId)||undefined,contratoNumero:(contrato(cidOf(obraId))||{}).numero||undefined,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null});
   audit('sobra.registrar',`${q} ${tipo(tp).curto} — ${c?c.nome:n} — ${money(p)} cada = ${money(total)} (cobrada)`,{empresa:E.nome,obra:o?o.nome:''});
-  save();$('s-qtd').value='';$('s-colab').value='';$('s-emp').value='';$('s-obra').value='';toast(`Sobra registrada — ${q} ${tipo(tp).curto} · ${money(total)}`);renderRest();
+  concluir(`Sobra registrada — ${q} ${tipo(tp).curto} · ${money(total)}`);$('s-qtd').value='';$('s-colab').value='';$('s-emp').value='';$('s-obra').value='';renderRest();
 };
 
 /* =================== SUPRIMENTOS =================== */
@@ -1291,7 +1359,7 @@ function excluirSobra(id,after){
   const ss=S.sobras.find(s=>s.id===id);if(!ss||!can('del.sobras'))return;
   if(ss.bmId){const b=S.bms.find(x=>x.id===ss.bmId);toast(`Sobra já está no BM nº ${b?b.numero:''} — exclua o BM antes`);return}
   confirmDelete({titulo:'Excluir sobra informada',resumo:`<div class="notice warn">${br(ss.data)} · ${ss.qtd} ${tipo(ss.tipo).curto} — ${esc(ss.colabNome)} (${esc(ss.empresaNome||'—')} · ${esc(ss.obraNome||'—')}) · ${money(sobraTotal(ss))}, informada por ${esc(ss.usuario)}.</div>`,botao:'Excluir sobra',
-    onOk:async(_,motivo)=>{S.sobras=S.sobras.filter(s=>s.id!==id);audit('sobra.excluir',`${br(ss.data)} — ${ss.qtd} ${tipo(ss.tipo).curto} — ${ss.colabNome} — ${money(sobraTotal(ss))} — motivo: ${motivo}`,{empresa:ss.empresaNome,obra:ss.obraNome||''});save();toast('Sobra excluída');after()}});
+    onOk:async(_,motivo)=>{S.sobras=S.sobras.filter(s=>s.id!==id);audit('sobra.excluir',`${br(ss.data)} — ${ss.qtd} ${tipo(ss.tipo).curto} — ${ss.colabNome} — ${money(sobraTotal(ss))} — motivo: ${motivo}`,{empresa:ss.empresaNome,obra:ss.obraNome||''});concluir('Sobra excluída');after()}});
 }
 /* ---- exclusão de BM: só o último de cada empresa ---- */
 function bmPosterior(b){return S.bms.filter(x=>x.empresaId===b.empresaId&&x.id!==b.id&&(x.numero>b.numero||(x.numero===b.numero&&x.emitidoEm>b.emitidoEm))).sort((a,c)=>c.numero-a.numero)[0]||null}
@@ -1307,7 +1375,7 @@ function excluirBM(b){
       S.bms=S.bms.filter(x=>x.id!==b.id);
       const E=emp(b.empresaId);if(E&&(E.proximoBM||1)===b.numero+1)E.proximoBM=b.numero;
       audit('bm.excluir',`BM ${b.numero} — ${b.empresaNome} — ${br(b.ini)} à ${br(b.fim)} — ${n} refeições liberadas — motivo: ${motivo}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:b.status,depois:'excluído'});
-      save();toast(`BM ${b.numero} excluído`);renderSup();
+      concluir(`BM ${b.numero} excluído`);renderSup();
     }});
 }
 /* ---- anexo do BM assinado ---- */
@@ -1321,7 +1389,7 @@ $('bm-anexo-file').onchange=async e=>{
   if(error){toast('Falha no envio: '+error.message);return}
   if(b.anexo&&b.anexo.path){sb.storage.from('anexos').remove([b.anexo.path])}
   b.anexo={name:f.name,type:f.type,path,size:f.size,em:new Date().toISOString(),usuario:USER.nome};
-  audit('bm.anexar',`BM ${b.numero} — ${f.name}`,{empresa:b.empresaNome,entidade:'BM '+b.numero});save();toast('BM assinado anexado');renderSup();
+  audit('bm.anexar',`BM ${b.numero} — ${f.name}`,{empresa:b.empresaNome,entidade:'BM '+b.numero});concluir('BM assinado anexado');renderSup();
 };
 async function viewAnexo(b){
   $('anexo-title').textContent=`BM ${b.numero} assinado — ${b.anexo.name}`;
@@ -1331,7 +1399,7 @@ async function viewAnexo(b){
   const url=data.signedUrl;
   $('anexo-body').innerHTML=`<div class="small muted" style="margin-bottom:8px">Anexado em ${brdt(b.anexo.em)} por ${esc(b.anexo.usuario)} · ${Math.round((b.anexo.size||0)/1024)} KB</div>${b.anexo.type.startsWith('image/')?`<img src="${url}" alt="BM assinado" style="width:100%;border-radius:8px;border:1px solid var(--line)">`:`<iframe src="${url}" style="width:100%;height:60vh;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>`}<div class="row" style="margin-top:10px"><a class="btn sec sm" href="${url}" target="_blank" rel="noopener" id="anexo-dl">Abrir / baixar</a>${can('sup.nf')?`<button class="btn danger sm" id="anexo-rm">Remover anexo</button>`:''}</div>`;
   $('anexo-dl').onclick=()=>{audit('bm.anexo_baixar',`BM ${b.numero} — ${b.anexo.name}`,{empresa:b.empresaNome,entidade:'BM '+b.numero});save()};
-  const rm=$('anexo-rm');if(rm)rm.onclick=async()=>{await sb.storage.from('anexos').remove([b.anexo.path]);audit('bm.anexo_remover',`BM ${b.numero} — ${b.anexo.name}`,{empresa:b.empresaNome,entidade:'BM '+b.numero});delete b.anexo;save();$('anexo-modal').classList.remove('on');renderSup()};
+  const rm=$('anexo-rm');if(rm)rm.onclick=async()=>{await sb.storage.from('anexos').remove([b.anexo.path]);audit('bm.anexo_remover',`BM ${b.numero} — ${b.anexo.name}`,{empresa:b.empresaNome,entidade:'BM '+b.numero});delete b.anexo;concluir('Anexo removido');$('anexo-modal').classList.remove('on');renderSup()};
 }
 $('anexo-close').onclick=()=>$('anexo-modal').classList.remove('on');
 /* confirmação de exclusão: motivo obrigatório + escolha opcional */
@@ -1379,7 +1447,7 @@ document.querySelectorAll('#emp-modal [data-q]').forEach(b=>b.onclick=()=>{
   else{const d=parse(t);const first=new Date(d.getFullYear(),d.getMonth()-1,1);const last=new Date(d.getFullYear(),d.getMonth(),0);ini=ymd(first);fim=ymd(last)}
   $('bm-ini').value=ini;$('bm-fim').value=fim;previewBM();
 });
-$('bm-emit-go').onclick=()=>{$('emp-modal').classList.remove('on');const nb=buildBM($('bm-ini').value,$('bm-fim').value,$('bm-emp').value,$('bm-ct').value);audit('bm.emitir',`BM ${nb.numero} — ${nb.empresaNome} — ${nb.contratadaNome} — ${br(nb.ini)} à ${br(nb.fim)} — ${nb.qtd} refeições — ${money(nb.valor)}`,{empresa:nb.empresaNome,entidade:'BM '+nb.numero});save();openBM(nb)};
+$('bm-emit-go').onclick=()=>{$('emp-modal').classList.remove('on');const nb=buildBM($('bm-ini').value,$('bm-fim').value,$('bm-emp').value,$('bm-ct').value);audit('bm.emitir',`BM ${nb.numero} — ${nb.empresaNome} — ${nb.contratadaNome} — ${br(nb.ini)} à ${br(nb.fim)} — ${nb.qtd} refeições — ${money(nb.valor)}`,{empresa:nb.empresaNome,entidade:'BM '+nb.numero});concluir(`Rascunho do BM nº ${nb.numero} gerado — confira a lista e feche o BM`);openBM(nb)};
 $('emp-close').onclick=()=>$('emp-modal').classList.remove('on');
 
 /* ---- BM build ---- */
@@ -1517,14 +1585,15 @@ function renderBM(){
     b.status='fechado';b.fechadoEm=new Date().toISOString();b.fechadoPor=USER.nome;
     S.registros.forEach(r=>{if(r.empresaId===b.empresaId&&ctOf(r)===ctOf(b)&&r.data>=b.ini&&r.data<=b.fim&&!r.bmId)r.bmId=b.id});
     (S.sobras||[]).forEach(s=>{if(s.empresaId===b.empresaId&&ctOf(s)===ctOf(b)&&s.data>=b.ini&&s.data<=b.fim&&!s.bmId){s.valorUnit=sobraUnit(s);s.valor=sobraTotal(s);s.bmId=b.id}});
-    S.bms.push(b);if(E)E.proximoBM=b.numero+1;audit('bm.fechar',`BM ${b.numero} — ${b.empresaNome} — ${br(b.ini)} à ${br(b.fim)} — ${b.qtd} refeições — líquido ${money(b.liquido)}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,depois:'fechado'});save();notify('bm.fechado',`BM nº ${b.numero} — ${b.empresaNome} — período ${br(b.ini)} à ${br(b.fim)} fechado e aguardando validação do restaurante`,destRest(ctOf(b)),{bmId:b.id});toast(`BM ${b.numero} fechado e enviado ao restaurante`);renderBM();renderSup();
+    S.bms.push(b);if(E)E.proximoBM=b.numero+1;audit('bm.fechar',`BM ${b.numero} — ${b.empresaNome} — ${br(b.ini)} à ${br(b.fim)} — ${b.qtd} refeições — líquido ${money(b.liquido)}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,depois:'fechado'});concluir(`BM ${b.numero} fechado e enviado ao restaurante`);notify('bm.fechado',`BM nº ${b.numero} — ${b.empresaNome} — período ${br(b.ini)} à ${br(b.fim)} fechado e aguardando validação do restaurante`,destRest(ctOf(b)),{bmId:b.id});renderBM();renderSup();
   });
-  on('bm-validar',()=>{b.status='assinado_restaurante';b.assRest={tipo:'eletronica',usuario:USER.nome,em:new Date().toISOString()};audit('bm.validar',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:'fechado',depois:'assinado_restaurante'});save();notify('bm.validado',`BM nº ${b.numero} — ${b.empresaNome} validado (assinatura eletrônica) pelo restaurante ${bmK(b).nome}`,destSup(),{bmId:b.id});toast(`BM ${b.numero} validado — devolvido ao Suprimentos assinado`);$('bm-modal').classList.remove('on');refreshBadges();if(can('sup.ver')){go('sup');openBM(b)}else renderRest()});
-  on('bm-homologar',()=>{b.status='assinado_restaurante';b.assRest={tipo:'fisica',usuario:K.nome||'Restaurante',por:USER.nome,em:new Date().toISOString()};audit('bm.homologar',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:'fechado',depois:'assinado_restaurante'});save();notify('bm.validado',`BM nº ${b.numero} — ${b.empresaNome}: assinatura física do restaurante homologada`,destSup().concat(destRest(ctOf(b))),{bmId:b.id});toast('Assinatura física do restaurante homologada');renderBM();renderSup()});
-  on('bm-ass-sup',()=>{b.status='assinado';b.assSup={tipo:'fisica',usuario:K.gestor||USER.nome,por:USER.nome,em:new Date().toISOString()};audit('bm.assinar_sup',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:'assinado_restaurante',depois:'assinado'});save();notify('bm.concluido',`BM nº ${b.numero} — ${b.empresaNome} concluído: assinado pelo restaurante e pelo Suprimentos`,destSup().concat(destRest(ctOf(b))),{bmId:b.id});toast('Assinatura do Suprimentos registrada');renderBM();renderSup()});
+  on('bm-validar',()=>{b.status='assinado_restaurante';b.assRest={tipo:'eletronica',usuario:USER.nome,em:new Date().toISOString()};audit('bm.validar',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:'fechado',depois:'assinado_restaurante'});concluir(`BM ${b.numero} validado — devolvido ao Suprimentos assinado`);notify('bm.validado',`BM nº ${b.numero} — ${b.empresaNome} validado (assinatura eletrônica) pelo restaurante ${bmK(b).nome}`,destSup(),{bmId:b.id});$('bm-modal').classList.remove('on');refreshBadges();if(can('sup.ver')){go('sup');openBM(b)}else renderRest()});
+  on('bm-homologar',()=>{b.status='assinado_restaurante';b.assRest={tipo:'fisica',usuario:K.nome||'Restaurante',por:USER.nome,em:new Date().toISOString()};audit('bm.homologar',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:'fechado',depois:'assinado_restaurante'});concluir('Assinatura física do restaurante homologada');notify('bm.validado',`BM nº ${b.numero} — ${b.empresaNome}: assinatura física do restaurante homologada`,destSup().concat(destRest(ctOf(b))),{bmId:b.id});renderBM();renderSup()});
+  on('bm-ass-sup',()=>{b.status='assinado';b.assSup={tipo:'fisica',usuario:K.gestor||USER.nome,por:USER.nome,em:new Date().toISOString()};audit('bm.assinar_sup',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:'assinado_restaurante',depois:'assinado'});concluir('Assinatura do Suprimentos registrada');notify('bm.concluido',`BM nº ${b.numero} — ${b.empresaNome} concluído: assinado pelo restaurante e pelo Suprimentos`,destSup().concat(destRest(ctOf(b))),{bmId:b.id});renderBM();renderSup()});
   on('bm-print',()=>exportBM(b,true));
-  on('bm-nf-save',()=>{const nfAntes=b.nf;b.nf=$('bm-nf').value.trim();if(b.nf)b.status='faturado';audit('bm.nf',`BM ${b.numero} — NF ${b.nf}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:nfAntes||null,depois:b.nf});save();notify('bm.nf',`BM nº ${b.numero} — ${b.empresaNome}: nota fiscal ${b.nf} registrada`,destSup(),{bmId:b.id});toast('Nota fiscal registrada — pronta para inclusão em pagamento');renderBM();renderSup()});
+  on('bm-nf-save',()=>{const nfAntes=b.nf;b.nf=$('bm-nf').value.trim();if(b.nf)b.status='faturado';audit('bm.nf',`BM ${b.numero} — NF ${b.nf}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:nfAntes||null,depois:b.nf});concluir('Nota fiscal registrada — pronta para inclusão em pagamento');notify('bm.nf',`BM nº ${b.numero} — ${b.empresaNome}: nota fiscal ${b.nf} registrada`,destSup(),{bmId:b.id});renderBM();renderSup()});
   $('bm-pdf').disabled=!(can('sup.bm')||can('rest.validar'));
+  $('bm-share').hidden=!isMobile();$('bm-share').disabled=$('bm-pdf').disabled;
 }
 
 /* ---- PDF export / print (jsPDF + AutoTable) ---- */
@@ -1616,15 +1685,32 @@ async function exportBM(b,print){
   const btn=print?$('bm-print'):$('bm-pdf');const old=btn?btn.textContent:'';if(btn){btn.disabled=true;btn.textContent='Gerando…'}
   try{
     audit(print?'bm.imprimir':'bm.pdf',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero});save();
-    const doc=bmPdf(b);const name=`BM-${b.numero}-${b.empresaNome.replace(/[^\w\-]+/g,'_').slice(0,40)}-${b.ini}.pdf`;
+    const doc=bmPdf(b);const name=bmNomeArq(b);
     const dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;
-    if(dl){try{await dl.save({filename:name,data:doc.output('blob')});toast(print?'PDF salvo — abra e imprima para assinatura':'PDF salvo')}catch(e){if(e&&e.code==='declined')toast('Download cancelado');else doc.save(name)}}
-    else if(print){doc.autoPrint();const w=window.open(doc.output('bloburl'),'_blank');if(!w){doc.save(name);toast('PDF gerado — abra e imprima')}}
-    else{doc.save(name);toast('PDF gerado')}
+    if(dl){try{await dl.save({filename:name,data:doc.output('blob')});sucesso(print?'PDF salvo — abra e imprima para assinatura':'PDF salvo')}catch(e){if(e&&e.code==='declined')toast('Download cancelado');else doc.save(name)}}
+    else if(print){doc.autoPrint();const w=window.open(doc.output('bloburl'),'_blank');if(!w){doc.save(name);sucesso('PDF gerado — abra e imprima')}else sucesso('PDF aberto para impressão')}
+    else{doc.save(name);sucesso('PDF gerado')}
   }catch(e){toast('Falha ao gerar o PDF')}
   if(btn){btn.disabled=false;btn.textContent=old}
 }
 $('bm-pdf').onclick=()=>{if(BM)exportBM(BM,false)};
+function isMobile(){return matchMedia('(max-width: 899px)').matches||matchMedia('(pointer: coarse)').matches}
+function bmNomeArq(b){return `BM-${b.numero}-${b.empresaNome.replace(/[^\w\-]+/g,'_').slice(0,40)}-${b.ini}.pdf`}
+async function shareBM(b){
+  if(!window.jspdf||!window.jspdf.jsPDF){toast('Biblioteca de PDF não carregou — verifique a conexão');return}
+  const btn=$('bm-share');btn.disabled=true;
+  try{
+    const doc=bmPdf(b);const name=bmNomeArq(b);const file=new File([doc.output('blob')],name,{type:'application/pdf'});
+    const txt=`Boletim de Medição nº ${b.numero} — ${b.empresaNome} — ${bmK(b).nome||''} — período ${br(b.ini)} à ${br(b.fim)} — ${money(b.liquido)}`;
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      try{await navigator.share({files:[file],title:`BM nº ${b.numero} — ${b.empresaNome}`,text:txt});
+        audit('bm.compartilhar',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero});concluir(`PDF do BM nº ${b.numero} compartilhado`)}
+      catch(e){if(e&&e.name==='AbortError')toast('Compartilhamento cancelado','info');else toast('Não foi possível compartilhar: '+((e&&e.message)||e),'bad')}
+    }else{doc.save(name);toast('Este navegador não permite compartilhar arquivos — o PDF foi baixado; envie-o pelo WhatsApp ou outro app','info')}
+  }catch(e){toast('Falha ao gerar o PDF','bad')}
+  btn.disabled=false;
+}
+$('bm-share').onclick=()=>{if(BM)shareBM(BM)};
 
 /* =================== CONFIGURAÇÕES =================== */
 let CFGTAB=null, UEDIT=null, CEDIT=null, EEDIT=null, OEDIT=null, ELOGO=null;
@@ -1691,18 +1777,18 @@ $('pf-save').onclick=()=>{
   audit('perfil.salvar',`${PFEDIT?'Alterou':'Criou'} perfil ${nome} (${tipo}) — ${perms.length} permissões`,{entidade:'perfil '+nome,antes:PFEDIT?JSON.stringify({nome:PFEDIT.nome,tipo:PFEDIT.tipo,perms:PFEDIT.perms}):null,depois:JSON.stringify({nome,tipo,perms})});
   if(PFEDIT){Object.assign(PFEDIT,{nome,tipo,perms});S.users.filter(u=>u.perfilId===PFEDIT.id).forEach(u=>{u.perms=[...perms];u.perfil=nome;u.tipo=tipo})}
   else S.perfis.push({id:uid(),nome,tipo,perms});
-  save();toast('Perfil salvo');PFEDIT=null;fillPerfil();renderPerfis();
+  concluir('Perfil salvo');PFEDIT=null;fillPerfil();renderPerfis();
 };
 $('pf-del').onclick=()=>{if(!PFEDIT)return;const n=S.users.filter(u=>u.perfilId===PFEDIT.id).length;if(n){toast(`Há ${n} usuário(s) com este perfil — troque o perfil deles antes`);return}
-  const p=PFEDIT;confirmDelete({titulo:`Excluir perfil ${esc(p.nome)}`,resumo:'<div class="notice warn">O perfil deixa de aparecer no cadastro de usuários.</div>',botao:'Excluir perfil',onOk:async(_,motivo)=>{S.perfis=S.perfis.filter(x=>x!==p);audit('perfil.excluir',`${p.nome} — motivo: ${motivo}`,{entidade:'perfil '+p.nome});save();PFEDIT=null;fillPerfil();renderPerfis()}})};
+  const p=PFEDIT;confirmDelete({titulo:`Excluir perfil ${esc(p.nome)}`,resumo:'<div class="notice warn">O perfil deixa de aparecer no cadastro de usuários.</div>',botao:'Excluir perfil',onOk:async(_,motivo)=>{S.perfis=S.perfis.filter(x=>x!==p);audit('perfil.excluir',`${p.nome} — motivo: ${motivo}`,{entidade:'perfil '+p.nome});concluir(`Perfil ${p.nome} excluído`);PFEDIT=null;fillPerfil();renderPerfis()}})};
 function renderUsers(){
   const pend=S.users.filter(u=>u.status==='pendente');$('u-pend-card').hidden=!pend.length;
   $('u-pend').innerHTML=pend.map(u=>`<div class="item"><div class="avatar">${ini(u.login||u.nome)}</div><div class="t"><b class="mono">${esc((u.login||'').toUpperCase())}</b><span>${esc((u.email||'').toUpperCase())}</span></div><select data-pp-pf="${u.id}" style="width:auto">${(S.perfis||[]).map(p=>`<option value="${p.id}">${esc(p.nome)} (${esc(p.tipo)})</option>`).join('')}</select><button class="btn good sm" data-ap="${u.id}">Aprovar</button>${isAdm(USER)?`<button class="btn danger sm" data-ng="${u.id}">Negar</button>`:''}</div>`).join('');
   $('u-pend').querySelectorAll('[data-ap]').forEach(b=>b.onclick=()=>{const u=S.users.find(x=>x.id===b.dataset.ap);const pf=perfil($('u-pend').querySelector(`[data-pp-pf="${u.id}"]`).value);if(!pf){toast('Cadastre um perfil antes');return}
     Object.assign(u,{status:'aprovado',ativo:true,perfilId:pf.id,perfil:pf.nome,tipo:pf.tipo,perms:pf.tipo==='Adm'?[...PERFIS.Administrador]:[...pf.perms],nome:u.nome||u.login});
-    audit('usuario.aprovar',`${(u.login||'').toUpperCase()} (${u.email}) aprovado com o perfil ${pf.nome}`,{entidade:'usuário '+u.login});notify('conta.aprovada',`Sua conta foi aprovada com o perfil ${pf.nome}. Bem-vindo ao SISMED!`,[u.id]);save();toast('Conta aprovada');renderUsers()});
+    audit('usuario.aprovar',`${(u.login||'').toUpperCase()} (${u.email}) aprovado com o perfil ${pf.nome}`,{entidade:'usuário '+u.login});notify('conta.aprovada',`Sua conta foi aprovada com o perfil ${pf.nome}. Bem-vindo ao SISMED!`,[u.id]);concluir('Conta aprovada');renderUsers()});
   $('u-pend').querySelectorAll('[data-ng]').forEach(b=>b.onclick=()=>{const u=S.users.find(x=>x.id===b.dataset.ng);
-    confirmDelete({titulo:`Negar conta ${esc((u.login||'').toUpperCase())}`,resumo:`<div class="notice warn">A conta ${esc(u.email)} será excluída. A pessoa poderá se cadastrar de novo.</div>`,botao:'Negar e excluir',onOk:async(_,motivo)=>{const {error}=await sb.rpc('admin_delete_user',{target:u.id});if(error)throw error;S.users=S.users.filter(x=>x!==u);audit('usuario.negar',`${(u.login||'').toUpperCase()} (${u.email}) — motivo: ${motivo}`,{entidade:'usuário '+u.login});save();renderUsers()}})});
+    confirmDelete({titulo:`Negar conta ${esc((u.login||'').toUpperCase())}`,resumo:`<div class="notice warn">A conta ${esc(u.email)} será excluída. A pessoa poderá se cadastrar de novo.</div>`,botao:'Negar e excluir',onOk:async(_,motivo)=>{const {error}=await sb.rpc('admin_delete_user',{target:u.id});if(error)throw error;S.users=S.users.filter(x=>x!==u);audit('usuario.negar',`${(u.login||'').toUpperCase()} (${u.email}) — motivo: ${motivo}`,{entidade:'usuário '+u.login});concluir('Conta negada e excluída');renderUsers()}})});
   $('u-list').innerHTML=S.users.filter(u=>u.status!=='pendente').map(u=>`<div class="item"><div class="avatar">${ini(u.nome)}</div><div class="t"><b>${esc(u.nome)} <span class="pill ${isAdm(u)?'warn':'neutral'}">${esc(u.tipo||'—')}</span></b><span>${esc(u.perfil)} · <span class="mono">${esc(u.login)}</span> · ${u.perms.length} permissões · ${u.obras&&u.obras.length?u.obras.length+' obra(s)':'todas as obras'} · ${u.contratadas&&u.contratadas.length?u.contratadas.map(id=>(ct(id)||{}).nome).filter(Boolean).join(', '):'todos os restaurantes'}</span></div>${u.ativo?'':'<span class="pill bad">inativo</span>'}<button class="btn sec sm" data-u="${u.id}">Editar</button></div>`).join('');
   $('u-list').querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{UEDIT=S.users.find(u=>u.id===b.dataset.u);fillUser()});
   if(!$('u-perms').innerHTML)fillUser();
@@ -1735,7 +1821,7 @@ function renderPerms(set){
 $('u-perfil').onchange=()=>{const pf=perfil($('u-perfil').value);$('u-tipo').disabled=!!pf;if(pf){$('u-tipo').value=pf.tipo;renderPerms(new Set(pf.tipo==='Adm'?PERFIS.Administrador:pf.perms))}};
 $('u-del').onclick=()=>{const u=UEDIT;if(!u||!isAdm(USER)||isAdm(u))return;
   confirmDelete({titulo:`Excluir usuário ${esc(u.nome)}`,resumo:`<div class="notice warn">A conta <b>${esc((u.login||'').toUpperCase())}</b> (${esc(u.email||'')}) perde o acesso imediatamente. Os registros feitos por ela continuam no histórico e na auditoria.</div>`,botao:'Excluir usuário',
-    onOk:async(_,motivo)=>{const {error}=await sb.rpc('admin_delete_user',{target:u.id});if(error)throw error;S.users=S.users.filter(x=>x!==u);if(LAST.users)delete LAST.users[u.id];audit('usuario.excluir',`${u.nome} (${u.login}) — motivo: ${motivo}`,{entidade:'usuário '+u.login});save();toast('Usuário excluído');UEDIT=null;fillUser();renderUsers()}})};
+    onOk:async(_,motivo)=>{const {error}=await sb.rpc('admin_delete_user',{target:u.id});if(error)throw error;S.users=S.users.filter(x=>x!==u);if(LAST.users)delete LAST.users[u.id];audit('usuario.excluir',`${u.nome} (${u.login}) — motivo: ${motivo}`,{entidade:'usuário '+u.login});concluir('Usuário excluído');UEDIT=null;fillUser();renderUsers()}})};
 $('u-new').onclick=()=>{UEDIT=null;fillUser()};
 $('u-senha-gen').onclick=()=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';let p='';const r=new Uint32Array(10);crypto.getRandomValues(r);r.forEach(x=>p+=a[x%a.length]);$('u-senha').type='text';$('u-senha').value=p;$('u-senha').select()};$('u-cancel').onclick=()=>{UEDIT=null;fillUser()};
 $('u-save').onclick=async()=>{
@@ -1750,7 +1836,7 @@ $('u-save').onclick=async()=>{
   const pf=perfil($('u-perfil').value);const tipo=pf?pf.tipo:$('u-tipo').value;
   if(UEDIT===USER&&isAdm(USER)&&tipo!=='Adm'){toast('Você não pode remover o tipo Adm da própria conta');return}
   const obj={nome,login,perfilId:pf?pf.id:null,perfil:pf?pf.nome:'Personalizado',tipo,perms:tipo==='Adm'?[...PERFIS.Administrador]:perms,ativo:$('u-ativo').value==='1',obras,contratadas,status:'aprovado'};
-  $('u-save').disabled=true;
+  $('u-save').disabled=true;let okMsg=UEDIT?'Usuário salvo':`Usuário ${login} criado`;
   try{
     if(UEDIT){
       if(senha){
@@ -1758,7 +1844,7 @@ $('u-save').onclick=async()=>{
         if(UEDIT===USER){const {error}=await sb.auth.updateUser({password:senha});if(error)throw error}
         else{const {error}=await sb.rpc('admin_set_password',{target:UEDIT.id,new_password:senha});if(error)throw error}
         audit('usuario.senha',`${UEDIT===USER?'Alterou a própria senha':'Redefiniu a senha de '+UEDIT.nome+' ('+UEDIT.login+')'}`,{entidade:'usuário '+UEDIT.login});
-        toast(UEDIT===USER?'Sua senha foi alterada':`Senha de ${UEDIT.nome} redefinida — informe ao usuário`);
+        okMsg=UEDIT===USER?'Usuário salvo — sua senha foi alterada':`Usuário salvo — senha de ${UEDIT.nome} redefinida, informe ao usuário`;
       }
       audit('usuario.salvar',`Alterou usuário ${nome} (${login}) — perfil ${obj.perfil}, ${perms.length} permissões${obj.ativo?'':', inativo'}`,{entidade:'usuário '+login,antes:JSON.stringify({nome:UEDIT.nome,perfil:UEDIT.perfil,perms:UEDIT.perms,ativo:UEDIT.ativo}),depois:JSON.stringify(obj)});
       Object.assign(UEDIT,obj);
@@ -1771,7 +1857,7 @@ $('u-save').onclick=async()=>{
       audit('usuario.salvar',`Criou usuário ${nome} (${login}) — perfil ${obj.perfil}, ${obj.perms.length} permissões`,{entidade:'usuário '+login,depois:JSON.stringify(obj)});
       S.users.push({id:newId,email,...obj});
     }
-    save();toast('Usuário salvo');UEDIT=null;fillUser();renderUsers();renderSetup();
+    concluir(okMsg);UEDIT=null;fillUser();renderUsers();renderSetup();
   }catch(e){toast('Erro: '+(e.message||e))}
   $('u-save').disabled=false;
 };
@@ -1817,7 +1903,7 @@ $('c-realoc').onclick=()=>{
     const rl={id:uid(),em:new Date().toISOString(),usuario:USER.nome,deEmpresaId:c.empresaId,deEmpresa:e0?e0.nome:'',paraEmpresaId:ne,paraEmpresa:e1?e1.nome:'',deObraId:c.obraId,deObra:o0?o0.nome:'',paraObraId:no,paraObra:o1?o1.nome:'',motivo};
     c.realocacoes=c.realocacoes||[];c.realocacoes.push(rl);c.empresaId=ne;c.obraId=no;
     audit('colab.realocar',`${c.nome}: ${rl.deEmpresa} / ${rl.deObra} → ${rl.paraEmpresa} / ${rl.paraObra} — motivo: ${motivo}`,{obra:rl.paraObra,empresa:rl.paraEmpresa,entidade:'colaborador '+c.qr,antes:`${rl.deEmpresa} / ${rl.deObra}`,depois:`${rl.paraEmpresa} / ${rl.paraObra}`});
-    save();$('info-modal').classList.remove('on');toast('Colaborador realocado');fillColab();renderColab();
+    concluir('Colaborador realocado');$('info-modal').classList.remove('on');fillColab();renderColab();
   };
 };
 $('c-busca').oninput=renderColab;$('c-new').onclick=()=>{CEDIT=null;fillColab()};$('c-cancel').onclick=()=>{CEDIT=null;fillColab()};
@@ -1837,7 +1923,7 @@ $('c-save').onclick=()=>{
   const obj={qr,nome,empresaId:CEDIT?CEDIT.empresaId:$('c-emp').value,obraId:CEDIT?CEDIT.obraId:$('c-obra').value,ativo:$('c-ativo').value==='1'};
   const ce=emp(obj.empresaId),co=obra(obj.obraId);audit('colab.salvar',`${CEDIT?'Alterou':'Cadastrou'} colaborador ${nome} — QR ${qr} — ${ce?ce.nome:''} / ${co?co.nome:''}${obj.ativo?'':' — inativo'}`,{obra:co?co.nome:'',empresa:ce?ce.nome:'',entidade:'colaborador '+qr,antes:CEDIT?JSON.stringify({nome:CEDIT.nome,qr:CEDIT.qr,empresa:(emp(CEDIT.empresaId)||{}).nome,obra:(obra(CEDIT.obraId)||{}).nome,ativo:CEDIT.ativo}):null,depois:JSON.stringify({nome,qr,empresa:ce&&ce.nome,obra:co&&co.nome,ativo:obj.ativo})});
   if(CEDIT)Object.assign(CEDIT,obj);else S.colab.push({id:uid(),...obj});
-  save();toast('Colaborador salvo');CEDIT=null;fillColab();renderColab();renderSetup();
+  concluir('Colaborador salvo');CEDIT=null;fillColab();renderColab();renderSetup();
 };
 /* empresas */
 function renderEmpresas(){
@@ -1872,7 +1958,7 @@ $('e-save').onclick=()=>{
   const obj={nome,cnpj:$('e-cnpj').value.trim(),proximoBM:parseInt($('e-prox').value,10)||1,logo:ELOGO?ELOGO.data:null,logoW:ELOGO?ELOGO.w:null,logoH:ELOGO?ELOGO.h:null,contrato,ativo:$('e-ativo').value==='1'};
   audit('empresa.salvar',`${EEDIT?'Alterou':'Cadastrou'} empresa ${nome}${obj.cnpj?' — CNPJ '+obj.cnpj:''}${ELOGO?' — com logotipo':''} — próximo BM ${obj.proximoBM}${obj.ativo?'':' — INATIVA'}`,{empresa:nome,entidade:'empresa '+nome});
   if(EEDIT){Object.assign(EEDIT,obj);if(can('sup.bm')||can('del.bm')){S.registros.forEach(r=>{if(r.empresaId===EEDIT.id)r.empresaNome=nome});S.sobras.forEach(s=>{if(s.empresaId===EEDIT.id)s.empresaNome=nome})}}else S.empresas.push({id:uid(),...obj});
-  save();toast('Empresa salva');EEDIT=null;fillEmpresa();renderEmpresas();renderSetup();
+  concluir('Empresa salva');EEDIT=null;fillEmpresa();renderEmpresas();renderSetup();
 };
 function excluirEmpresa(E){
   if(!E||!can('del.empresas'))return;
@@ -1890,7 +1976,7 @@ function excluirEmpresa(E){
       col.forEach(c=>{c.ativo=false;c.empresaId=null});
       S.empresas=S.empresas.filter(x=>x.id!==E.id);
       audit('empresa.excluir',`${E.nome} — ${opt==='tudo'?`com ${regs.length} refeições, ${sob.length} sobras e ${bms.length} BMs`:'somente a empresa'} — ${col.length} colaboradores inativados — motivo: ${motivo}`,{empresa:E.nome,entidade:'empresa '+E.nome,antes:'ativa',depois:'excluída'});
-      save();toast(`Empresa ${E.nome} excluída`);EEDIT=null;fillEmpresa();renderEmpresas();renderSetup();
+      concluir(`Empresa ${E.nome} excluída`);EEDIT=null;fillEmpresa();renderEmpresas();renderSetup();
     }});
 }
 function excluirObra(O){
@@ -1909,7 +1995,7 @@ function excluirObra(O){
       (S.contratadas||[]).forEach(c=>{if((c.obras||[]).includes(O.id))c.obras=c.obras.filter(x=>x!==O.id)});
       S.obras=S.obras.filter(x=>x.id!==O.id);
       audit('obra.excluir',`${O.nome} — ${opt==='tudo'?`com ${livres.length} refeições e ${sob.length} sobras`:'somente a obra'} — ${col.length} colaboradores inativados — motivo: ${motivo}`,{obra:O.nome,entidade:'obra '+O.nome,antes:'ativa',depois:'excluída'});
-      save();toast(`Obra ${O.nome} excluída`);OEDIT=null;fillObra();renderObras();renderSetup();
+      concluir(`Obra ${O.nome} excluída`);OEDIT=null;fillObra();renderObras();renderSetup();
     }});
 }
 /* obras */
@@ -1934,7 +2020,7 @@ $('o-save').onclick=()=>{
   const obj={nome,endereco:$('o-end').value.trim(),ativo:$('o-ativo').value==='1',contratoId:C.id};
   audit('obra.salvar',`${OEDIT?'Alterou':'Cadastrou'} obra ${nome} — contrato ${num}${obj.ativo?'':' — encerrada'}`,{obra:nome,entidade:'obra '+nome,antes:OEDIT&&antesCt!==num?(antesCt||'sem contrato'):null,depois:OEDIT&&antesCt!==num?num:null});
   if(OEDIT){Object.assign(OEDIT,obj);if(can('sup.bm')||can('del.bm')){S.registros.forEach(r=>{const c=S.colab.find(x=>x.id===r.colabId);if(r.obraId?r.obraId===OEDIT.id:(c&&c.obraId===OEDIT.id))r.obraNome=nome});S.sobras.forEach(s=>{if(s.obraId===OEDIT.id)s.obraNome=nome})}}else S.obras.push({id:uid(),...obj});
-  save();toast('Obra salva');OEDIT=null;fillObra();renderObras();renderSetup();
+  concluir('Obra salva');OEDIT=null;fillObra();renderObras();renderSetup();
 };
 /* preços (por contrato) */
 function pCt(){return $('p-ct').value||''}
@@ -1967,7 +2053,7 @@ $('p-save').onclick=()=>{
   const pAntes=(precoLista(tp,today(),cid)[0]||{}).valor;const onde=C?'contrato '+C.numero:'tabela geral';
   audit('preco.salvar',`${tipo(tp).curto} (${onde}): ${pAntes===undefined?'—':money(pAntes)} → ${money(v)} a partir de ${br(vig)}${just?' — '+just:''}`,{entidade:'preço '+tp+' · '+onde,antes:pAntes===undefined?null:pAntes,depois:Math.round(v*100)/100});
   err.hidden=true;S.precos.push({id:uid(),tipo:tp,contratoId:cid||undefined,contratoNumero:C?C.numero:undefined,valor:Math.round(v*100)/100,vigencia:vig,criadoEm:new Date().toISOString(),usuario:USER.nome,just:just||(isChange?'':'Cadastro inicial')});
-  save();$('p-valor').value='';$('p-just').value='';toast(isChange?'Preço alterado — histórico registrado':'Preço cadastrado');renderPrecos();renderSetup();
+  concluir(isChange?'Preço alterado — histórico registrado':'Preço cadastrado');$('p-valor').value='';$('p-just').value='';renderPrecos();renderSetup();
 };
 /* contratos */
 let CTREDIT=null;
@@ -1975,8 +2061,8 @@ function renderContratos(){
   const f=$('ctr-filtro').value;const t=today();
   const l=(S.contratos||[]).filter(c=>{const st=contratoStatus(c,t);return !f||(f==='ativos'?(st==='vigente'||st==='a iniciar'):(st==='inativo'||st==='encerrado'))}).sort((a,b)=>a.numero.localeCompare(b.numero));
   const pill={vigente:'ok','a iniciar':'warn',encerrado:'bad',inativo:'bad'};
-  $('ctr-table').innerHTML=`<thead><tr><th>Nº</th><th>Início</th><th>Término</th><th>Situação</th><th>Obras</th><th>Preços</th><th></th></tr></thead><tbody>${l.map(c=>{const st=contratoStatus(c,t);const ob=S.obras.filter(o=>o.contratoId===c.id);const np=new Set(S.precos.filter(p=>p.contratoId===c.id).map(p=>p.tipo)).size;
-    return `<tr><td class="mono"><b>${esc(c.numero)}</b></td><td class="num">${c.inicio?br(c.inicio):'<span class="muted">—</span>'}</td><td class="num">${c.fim?br(c.fim):'<span class="muted">—</span>'}</td><td><span class="pill ${pill[st]}">${st}</span></td><td class="small">${esc(ob.map(o=>o.nome).join(', ')||'—')}</td><td class="small">${np?np+' de '+TIPOS.length+' próprios':'<span class="muted">tabela geral</span>'}</td><td><button class="btn sec sm" data-ctr="${c.id}">Editar</button></td></tr>`}).join('')||'<tr><td colspan="7" class="empty">Nenhum contrato.</td></tr>'}</tbody>`;
+  $('ctr-table').innerHTML=`<thead><tr><th>Nº</th><th>Início</th><th>Término</th><th>Situação</th><th>Obras</th><th></th></tr></thead><tbody>${l.map(c=>{const st=contratoStatus(c,t);const ob=S.obras.filter(o=>o.contratoId===c.id);
+    return `<tr><td class="mono"><b>${esc(c.numero)}</b></td><td class="num">${c.inicio?br(c.inicio):'<span class="muted">—</span>'}</td><td class="num">${c.fim?br(c.fim):'<span class="muted">—</span>'}</td><td><span class="pill ${pill[st]}">${st}</span></td><td class="small">${esc(ob.map(o=>o.nome).join(', ')||'—')}</td><td><button class="btn sec sm" data-ctr="${c.id}">Editar</button></td></tr>`}).join('')||'<tr><td colspan="6" class="empty">Nenhum contrato.</td></tr>'}</tbody>`;
   $('ctr-table').querySelectorAll('[data-ctr]').forEach(b=>b.onclick=()=>{CTREDIT=contrato(b.dataset.ctr);fillContrato()});
   if(!$('ctr-form-title').dataset.init){$('ctr-form-title').dataset.init=1;fillContrato()}
 }
@@ -1993,7 +2079,7 @@ $('ctr-save').onclick=()=>{
   const obj={numero,descricao:CTREDIT?CTREDIT.descricao||'':'',inicio:ini,fim,ativo:$('ctr-ativo').value==='1'};
   audit('contrato.salvar',`${CTREDIT?'Alterou':'Cadastrou'} contrato ${numero} — ${ini?br(ini):'sem início'} a ${fim?br(fim):'sem término'}${obj.ativo?'':' — INATIVO'}`,{entidade:'contrato '+numero,antes:CTREDIT?JSON.stringify({numero:CTREDIT.numero,inicio:CTREDIT.inicio,fim:CTREDIT.fim,ativo:CTREDIT.ativo}):null,depois:JSON.stringify({numero,inicio:ini,fim,ativo:obj.ativo})});
   if(CTREDIT)Object.assign(CTREDIT,obj);else S.contratos.push({id:uid(),...obj});
-  save();toast('Contrato salvo');CTREDIT=null;fillContrato();renderContratos();renderSetup();
+  concluir('Contrato salvo');CTREDIT=null;fillContrato();renderContratos();renderSetup();
 };
 /* contratadas (restaurantes) */
 let KEDIT=null;
@@ -2024,7 +2110,7 @@ $('k-save').onclick=()=>{
   const nomesOb=obras.map(id=>(obra(id)||{}).nome).join(', ');
   audit('contratada.salvar',`${KEDIT?'Alterou':'Cadastrou'} contratada ${nome} — obras: ${nomesOb}${obj.ativo?'':' — INATIVA'}`,{entidade:'contratada '+nome,antes:KEDIT?JSON.stringify({nome:KEDIT.nome,obras:(KEDIT.obras||[]).map(id=>(obra(id)||{}).nome),ativo:KEDIT.ativo}):null,depois:JSON.stringify({nome,obras:nomesOb,ativo:obj.ativo})});
   if(KEDIT)Object.assign(KEDIT,obj);else S.contratadas.push({id:uid(),...obj});
-  save();toast('Contratada salva');KEDIT=null;fillContratada();renderContratada();renderSetup();
+  concluir('Contratada salva');KEDIT=null;fillContratada();renderContratada();renderSetup();
 };
 /* =================== AUDITORIA (tela) =================== */
 let AUD_PAGE=1;const AUD_PP=25;
@@ -2057,7 +2143,7 @@ function renderAudArq(){
       const name=`auditoria-${String(data.de).slice(0,10)}_a_${String(data.ate).slice(0,10)}.csv`;const csv='\ufeff'+data.csv;
       audit('auditoria.arquivo',name);save();
       const dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;
-      if(dl){try{await dl.save({filename:name,data:csv});toast('CSV salvo')}catch(e){}}else{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();toast('CSV baixado')}
+      if(dl){try{await dl.save({filename:name,data:csv});sucesso('CSV salvo')}catch(e){}}else{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();sucesso('CSV baixado')}
     }catch(e){toast('Falha ao baixar: '+(e.message||e))}b.disabled=false});
 }
 function fmtAD(v){if(v===null||v===undefined)return '—';if(typeof v==='number')return money(v);const s=String(v);return esc(s.length>90?s.slice(0,90)+'…':s)}
@@ -2070,8 +2156,8 @@ $('aud-csv').onclick=async()=>{
   audit('auditoria.csv',`${S.audit.length} eventos`);save();
   const csv='﻿'+lines.join('\r\n');const name=`auditoria-${today()}.csv`;
   const dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;
-  if(dl){try{await dl.save({filename:name,data:csv});toast('CSV salvo')}catch(e){if(e&&e.code!=='declined')toast('Não foi possível salvar o CSV')}}
-  else{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();toast('CSV gerado')}
+  if(dl){try{await dl.save({filename:name,data:csv});sucesso('CSV salvo')}catch(e){if(e&&e.code!=='declined')toast('Não foi possível salvar o CSV')}}
+  else{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();sucesso('CSV gerado')}
 };
 
 /* =================== BOOT =================== */
