@@ -144,6 +144,10 @@ main{flex:1;min-width:0;overflow:auto;padding:16px 16px calc(84px + env(safe-are
 .notice.info{background:var(--accent-soft);color:var(--accent-2)}
 .notice{position:relative;padding-right:38px}
 .avatar.sobra{background:var(--warn-soft);color:var(--warn)}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface-2)}
+.seg button{flex:1;border:0;border-left:1px solid var(--line);background:none;padding:10px 6px;font-weight:600;font-size:13.5px;color:var(--ink-2)}
+.seg button:first-child{border-left:0}.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.pill.mod-presencial{background:var(--good-soft);color:var(--good)}.pill.mod-retirada{background:var(--warn-soft);color:var(--warn)}.pill.mod-terceirizado{background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{display:inline-flex;align-items:center;padding:6px 12px;border:1px dashed var(--line);border-radius:999px;font-size:13px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-2);background:var(--surface);margin:0}
 /* barra superior escura nos dois modos, igual à lateral */
@@ -385,39 +389,42 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
               </div>
             </div>
             <div class="card" id="manual-card">
-              <h3>Registro manual — colaborador sem QR Code (terceirizado)</h3>
-              <div class="notice info small" data-hint="rest-manual" style="margin-bottom:10px">Para quem não tem crachá do ponto. O custo é alocado à empresa escolhida; a empresa terceirizada é só informativa.</div>
-              <div class="stack">
-                <div class="field"><label for="m-nome">Nome do colaborador</label><input id="m-nome" list="manual-names" autocomplete="off" placeholder="nome completo"><datalist id="manual-names"></datalist></div>
+              <h3>Registro manual</h3>
+              <div class="field"><label>Modalidade</label><div class="seg" id="m-mod" role="group" aria-label="Modalidade do registro manual"><button type="button" data-m="">Nenhum</button><button type="button" data-m="retirada">Retirada</button><button type="button" data-m="terceirizado">Terceirizado</button><button type="button" data-m="sobras">Sobras</button></div></div>
+              <div class="stack" id="m-body" style="margin-top:12px" hidden>
+                <div id="m-hint-ret" class="notice info small" data-hint="rest-retirada">Um colaborador retira a refeição para outra pessoa. Identifique quem está retirando pelo QR Code do crachá (ou digite, se não houver QR Code) e informe para quem é a refeição.</div>
+                <div id="m-hint-terc" class="notice info small" data-hint="rest-manual">Para quem não tem crachá do ponto. O custo é alocado à empresa escolhida; a empresa terceirizada é só informativa.</div>
+                <div class="field" id="m-ret-wrap"><label for="m-ret">Quem está retirando (obrigatório)</label><div class="row" style="flex-wrap:nowrap"><input id="m-ret" autocomplete="off" placeholder="leia o QR Code ou digite o código / nome"><button class="btn sec" id="m-ret-scan" type="button">Ler QR Code</button></div><div class="small" id="m-ret-info" style="margin-top:6px"></div></div>
+                <div class="field" id="m-nome-wrap"><label for="m-nome" id="m-nome-lbl">Nome do colaborador</label><input id="m-nome" list="manual-names" autocomplete="off" placeholder="nome completo"><datalist id="manual-names"></datalist></div>
                 <div class="grid2">
                   <div class="field"><label for="m-emp">Empresa (custo alocado)</label><select id="m-emp"></select></div>
                   <div class="field"><label for="m-obra">Obra</label><select id="m-obra"></select></div>
                 </div>
-                <div class="field"><label for="m-terc">Empresa terceirizada (de onde veio — informativo)</label><input id="m-terc" list="terc-names" autocomplete="off" placeholder="ex.: Construtora XYZ"><datalist id="terc-names"></datalist></div>
+                <div class="field" id="m-dest-wrap"><label for="m-dest">Refeição destinada a (colaborador cadastrado — obrigatório)</label><select id="m-dest"></select></div>
+                <div class="field" id="m-terc-wrap"><label for="m-terc">Empresa terceirizada (de onde veio — informativo)</label><input id="m-terc" list="terc-names" autocomplete="off" placeholder="ex.: Construtora XYZ"><datalist id="terc-names"></datalist></div>
                 <div class="row" id="mdm-row" hidden><label class="row" style="text-transform:none;letter-spacing:0;font-size:13px;margin:0;gap:6px;cursor:pointer"><input type="checkbox" id="mdm-check" style="width:auto"> Data manual</label><input type="date" id="mdm-date" style="width:170px" hidden></div>
                 <div><div class="small muted" style="margin-bottom:6px">Tipo de refeição</div><div class="mealbtns" id="m-mealbtns"></div></div>
                 <div id="m-msg" class="notice warn" hidden></div>
                 <button class="btn big" id="m-save">Registrar refeição manual</button>
               </div>
-            </div>
-            <div class="card" id="sobras-card">
-              <h3>Sobras de refeições</h3>
-              <div class="notice info small" data-hint="rest-sobras" style="margin-bottom:10px">Refeições preparadas e não consumidas. <b>São cobradas</b>: entram na contagem de refeições e no BM da empresa, pelo preço do contrato da obra.</div>
-              <div class="stack">
-                <div class="grid2">
-                  <div class="field"><label for="s-emp">Empresa *</label><select id="s-emp"></select></div>
-                  <div class="field"><label for="s-obra">Obra *</label><select id="s-obra"></select></div>
+              <div id="m-sob" style="margin-top:12px" hidden>
+                <div class="notice info small" data-hint="rest-sobras" >Refeições preparadas e não consumidas. <b>São cobradas</b>: entram na contagem de refeições e no BM da empresa, pelo preço do contrato da obra.</div>
+                <div class="stack">
+                  <div class="grid2">
+                    <div class="field"><label for="s-emp">Empresa *</label><select id="s-emp"></select></div>
+                    <div class="field"><label for="s-obra">Obra *</label><select id="s-obra"></select></div>
+                  </div>
+                  <div class="grid2">
+                    <div class="field"><label for="s-tipo">Tipo de refeição</label><select id="s-tipo"></select></div>
+                    <div class="field"><label for="s-qtd">Quantidade que sobrou</label><input id="s-qtd" type="number" min="1" step="1" inputmode="numeric" placeholder="0"></div>
+                  </div>
+                  <div class="field"><label for="s-colab">Colaborador que sobrou (cadastrado — obrigatório)</label><select id="s-colab"></select></div>
+                  <div class="small muted" id="s-preco"></div>
+                  <div id="s-msg" class="notice warn" hidden></div>
+                  <button class="btn" id="s-save">Registrar sobra</button>
                 </div>
-                <div class="grid2">
-                  <div class="field"><label for="s-tipo">Tipo de refeição</label><select id="s-tipo"></select></div>
-                  <div class="field"><label for="s-qtd">Quantidade que sobrou</label><input id="s-qtd" type="number" min="1" step="1" inputmode="numeric" placeholder="0"></div>
-                </div>
-                <div class="field"><label for="s-colab">Nome do colaborador que sobrou</label><input id="s-colab" list="colab-names" placeholder="digite ou escolha da lista"><datalist id="colab-names"></datalist></div>
-                <div class="small muted" id="s-preco"></div>
-                <div id="s-msg" class="notice warn" hidden></div>
-                <button class="btn" id="s-save">Registrar sobra</button>
+                <div class="list" id="sobras-list" style="margin-top:10px"></div>
               </div>
-              <div class="list" id="sobras-list" style="margin-top:10px"></div>
             </div>
           </div>
           <div class="stack">
@@ -722,6 +729,7 @@ const PERMS=[
   {id:'sup.ver',nome:'Visualizar registros e resumos'},
   {id:'sup.bm',nome:'Emitir, fechar, imprimir e assinar BM'},
   {id:'sup.nf',nome:'Informar nota fiscal e anexar BM assinado'},
+  {id:'sup.fechar',nome:'Fechar refeição sem incluir em BM (com justificativa)'},
   {grp:'Auditoria'},
   {id:'aud.ver',nome:'Visualizar a trilha de auditoria'},
   {grp:'Exclusões'},
@@ -839,7 +847,7 @@ function fillSelect(sel,items,val,allLabel){sel.innerHTML=(allLabel!==undefined?
 const ABAS={login:'Login',rest:'Restaurante',sup:'Administrativo',aud:'Auditoria',cfg:'Configurações'};
 const ACOES={
   'login.ok':'Login','login.falha':'Tentativa de login inválida','logout':'Logout','nav':'Acessou aba','nav.cfg':'Acessou seção de configurações',
-  'refeicao.registrar':'Registrou refeição','refeicao.estornar':'Estornou refeição','sobra.registrar':'Registrou sobra','bm.compartilhar':'Compartilhou PDF do BM','sobra.excluir':'Excluiu sobra',
+  'refeicao.registrar':'Registrou refeição','refeicao.fechar':'Fechou refeição sem BM','refeicao.reabrir':'Reabriu refeição fechada sem BM','refeicao.estornar':'Estornou refeição','sobra.registrar':'Registrou sobra','bm.compartilhar':'Compartilhou PDF do BM','sobra.excluir':'Excluiu sobra',
   'bm.emitir':'Gerou rascunho de BM','bm.fechar':'Fechou BM','bm.validar':'Validou BM (assinatura eletrônica do restaurante)','bm.homologar':'Homologou assinatura física do restaurante','bm.assinar_sup':'Registrou assinatura do Suprimentos','bm.nf':'Informou nota fiscal','bm.pdf':'Exportou BM em PDF','bm.imprimir':'Imprimiu BM','bm.anexar':'Anexou BM assinado','bm.anexo_remover':'Removeu anexo do BM','bm.anexo_baixar':'Baixou anexo do BM',
   'usuario.salvar':'Cadastrou/alterou usuário','colab.salvar':'Cadastrou/alterou colaborador','colab.realocar':'Realocou colaborador (empresa/obra)','empresa.salvar':'Cadastrou/alterou empresa','obra.salvar':'Cadastrou/alterou obra','preco.salvar':'Cadastrou/alterou preço','contrato.salvar':'Cadastrou/alterou contrato',
   'contratada.salvar':'Cadastrou/alterou contratada (restaurante)','usuario.senha':'Redefiniu senha de usuário','auditoria.csv':'Exportou auditoria em CSV','dados.apagar':'Apagou todos os dados','perfil.salvar':'Cadastrou/alterou perfil','perfil.excluir':'Excluiu perfil','usuario.excluir':'Excluiu usuário','usuario.aprovar':'Aprovou conta','usuario.negar':'Negou conta','bm.excluir':'Excluiu boletim de medição','empresa.excluir':'Excluiu empresa','obra.excluir':'Excluiu obra','auditoria.arquivo':'Baixou arquivo compactado da auditoria'
@@ -1195,19 +1203,13 @@ function renderRest(){
   $('rest-notif-list').innerHTML=pend.map(b=>`<div class="item"><span class="pill warn">Atenção</span><div class="t"><b>BM nº ${b.numero} — ${esc(b.empresaNome)}</b><span>${esc(bmK(b).nome)} · Período ${br(b.ini)} à ${br(b.fim)} fechado em ${brdt(b.fechadoEm)} · ${b.qtd} refeições · ${money(b.liquido)}</span></div><button class="btn sm" data-vbm="${b.id}">Ver e validar</button></div>`).join('');
   $('rest-notif-list').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
   const itensRec=recent.map(r=>({em:r.registradoEm,r})).concat(sobHoje.map(o=>({em:o.registradoEm,o}))).sort((a,b)=>a.em<b.em?1:-1).slice(0,12);
-  $('rest-recent').innerHTML=itensRec.length?itensRec.map(({r,o})=>o?sobraItemRec(o):`<div class="item"><div class="avatar">${ini(r.nome)}</div><div class="t"><b>${esc(r.nome)}${r.manual?' <span class="pill neutral">manual</span>':''}${r.dataManual?' <span class="pill warn">data '+br(r.data)+'</span>':''}</b><span>${esc(r.empresaNome)} · ${esc(r.obraNome||'obra não informada')}${r.terceirizada?' · terc.: '+esc(r.terceirizada):''} · ${hm(r.registradoEm)}</span></div><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span>${can('rest.estornar')&&!r.bmId?`<button class="btn sec sm" data-undo="${r.id}">Estornar</button>`:''}</div>`).join(''):'<div class="small muted">Nenhum registro hoje ainda.</div>';
+  $('rest-recent').innerHTML=itensRec.length?itensRec.map(({r,o})=>o?sobraItemRec(o):`<div class="item"><div class="avatar">${ini(r.nome)}</div><div class="t"><b>${esc(r.nome)} ${modPill(r)}${r.dataManual?' <span class="pill warn">data '+br(r.data)+'</span>':''}</b><span>${esc(r.empresaNome)} · ${esc(r.obraNome||'obra não informada')}${modOf(r)==='retirada'?' · '+esc(retInfo(r)):''}${r.terceirizada?' · terc.: '+esc(r.terceirizada):''} · ${hm(r.registradoEm)}</span></div><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span>${r.fechado?'<span class="pill bad">fechada</span>':can('rest.estornar')&&!r.bmId?`<button class="btn sec sm" data-undo="${r.id}">Estornar</button>`:''}</div>`).join(''):'<div class="small muted">Nenhum registro hoje ainda.</div>';
   $('rest-recent').querySelectorAll('[data-rsdel]').forEach(b=>b.onclick=()=>excluirSobra(b.dataset.rsdel,renderRest));
   $('rest-recent').querySelectorAll('[data-undo]').forEach(b=>b.onclick=()=>{const rr=S.registros.find(r=>r.id===b.dataset.undo);S.registros=S.registros.filter(r=>r.id!==b.dataset.undo);if(rr)audit('refeicao.estornar',`${tipo(rr.tipo).curto} de ${rr.nome} (${money(rr.valor)}) registrada às ${hm(rr.registradoEm)}`,{obra:rr.obraNome,empresa:rr.empresaNome,entidade:'registro '+rr.id});concluir('Registro estornado');renderRest()});
   $('btn-scan-rest').disabled=!can('rest.registrar');$('qr-manual-go').disabled=!can('rest.registrar');
   // registro manual (terceirizados sem QR)
-  $('manual-card').hidden=!can('rest.registrar');renderManual();
-  // sobras
-  $('sobras-card').hidden=!can('rest.sobras');
-  if(!$('s-tipo').options.length)TIPOS.forEach(tp=>{const o=document.createElement('option');o.value=tp.id;o.textContent=tp.curto;$('s-tipo').appendChild(o)});
-  $('colab-names').innerHTML=S.colab.filter(c=>c.ativo).map(c=>`<option value="${esc(c.nome)}">`).join('');
-  fillSelect($('s-emp'),S.empresas.filter(e=>e.ativo!==false),$('s-emp').value,'Selecione…');
-  fillSelect($('s-obra'),S.obras.filter(o=>o.ativo!==false&&obraOk(o.id)&&RC&&(RC.obras||[]).includes(o.id)),$('s-obra').value,'Selecione…');
-  sobraPrecoHint();
+  $('manual-card').hidden=!(can('rest.registrar')||can('rest.sobras'));renderManual();
+  // sobras (modalidade "Sobras" do Registro manual)
   const sob=sobHoje.slice().sort((a,b)=>a.registradoEm<b.registradoEm?1:-1);
   $('sobras-list').innerHTML=sob.length?sob.map(s=>{const bm=s.bmId?S.bms.find(x=>x.id===s.bmId):null;return `<div class="item"><span class="pill ${s.tipo}">${tipo(s.tipo).curto}</span><div class="t"><b>${s.qtd} ${s.qtd===1?'refeição':'refeições'} — ${esc(s.colabNome)}</b><span>${esc(s.empresaNome||'empresa não informada')} · ${esc(s.obraNome||'obra não informada')} · ${money(sobraTotal(s))} · ${hm(s.registradoEm)}</span></div>${bm?`<span class="pill neutral">BM ${bm.numero}</span>`:can('del.sobras')?`<button class="btn sec sm" data-sdel="${s.id}">Excluir</button>`:''}</div>`}).join(''):'<div class="small muted">Nenhuma sobra informada hoje.</div>';
   $('sobras-list').querySelectorAll('[data-sdel]').forEach(b=>b.onclick=()=>excluirSobra(b.dataset.sdel,renderRest));
@@ -1251,21 +1253,50 @@ $('btn-confirm').onclick=()=>{
   if(p===null||contratoErro(CUR.obraId,t)||S.registros.some(r=>r.data===t&&r.colabId===CUR.id&&r.tipo===CURTIPO))return;
   const e=emp(CUR.empresaId),o=obra(CUR.obraId);
   const RC=restCt();if(!RC)return;
-  S.registros.push({id:uid(),data:t,colabId:CUR.id,nome:CUR.nome,empresaId:CUR.empresaId,empresaNome:e?e.nome:'',obraId:CUR.obraId,obraNome:o?o.nome:'',contratoId:cidOf(CUR.obraId)||undefined,contratoNumero:(contrato(cidOf(CUR.obraId))||{}).numero||undefined,contratadaId:RC.id,contratadaNome:RC.nome,tipo:CURTIPO,valor:p,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null,dataManual:manualDate||undefined});
+  S.registros.push({id:uid(),data:t,colabId:CUR.id,modalidade:'presencial',nome:CUR.nome,empresaId:CUR.empresaId,empresaNome:e?e.nome:'',obraId:CUR.obraId,obraNome:o?o.nome:'',contratoId:cidOf(CUR.obraId)||undefined,contratoNumero:(contrato(cidOf(CUR.obraId))||{}).numero||undefined,contratadaId:RC.id,contratadaNome:RC.nome,tipo:CURTIPO,valor:p,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null,dataManual:manualDate||undefined});
   audit('refeicao.registrar',`${tipo(CURTIPO).curto} — ${CUR.nome} (${money(p)})${manualDate?' — DATA MANUAL '+br(t):''}`,{obra:o?o.nome:'',empresa:e?e.nome:'',entidade:'colaborador '+CUR.qr});
   concluir(`${tipo(CURTIPO).curto} registrado — ${CUR.nome.split(' ')[0]}${manualDate?' ('+br(t)+')':''}`);
   CUR=null;$('confirm-card').hidden=true;$('qr-manual').value='';renderRest();
 };
 $('btn-cancel').onclick=()=>{CUR=null;$('confirm-card').hidden=true};
-/* ---- registro manual: colaborador terceirizado sem QR Code ---- */
-let MTIPO=null;
+/* ---- registro manual: Retirada (alguém leva a refeição de outro) ou Terceirizado (sem QR Code) ---- */
+let MTIPO=null,MMOD='',MRET=null;
+const MODS={presencial:'Presencial',retirada:'Retirada',terceirizado:'Terceirizado'};
+function modOf(r){return r.modalidade||(r.manual?'terceirizado':'presencial')}
+function modPill(r){const m=modOf(r);return `<span class="pill mod-${m}">${MODS[m]}</span>`}
+function retInfo(r){const x=r.retiradoPor||{};return `retirada por ${x.nome||'—'}${x.qr?' (QR '+x.qr+')':' (digitado)'}`}
+function resolveRet(){
+  const v=$('m-ret').value.trim();const c=v?S.colab.find(x=>x.qr.toLowerCase()===v.toLowerCase()):null;const el=$('m-ret-info');
+  if(c){const e=emp(c.empresaId);MRET={nome:c.nome,qr:c.qr,colabId:c.id};el.innerHTML=`<span class="pill ok">✓ QR Code</span> <b>${esc(c.nome)}</b> <span class="muted">· ${esc(e?e.nome:'—')}</span>`}
+  else if(v.length>=3){MRET={nome:v.replace(/\s+/g,' '),qr:null,colabId:null};el.innerHTML=`<span class="pill warn">Digitado</span> <span class="muted">sem QR Code — será registrado o nome informado</span>`}
+  else{MRET=null;el.innerHTML=''}
+}
+$('m-ret').addEventListener('input',resolveRet);
+$('m-ret-scan').onclick=()=>openScanner('Ler QR Code de quem está retirando',code=>{const c=S.colab.find(x=>x.qr.toLowerCase()===String(code).trim().toLowerCase());
+  if(!c){toast('QR Code não cadastrado: '+String(code).slice(0,40));return}
+  if(!c.ativo){toast('Colaborador inativo — procure o Administrativo');return}
+  $('m-ret').value=c.qr;resolveRet()});
+$('m-mod').querySelectorAll('button').forEach(b=>b.onclick=()=>{MMOD=b.dataset.m;$('m-msg').hidden=true;$('s-msg').hidden=true;renderManual()});
+function colabOpts(sel,obraId,val){const l=obraId?S.colab.filter(c=>c.ativo&&c.obraId===obraId).sort((a,b)=>a.nome.localeCompare(b.nome)):[];
+  sel.innerHTML=(obraId?(l.length?'<option value="">Selecione o colaborador…</option>':'<option value="">Nenhum colaborador ativo nesta obra</option>'):'<option value="">Selecione a obra primeiro</option>')+l.map(c=>`<option value="${esc(c.id)}"${c.id===val?' selected':''}>${esc(c.nome)} — ${esc(c.qr)}</option>`).join('');sel.disabled=!obraId||!l.length}
 function renderManual(){
+  const podeReg=can('rest.registrar'),podeSob=can('rest.sobras');
+  $('m-mod').querySelectorAll('button').forEach(b=>{const m=b.dataset.m;b.hidden=(m==='sobras'&&!podeSob)||((m==='retirada'||m==='terceirizado')&&!podeReg);b.classList.toggle('on',m===MMOD)});
+  if((MMOD==='sobras'&&!podeSob)||((MMOD==='retirada'||MMOD==='terceirizado')&&!podeReg))MMOD='';
+  $('m-sob').hidden=MMOD!=='sobras';if(MMOD==='sobras')renderSobrasForm();
+  $('m-body').hidden=!MMOD||MMOD==='sobras';const ret=MMOD==='retirada';
+  $('m-ret-wrap').hidden=!ret;$('m-terc-wrap').hidden=ret;$('m-nome-wrap').hidden=ret;$('m-dest-wrap').hidden=!ret;
+  $('m-hint-ret').style.display=ret?'':'none';$('m-hint-terc').style.display=ret?'none':'';
+  $('m-nome-lbl').textContent=ret?'Refeição destinada a (nome do colaborador — obrigatório)':'Nome do colaborador';
+  $('m-save').textContent=ret?'Registrar retirada':'Registrar refeição manual';
   setupDateManual('mdm');const t=regDate('mdm');if(!MTIPO)MTIPO=suggestTipo();
   fillSelect($('m-emp'),S.empresas.filter(e=>e.ativo!==false),$('m-emp').value);const RC=restCt();fillSelect($('m-obra'),S.obras.filter(o=>o.ativo!==false&&obraOk(o.id)&&RC&&(RC.obras||[]).includes(o.id)),$('m-obra').value);
-  const man=S.registros.filter(r=>r.manual);
-  $('manual-names').innerHTML=[...new Set(man.map(r=>r.nome))].sort().map(n=>`<option value="${esc(n)}">`).join('');
+  const man=S.registros.filter(r=>modOf(r)===(ret?'retirada':'terceirizado'));
+  const nomes=man.map(r=>r.nome);
+  $('manual-names').innerHTML=[...new Set(nomes)].sort().map(n=>`<option value="${esc(n)}">`).join('');
   $('terc-names').innerHTML=[...new Set(man.map(r=>r.terceirizada).filter(Boolean))].sort().map(n=>`<option value="${esc(n)}">`).join('');
   $('m-obra').onchange=renderManual;
+  colabOpts($('m-dest'),$('m-obra').value,$('m-dest').value);
   $('m-mealbtns').innerHTML=TIPOS.map(tp=>{const p=precoVigente(tp.id,t,cidOf($('m-obra').value));return `<button class="mealbtn${MTIPO===tp.id?' on':''}" data-t="${tp.id}" ${p===null?'disabled':''}>${tp.curto}<small>${p===null?'sem preço cadastrado':money(p)}</small></button>`}).join('');
   $('m-mealbtns').querySelectorAll('button').forEach(b=>b.onclick=()=>{MTIPO=b.dataset.t;renderManual()});
   $('m-msg').hidden=true;
@@ -1273,23 +1304,36 @@ function renderManual(){
 $('m-save').onclick=()=>{
   const t=regDate('mdm');const manualDate=t!==today();const nome=$('m-nome').value.trim().replace(/\s+/g,' ');const empId=$('m-emp').value,obraId=$('m-obra').value,terc=$('m-terc').value.trim();const msg=$('m-msg');
   const show=m=>{msg.hidden=false;msg.textContent=m};
-  if(!nome)return show('Informe o nome do colaborador.');
+  const ret=MMOD==='retirada';if(!MMOD)return;
+  if(ret){resolveRet();if(!MRET)return show('Informe quem está retirando: leia o QR Code do crachá ou digite o código / nome (obrigatório).')}
+  const dest=ret?S.colab.find(c=>c.id===$('m-dest').value):null;
+  if(ret&&!dest)return show('Selecione o colaborador para quem é a refeição (cadastrado).');
+  if(!ret&&!nome)return show('Informe o nome do colaborador.');
   if(!empId||!obraId)return show('Selecione a empresa e a obra (a obra precisa estar vinculada ao restaurante selecionado).');
   const RC=restCt();if(!RC)return show('Nenhuma contratada (restaurante) disponível.');
   const cerr=contratoErro(obraId,t);if(cerr)return show(cerr);
   const p=precoVigente(MTIPO,t,cidOf(obraId));if(p===null)return show(`${tipo(MTIPO).curto} não tem preço cadastrado para o contrato desta obra.`);
-  const dup=S.registros.find(r=>r.data===t&&r.tipo===MTIPO&&r.manual&&r.nome.toLowerCase()===nome.toLowerCase()&&r.empresaId===empId);
-  if(dup)return show(`${tipo(MTIPO).curto} de ${nome} já registrado em ${br(t)} às ${hm(dup.registradoEm)}.`);
+  const nomeR=ret?dest.nome:nome;
+  const dup=S.registros.find(r=>r.data===t&&r.tipo===MTIPO&&(ret?r.colabId===dest.id:(r.manual&&r.nome.toLowerCase()===nome.toLowerCase()&&r.empresaId===empId)));
+  if(dup)return show(`${tipo(MTIPO).curto} de ${nomeR} já registrado em ${br(t)} às ${hm(dup.registradoEm)} (${MODS[modOf(dup)].toLowerCase()}).`);
   const e=emp(empId),o=obra(obraId);
-  S.registros.push({id:uid(),data:t,colabId:null,manual:true,nome,empresaId:empId,empresaNome:e?e.nome:'',obraId,obraNome:o?o.nome:'',contratoId:cidOf(obraId)||undefined,contratoNumero:(contrato(cidOf(obraId))||{}).numero||undefined,contratadaId:RC.id,contratadaNome:RC.nome,terceirizada:terc,tipo:MTIPO,valor:p,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null,dataManual:manualDate||undefined});
-  audit('refeicao.registrar',`${tipo(MTIPO).curto} — ${nome} (${money(p)}) — registro manual, terceirizado${terc?' de '+terc:''}${manualDate?' — DATA MANUAL '+br(t):''}`,{obra:o?o.nome:'',empresa:e?e.nome:'',entidade:'registro manual'});
-  concluir(`${tipo(MTIPO).curto} registrado — ${nome.split(' ')[0]} (manual)`);
-  $('m-nome').value='';$('m-terc').value='';renderRest();
+  S.registros.push({id:uid(),data:t,colabId:dest?dest.id:null,manual:true,modalidade:ret?'retirada':'terceirizado',retiradoPor:ret?{...MRET}:undefined,nome:nomeR,empresaId:empId,empresaNome:e?e.nome:'',obraId,obraNome:o?o.nome:'',contratoId:cidOf(obraId)||undefined,contratoNumero:(contrato(cidOf(obraId))||{}).numero||undefined,contratadaId:RC.id,contratadaNome:RC.nome,terceirizada:ret?'':terc,tipo:MTIPO,valor:p,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null,dataManual:manualDate||undefined});
+  audit('refeicao.registrar',ret?`${tipo(MTIPO).curto} — ${nomeR} (${money(p)}) — RETIRADA por ${MRET.nome}${MRET.qr?' (QR '+MRET.qr+')':' (digitado, sem QR Code)'}${manualDate?' — DATA MANUAL '+br(t):''}`:`${tipo(MTIPO).curto} — ${nome} (${money(p)}) — registro manual, terceirizado${terc?' de '+terc:''}${manualDate?' — DATA MANUAL '+br(t):''}`,{obra:o?o.nome:'',empresa:e?e.nome:'',entidade:ret?'retirada':'registro manual'});
+  concluir(ret?`${tipo(MTIPO).curto} registrado — ${nomeR.split(' ')[0]} (retirada por ${MRET.nome.split(' ')[0]})`:`${tipo(MTIPO).curto} registrado — ${nome.split(' ')[0]} (terceirizado)`);
+  $('m-nome').value='';$('m-terc').value='';if(ret){$('m-ret').value='';$('m-dest').value='';resolveRet()}renderRest();
 };
 $('btn-scan-rest').onclick=()=>openScanner('Ler QR Code do crachá',lookup);
 $('qr-manual-go').onclick=()=>lookup($('qr-manual').value);
 $('qr-manual').addEventListener('keydown',e=>{if(e.key==='Enter')lookup(e.target.value)});
-/* sobras: cobradas como refeições consumidas — empresa e obra obrigatórias, preço do contrato da obra */
+/* sobras: cobradas como refeições consumidas — empresa, obra e colaborador cadastrado obrigatórios */
+function renderSobrasForm(){
+  const RC=restCt();
+  if(!$('s-tipo').options.length)TIPOS.forEach(tp=>{const o=document.createElement('option');o.value=tp.id;o.textContent=tp.curto;$('s-tipo').appendChild(o)});
+  fillSelect($('s-emp'),S.empresas.filter(e=>e.ativo!==false),$('s-emp').value,'Selecione…');
+  fillSelect($('s-obra'),S.obras.filter(o=>o.ativo!==false&&obraOk(o.id)&&RC&&(RC.obras||[]).includes(o.id)),$('s-obra').value,'Selecione…');
+  colabOpts($('s-colab'),$('s-obra').value,$('s-colab').value);sobraPrecoHint();
+}
+$('s-obra').addEventListener('change',()=>colabOpts($('s-colab'),$('s-obra').value,$('s-colab').value));
 function sobraPrecoHint(){
   const el=$('s-preco');if(!el)return;const obraId=$('s-obra').value,tp=$('s-tipo').value,q=parseInt($('s-qtd').value,10)||0;
   if(!obraId||!tp){el.textContent='Selecione empresa e obra para ver o preço cobrado.';return}
@@ -1298,20 +1342,20 @@ function sobraPrecoHint(){
 }
 ['s-emp','s-obra','s-tipo'].forEach(id=>$(id).addEventListener('change',()=>{$('s-msg').hidden=true;sobraPrecoHint()}));$('s-qtd').addEventListener('input',sobraPrecoHint);
 $('s-save').onclick=()=>{
-  const q=parseInt($('s-qtd').value,10),n=$('s-colab').value.trim().replace(/\s+/g,' '),empId=$('s-emp').value,obraId=$('s-obra').value,tp=$('s-tipo').value,t=today();
+  const q=parseInt($('s-qtd').value,10),colSel=S.colab.find(x=>x.id===$('s-colab').value),empId=$('s-emp').value,obraId=$('s-obra').value,tp=$('s-tipo').value,t=today();
   const msg=$('s-msg');const show=m=>{msg.hidden=false;msg.textContent=m};msg.hidden=true;
   if(!empId||!obraId)return show('Informe a empresa e a obra da sobra (obrigatórias).');
   if(!(q>0))return show('Informe a quantidade que sobrou.');
-  if(!n)return show('Informe o nome do colaborador.');
+  if(!colSel)return show('Selecione o colaborador que sobrou (cadastrado).');
   const RC=restCt();if(!RC)return show('Nenhuma contratada (restaurante) disponível.');
   if(!(RC.obras||[]).includes(obraId))return show(`O restaurante ${RC.nome} não atende esta obra.`);
   const E=emp(empId),o=obra(obraId);if(!E||E.ativo===false)return show('Empresa inativa — sobra não registrada.');
   const cerr=contratoErro(obraId,t);if(cerr)return show(cerr.replace('refeição não registrada','sobra não registrada'));
   const p=precoVigente(tp,t,cidOf(obraId));if(p===null)return show(`${tipo(tp).curto} não tem preço cadastrado para o contrato desta obra.`);
-  const c=S.colab.find(x=>x.nome.toLowerCase()===n.toLowerCase());const total=Math.round(q*p*100)/100;
-  S.sobras.push({id:uid(),data:t,contratadaId:RC.id,contratadaNome:RC.nome,tipo:tp,qtd:q,valorUnit:p,valor:total,colabNome:c?c.nome:n,colabId:c?c.id:null,empresaId:empId,empresaNome:E.nome,obraId,obraNome:o?o.nome:'',contratoId:cidOf(obraId)||undefined,contratoNumero:(contrato(cidOf(obraId))||{}).numero||undefined,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null});
-  audit('sobra.registrar',`${q} ${tipo(tp).curto} — ${c?c.nome:n} — ${money(p)} cada = ${money(total)} (cobrada)`,{empresa:E.nome,obra:o?o.nome:''});
-  concluir(`Sobra registrada — ${q} ${tipo(tp).curto} · ${money(total)}`);$('s-qtd').value='';$('s-colab').value='';$('s-emp').value='';$('s-obra').value='';renderRest();
+  const c=colSel;const total=Math.round(q*p*100)/100;
+  S.sobras.push({id:uid(),data:t,contratadaId:RC.id,contratadaNome:RC.nome,tipo:tp,qtd:q,valorUnit:p,valor:total,colabNome:c.nome,colabId:c.id,empresaId:empId,empresaNome:E.nome,obraId,obraNome:o?o.nome:'',contratoId:cidOf(obraId)||undefined,contratoNumero:(contrato(cidOf(obraId))||{}).numero||undefined,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null});
+  audit('sobra.registrar',`${q} ${tipo(tp).curto} — ${c.nome} — ${money(p)} cada = ${money(total)} (cobrada)`,{empresa:E.nome,obra:o?o.nome:''});
+  concluir(`Sobra registrada — ${q} ${tipo(tp).curto} · ${money(total)}`);$('s-qtd').value='';$('s-emp').value='';$('s-obra').value='';$('s-colab').value='';renderRest();
 };
 
 /* =================== SUPRIMENTOS =================== */
@@ -1334,16 +1378,18 @@ function renderSup(){
   fillSelect($('f-ct'),(S.contratadas||[]).filter(c=>ctOk(c.id)),$('f-ct').value,'Todos');
   const empId=$('f-emp').value,ctF=$('f-ct').value,tp=$('f-tipo').value,q=$('f-busca').value.trim().toLowerCase();
   const regs=periodRegs(WK,fim).filter(r=>regOk(r)&&(!ctF||ctOf(r)===ctF)&&(!empId||r.empresaId===empId)&&(!tp||r.tipo===tp)&&(!q||r.nome.toLowerCase().includes(q))).sort((a,b)=>a.registradoEm<b.registradoEm?1:-1);
-  const tot=regs.reduce((s,r)=>s+r.valor,0);
+  const fech=regs.filter(r=>r.fechado&&!r.bmId);const tot=regs.filter(r=>!(r.fechado&&!r.bmId)).reduce((s,r)=>s+r.valor,0);const nReg=regs.length-fech.length;
   const sob=S.sobras.filter(s=>s.data>=WK&&s.data<=fim&&sobraOk(s)&&(!ctF||ctOf(s)===ctF)&&(!empId||s.empresaId===empId)&&(!tp||s.tipo===tp)).sort((a,b)=>a.data<b.data?1:a.data>b.data?-1:(a.registradoEm<b.registradoEm?1:-1));
   const qs=sob.reduce((a,s)=>a+s.qtd,0),vs=sob.reduce((a,s)=>a+sobraTotal(s),0);
-  $('sup-count').textContent=qs?`${regs.length} registro(s) + ${qs} sobra(s) = ${regs.length+qs} refeições na semana · ${money(tot+vs)}`:`${regs.length} registro(s) na semana · ${money(tot)}`;
+  $('sup-count').textContent=(qs?`${nReg} registro(s) + ${qs} sobra(s) = ${nReg+qs} refeições na semana · ${money(tot+vs)}`:`${nReg} registro(s) na semana · ${money(tot)}`)+(fech.length?` · ${fech.length} fechada(s) sem BM`:'');
   // notificações: assinados pelo restaurante
   const ps=pendSup();$('sup-notif').hidden=!(ps.length&&can('sup.bm'));
   $('sup-notif-list').innerHTML=ps.map(b=>`<div class="item"><span class="pill ok">Assinado</span><div class="t"><b>BM nº ${b.numero} — ${esc(b.empresaNome)}</b><span>Período ${br(b.ini)} à ${br(b.fim)} · assinatura ${b.assRest.tipo==='eletronica'?'eletrônica':'física homologada'} em ${brdt(b.assRest.em)} · ${money(b.liquido)}</span></div><button class="btn sm" data-vbm="${b.id}">Ver / imprimir</button></div>`).join('');
   $('sup-notif-list').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
-  $('sup-table').innerHTML=`<thead><tr><th>Data refeição</th><th>Colaborador</th><th>Empresa</th><th>Obra</th><th>Restaurante</th><th>Tipo</th><th class="r">Valor</th><th>Registrado em</th><th>Por</th><th>Nº BM</th></tr></thead><tbody>${regs.slice(0,400).map(r=>{const b=r.bmId?S.bms.find(x=>x.id===r.bmId):null;return `<tr><td class="num">${br(r.data)}${r.dataManual?' <span class="pill warn" title="data informada manualmente">manual</span>':''}</td><td>${esc(r.nome)}${r.manual?`<div class="small muted">manual${r.terceirizada?' · terc.: '+esc(r.terceirizada):''}</div>`:''}</td><td>${esc(r.empresaNome)}</td><td>${esc(r.obraNome)}</td><td>${esc((ct(ctOf(r))||{}).nome||r.contratadaNome||'—')}</td><td><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span></td><td class="r num">${money(r.valor)}</td><td class="num">${brdt(r.registradoEm)}</td><td>${esc(r.usuario)}</td><td>${b?`<button class="btn sec sm num" data-vbm="${b.id}">BM ${b.numero}</button>`:'<span class="pill neutral">em aberto</span>'}</td></tr>`}).join('')||'<tr><td colspan="10" class="empty">Nenhum registro com esses filtros.</td></tr>'}</tbody>`;
+  $('sup-table').innerHTML=`<thead><tr><th>Data refeição</th><th>Colaborador</th><th>Empresa</th><th>Obra</th><th>Restaurante</th><th>Tipo</th><th class="r">Valor</th><th>Registrado em</th><th>Por</th><th>Nº BM</th></tr></thead><tbody>${regs.slice(0,400).map(r=>{const b=r.bmId?S.bms.find(x=>x.id===r.bmId):null;return `<tr><td class="num">${br(r.data)}${r.dataManual?' <span class="pill warn" title="data informada manualmente">manual</span>':''}</td><td>${esc(r.nome)}${modOf(r)!=='presencial'?`<div class="small muted">${modOf(r)==='retirada'?esc(retInfo(r)):'terceirizado'+(r.terceirizada?' · terc.: '+esc(r.terceirizada):'')}</div>`:''}</td><td>${esc(r.empresaNome)}</td><td>${esc(r.obraNome)}</td><td>${esc((ct(ctOf(r))||{}).nome||r.contratadaNome||'—')}</td><td><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span></td><td class="r num">${money(r.valor)}</td><td class="num">${brdt(r.registradoEm)}</td><td>${esc(r.usuario)}</td><td style="min-width:150px">${b?`<button class="btn sec sm num" data-vbm="${b.id}">BM ${b.numero}</button>`:r.fechado?`<div class="row" style="gap:6px"><span class="pill bad" title="${esc(r.fechado.motivo)}">fechada sem BM</span>${can('sup.fechar')?`<button class="btn sec sm" data-reabrir="${r.id}">Reabrir</button>`:''}</div><div class="small muted" style="margin-top:4px;max-width:210px">${esc(r.fechado.motivo)} — ${esc(r.fechado.por)}, ${brdt(r.fechado.em)}</div>`:`<div class="row" style="gap:6px"><span class="pill neutral">em aberto</span>${can('sup.fechar')?`<button class="btn sec sm" data-fechar="${r.id}">Fechar</button>`:''}</div>`}</td></tr>`}).join('')||'<tr><td colspan="10" class="empty">Nenhum registro com esses filtros.</td></tr>'}</tbody>`;
   $('sup-table').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
+  $('sup-table').querySelectorAll('[data-fechar]').forEach(x=>x.onclick=()=>fecharRefeicao(S.registros.find(r=>r.id===x.dataset.fechar)));
+  $('sup-table').querySelectorAll('[data-reabrir]').forEach(x=>x.onclick=()=>reabrirRefeicao(S.registros.find(r=>r.id===x.dataset.reabrir)));
   $('sup-sobras').innerHTML=`<thead><tr><th>Data</th><th>Tipo</th><th class="r">Qtd</th><th class="r">Preço unit.</th><th class="r">Total</th><th>Colaborador</th><th>Empresa</th><th>Obra</th><th>Restaurante</th><th>Informado por</th><th>Nº BM</th><th></th></tr></thead><tbody>${sob.map(s=>{const b=s.bmId?S.bms.find(x=>x.id===s.bmId):null;return `<tr><td class="num">${br(s.data)}</td><td><span class="pill ${s.tipo}">${tipo(s.tipo).curto}</span></td><td class="r num">${s.qtd}</td><td class="r num">${money(sobraUnit(s))}</td><td class="r num">${money(sobraTotal(s))}</td><td>${esc(s.colabNome)}</td><td>${s.empresaId?esc(s.empresaNome||'—'):'<span class="pill bad" title="Sem empresa: não entra em BM. Exclua e registre novamente.">sem empresa</span>'}</td><td>${s.obraId?esc(s.obraNome||'—'):'<span class="pill warn">não informada</span>'}</td><td>${esc((ct(ctOf(s))||{}).nome||s.contratadaNome||'—')}</td><td>${esc(s.usuario)}</td><td>${b?`<button class="btn sec sm num" data-vbm="${b.id}">BM ${b.numero}</button>`:'<span class="pill neutral">em aberto</span>'}</td><td>${can('del.sobras')&&!s.bmId?`<button class="btn danger sm" data-sdel2="${s.id}">Excluir</button>`:''}</td></tr>`}).join('')||'<tr><td colspan="12" class="empty">Nenhuma sobra informada na semana.</td></tr>'}</tbody>`;
   $('sup-sobras').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
   $('sup-sobras').querySelectorAll('[data-sdel2]').forEach(b=>b.onclick=()=>excluirSobra(b.dataset.sdel2,renderSup));
@@ -1359,6 +1405,23 @@ function renderSup(){
 $('wk-prev').onclick=()=>{WK=addDays(WK,-7);renderSup()};$('wk-next').onclick=()=>{WK=addDays(WK,7);renderSup()};
 ['f-emp','f-ct','f-tipo'].forEach(id=>$(id).onchange=renderSup);$('f-busca').oninput=renderSup;
 
+/* ---- fechar refeição sem incluir em BM (permissão sup.fechar) ---- */
+function justModal({titulo,resumo,botao,classe,onOk}){
+  infoModal(titulo,`<div class="stack">${resumo}<div class="field"><label for="jm-txt">Justificativa (obrigatória)</label><textarea id="jm-txt" rows="3"></textarea></div><div id="jm-err" class="notice bad" hidden></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn sec" id="jm-cancel">Cancelar</button><button class="btn ${classe||''}" id="jm-go">${botao}</button></div></div>`);
+  $('jm-cancel').onclick=()=>$('info-modal').classList.remove('on');
+  $('jm-go').onclick=()=>{const t=$('jm-txt').value.trim();if(t.length<5){$('jm-err').hidden=false;$('jm-err').textContent='Informe a justificativa (mínimo 5 caracteres).';return}$('info-modal').classList.remove('on');onOk(t)};
+}
+function fecharRefeicao(r){
+  if(!r||!can('sup.fechar')||r.bmId||r.fechado)return;
+  justModal({titulo:'Fechar refeição sem BM',resumo:`<div class="notice warn">${br(r.data)} · ${tipo(r.tipo).curto} — <b>${esc(r.nome)}</b> (${esc(r.empresaNome)} · ${esc(r.obraNome||'—')}) · ${money(r.valor)} · ${MODS[modOf(r)]}.<br>A refeição deixa de entrar em qualquer BM e não pode mais ser estornada pelo restaurante.</div>`,botao:'Fechar refeição',classe:'danger',
+    onOk:motivo=>{r.fechado={em:new Date().toISOString(),por:USER.nome,motivo};audit('refeicao.fechar',`${tipo(r.tipo).curto} de ${r.nome} em ${br(r.data)} (${money(r.valor)}) — motivo: ${motivo}`,{obra:r.obraNome,empresa:r.empresaNome,entidade:'registro '+r.id,antes:'em aberto',depois:'fechada sem BM'});concluir(`Refeição de ${r.nome.split(' ')[0]} fechada sem BM`);renderSup()}});
+}
+function reabrirRefeicao(r){
+  if(!r||!can('sup.fechar')||!r.fechado||r.bmId)return;
+  justModal({titulo:'Reabrir refeição',resumo:`<div class="notice info">${br(r.data)} · ${tipo(r.tipo).curto} — <b>${esc(r.nome)}</b> · ${money(r.valor)}. Fechada por ${esc(r.fechado.por)} em ${brdt(r.fechado.em)}: “${esc(r.fechado.motivo)}”.<br>Ao reabrir, ela volta a poder entrar em um BM.</div>`,botao:'Reabrir refeição',
+    onOk:motivo=>{const antes=r.fechado.motivo;delete r.fechado;audit('refeicao.reabrir',`${tipo(r.tipo).curto} de ${r.nome} em ${br(r.data)} — motivo: ${motivo}`,{obra:r.obraNome,empresa:r.empresaNome,entidade:'registro '+r.id,antes:'fechada sem BM ('+antes+')',depois:'em aberto'});concluir(`Refeição de ${r.nome.split(' ')[0]} reaberta`);renderSup()}});
+}
 function excluirSobra(id,after){
   const ss=S.sobras.find(s=>s.id===id);if(!ss||!can('del.sobras'))return;
   if(ss.bmId){const b=S.bms.find(x=>x.id===ss.bmId);toast(`Sobra já está no BM nº ${b?b.numero:''} — exclua o BM antes`);return}
@@ -1435,10 +1498,10 @@ function openEmitir(){
 function previewBM(){
   const ini=$('bm-ini').value,fim=$('bm-fim').value,empId=$('bm-emp').value,ctId=$('bm-ct').value;const msg=$('bm-prev-msg');
   if(!ini||!fim||fim<ini){$('bm-prev-tiles').innerHTML='';msg.hidden=false;msg.className='notice bad small';msg.textContent='Informe um período válido (fim igual ou posterior ao início).';$('bm-emit-go').disabled=true;return}
-  const all=periodItens(ini,fim,empId,ctId);const livres=all.filter(r=>!r.bmId);const presos=all.length-livres.length;const nsob=livres.filter(r=>r.sobra).length;
+  const all=periodItens(ini,fim,empId,ctId);const livres=all.filter(r=>!r.bmId&&!r.fechado);const fechadas=all.filter(r=>r.fechado&&!r.bmId).length;const presos=all.length-livres.length-fechadas;const nsob=livres.filter(r=>r.sobra).length;
   $('bm-prev-tiles').innerHTML=TIPOS.map(t=>{const l=livres.filter(r=>r.tipo===t.id);return `<div class="tile ${t.id}"><div class="k">${t.curto}</div><div class="v num">${l.length}</div><div class="s num">${money(l.reduce((s,r)=>s+r.valor,0))}</div></div>`}).join('')+`<div class="tile total"><div class="k">Total</div><div class="v num">${livres.length}</div><div class="s num">${money(livres.reduce((s,r)=>s+r.valor,0))}</div></div>`;
   const dias=Math.round((parse(fim)-parse(ini))/864e5)+1;
-  let t=`${dias} dia(s) · ${livres.length} refeições em aberto${nsob?` (inclui ${nsob} de sobras)`:''}.`;if(presos)t+=` ${presos} refeição(ões) do período já pertencem a outro BM e ficam de fora.`;
+  let t=`${dias} dia(s) · ${livres.length} refeições em aberto${nsob?` (inclui ${nsob} de sobras)`:''}.`;if(presos)t+=` ${presos} refeição(ões) do período já pertencem a outro BM e ficam de fora.`;if(fechadas)t+=` ${fechadas} refeição(ões) fechada(s) sem BM também ficam de fora.`;
   msg.hidden=false;msg.className='notice '+(livres.length?'info':'warn')+' small';msg.textContent=t;
   $('bm-emit-go').disabled=!livres.length||dias>62;if(dias>62){msg.className='notice bad small';msg.textContent='Período máximo de 62 dias.'}
 }
@@ -1456,7 +1519,7 @@ $('emp-close').onclick=()=>$('emp-modal').classList.remove('on');
 
 /* ---- BM build ---- */
 function buildBM(ini,fim,empId,ctId){
-  const E=emp(empId);const C=ct(ctId)||{};const regs=periodItens(ini,fim,empId,ctId).filter(r=>!r.bmId);
+  const E=emp(empId);const C=ct(ctId)||{};const regs=periodItens(ini,fim,empId,ctId).filter(r=>!r.bmId&&!r.fechado);
   const contr=E.contrato||{};
   const antesAll=S.registros.filter(r=>r.empresaId===empId&&ctOf(r)===ctId&&r.data<ini&&r.bmId).concat(...(S.sobras||[]).filter(s=>s.empresaId===empId&&ctOf(s)===ctId&&s.data<ini&&s.bmId).map(sobraUnits));
   const itens=TIPOS.map((t,i)=>{
@@ -1477,7 +1540,7 @@ let BM=null, BMTAB='bm'; const LISTA_VISTA=new Set();
 function openBM(b){BM=b;BMTAB='bm';renderBM();$('bm-modal').classList.add('on');$('bm-modal').querySelector('.sheet').scrollTop=0}
 const TIPO_ORD={cafe:0,almoco:1,jantar:2,lanche:3};
 function bmRegs(b){
-  const l=b.status==='rascunho'?periodRegs(b.ini,b.fim,b.empresaId,ctOf(b)).filter(r=>!r.bmId):S.registros.filter(r=>r.bmId===b.id);
+  const l=b.status==='rascunho'?periodRegs(b.ini,b.fim,b.empresaId,ctOf(b)).filter(r=>!r.bmId&&!r.fechado):S.registros.filter(r=>r.bmId===b.id);
   return l.sort((a,c)=>a.data<c.data?-1:a.data>c.data?1:(TIPO_ORD[a.tipo]-TIPO_ORD[c.tipo])||(a.registradoEm<c.registradoEm?-1:1));
 }
 function bmSobras(b){
@@ -1492,14 +1555,14 @@ function bmGrupos(b){
 }
 function sobraLinha(s){return `Sobra — ${s.qtd} ${s.qtd===1?'refeição':'refeições'}${s.colabNome?' · '+s.colabNome:''}`}
 function sobraAssTxt(s){return `Sobra informada · ${hm(s.registradoEm)} · por ${s.usuario}`}
-function assinaturaTxt(r){return r.manual?`Manual · ${hm(r.registradoEm)} · ${r.terceirizada?'terc.: '+r.terceirizada+' · ':''}por ${r.usuario}`:`QR Code · ${hm(r.registradoEm)}`}
+function assinaturaTxt(r){const m=modOf(r);if(m==='retirada')return `Retirada · ${hm(r.registradoEm)} · ${retInfo(r)} · lançado por ${r.usuario}`;return m==='terceirizado'?`Manual · ${hm(r.registradoEm)} · ${r.terceirizada?'terc.: '+r.terceirizada+' · ':''}por ${r.usuario}`:`QR Code · ${hm(r.registradoEm)}`}
 function renderLista(b){
   const g=bmGrupos(b);const tot=g.reduce((s,x)=>s+x.total,0);const ts=g.reduce((s,x)=>s+x.sobras.reduce((a,o)=>a+o.qtd,0),0);
   if(!g.length)return '<div class="notice warn">Nenhuma refeição no período.</div>';
-  return `<div class="notice info small" style="margin-bottom:10px">${tot} refeições em ${g.length} lista(s) por dia e tipo${ts?`, das quais <b>${ts} são sobras</b>`:''}. <b>Assinatura digital</b> = leitura do QR Code do crachá do colaborador; registros <b>manuais</b> são de terceirizados sem crachá, lançados pelo restaurante; <b>sobras</b> são refeições preparadas e não consumidas, informadas pelo restaurante e cobradas.</div>`+
+  return `<div class="notice info small" style="margin-bottom:10px">${tot} refeições em ${g.length} lista(s) por dia e tipo${ts?`, das quais <b>${ts} são sobras</b>`:''}. <b>Assinatura digital</b> = leitura do QR Code do crachá do colaborador; <b>retirada</b> = refeição levada por outro colaborador, identificado pelo QR Code do crachá (ou digitado); registros <b>manuais</b> são de terceirizados sem crachá, lançados pelo restaurante; <b>sobras</b> são refeições preparadas e não consumidas, informadas pelo restaurante e cobradas.</div>`+
   g.map((x,i)=>`<div class="card" style="margin-bottom:10px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${i+1}. ${br(x.d)} — ${x.tipo.curto}</h3><span class="pill ${x.tipo.id}">${x.total} refeições</span></div>
     <div class="tablewrap" style="margin-top:8px"><table><thead><tr><th>#</th><th>Colaborador</th><th>Obra</th><th>Assinatura digital</th></tr></thead><tbody>
-    ${x.regs.map((r,j)=>`<tr><td class="num">${j+1}</td><td>${esc(r.nome)}${r.manual?' <span class="pill neutral">manual</span>':''}</td><td>${esc(r.obraNome||'—')}</td><td class="small">${r.manual?'<span class="pill warn">Manual</span>':'<span class="pill ok">✓ QR Code</span>'} <span class="muted">${esc(r.manual?assinaturaTxt(r).replace(/^Manual · /,''):hm(r.registradoEm))}</span></td></tr>`).join('')}
+    ${x.regs.map((r,j)=>`<tr><td class="num">${j+1}</td><td>${esc(r.nome)}${modOf(r)!=='presencial'?' '+modPill(r):''}</td><td>${esc(r.obraNome||'—')}</td><td class="small">${modOf(r)==='retirada'?'<span class="pill warn">Retirada</span>':modOf(r)==='terceirizado'?'<span class="pill warn">Manual</span>':'<span class="pill ok">✓ QR Code</span>'} <span class="muted">${esc(modOf(r)==='presencial'?hm(r.registradoEm):assinaturaTxt(r).replace(/^(Manual|Retirada) · /,''))}</span></td></tr>`).join('')}
     ${x.sobras.map((s,k)=>`<tr><td class="num">${x.regs.length+k+1}</td><td>${esc(sobraLinha(s))} <span class="pill warn">sobra</span></td><td>${esc(s.obraNome||'—')}</td><td class="small"><span class="pill neutral">Sobra</span> <span class="muted">${esc(sobraAssTxt(s).replace(/^Sobra informada · /,''))}</span></td></tr>`).join('')}
     </tbody></table></div></div>`).join('');
 }
@@ -1587,7 +1650,7 @@ function renderBM(){
   const on=(id,fn)=>{const e=$(id);if(e)e.onclick=fn};
   on('bm-fechar',()=>{
     b.status='fechado';b.fechadoEm=new Date().toISOString();b.fechadoPor=USER.nome;
-    S.registros.forEach(r=>{if(r.empresaId===b.empresaId&&ctOf(r)===ctOf(b)&&r.data>=b.ini&&r.data<=b.fim&&!r.bmId)r.bmId=b.id});
+    S.registros.forEach(r=>{if(r.empresaId===b.empresaId&&ctOf(r)===ctOf(b)&&r.data>=b.ini&&r.data<=b.fim&&!r.bmId&&!r.fechado)r.bmId=b.id});
     (S.sobras||[]).forEach(s=>{if(s.empresaId===b.empresaId&&ctOf(s)===ctOf(b)&&s.data>=b.ini&&s.data<=b.fim&&!s.bmId){s.valorUnit=sobraUnit(s);s.valor=sobraTotal(s);s.bmId=b.id}});
     S.bms.push(b);if(E)E.proximoBM=b.numero+1;audit('bm.fechar',`BM ${b.numero} — ${b.empresaNome} — ${br(b.ini)} à ${br(b.fim)} — ${b.qtd} refeições — líquido ${money(b.liquido)}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,depois:'fechado'});concluir(`BM ${b.numero} fechado e enviado ao restaurante`);notify('bm.fechado',`BM nº ${b.numero} — ${b.empresaNome} — período ${br(b.ini)} à ${br(b.fim)} fechado e aguardando validação do restaurante`,destRest(ctOf(b)),{bmId:b.id});renderBM();renderSup();
   });
@@ -1668,7 +1731,7 @@ function bmPdf(b){
   if(grupos.length){
     doc.addPage();let ly=M+4;
     doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text(`LISTA DE COLABORADORES — BM Nº ${b.numero} — ${b.empresaNome}`,M,ly);
-    doc.setFont('helvetica','normal');doc.setFontSize(8.5);ly+=5;doc.text(`Período ${br(b.ini)} à ${br(b.fim)} · ${grupos.reduce((s,x)=>s+x.total,0)} refeições · Assinatura digital = leitura do QR Code do crachá; "Manual" = terceirizado sem crachá, lançado pelo restaurante; "Sobra" = preparada e não consumida, cobrada.`,M,ly,{maxWidth:W-2*M});
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);ly+=5;doc.text(`Período ${br(b.ini)} à ${br(b.fim)} · ${grupos.reduce((s,x)=>s+x.total,0)} refeições · Assinatura digital = leitura do QR Code do crachá; "Retirada" = levada por outro colaborador; "Manual" = terceirizado sem crachá, lançado pelo restaurante; "Sobra" = preparada e não consumida, cobrada.`,M,ly,{maxWidth:W-2*M});
     ly+=5;
     grupos.forEach((x,i)=>{
       if(ly>175){doc.addPage();ly=M+4}
