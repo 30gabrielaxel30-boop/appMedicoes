@@ -144,6 +144,8 @@ main{flex:1;min-width:0;overflow:auto;padding:16px 16px calc(84px + env(safe-are
 .notice.info{background:var(--accent-soft);color:var(--accent-2)}
 .notice{position:relative;padding-right:38px}
 .avatar.sobra{background:var(--warn-soft);color:var(--warn)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;padding:6px 12px;border:1px dashed var(--line);border-radius:999px;font-size:13px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-2);background:var(--surface);margin:0}
 /* barra superior escura nos dois modos, igual à lateral */
 .topbar{background:var(--nav-bg);border-bottom-color:var(--nav-line);color:var(--nav-title)}
 .topbar .logo{background:var(--nav-on);color:#0B1A20}
@@ -156,6 +158,7 @@ main{flex:1;min-width:0;overflow:auto;padding:16px 16px calc(84px + env(safe-are
 /* BM: cabeçalho fixo com Compartilhar no celular */
 #bm-modal .mh{position:sticky;top:-16px;z-index:3;background:var(--bg);margin:-16px -16px 12px;padding:12px 16px;flex-wrap:wrap;border-bottom:1px solid var(--line-2)}
 #bm-modal .mh .row{gap:6px}
+@media (min-width:1280px){#bm-modal .sheet{max-width:min(1320px,94vw)}}
 #bm-share svg{width:16px;height:16px}
 .notice a,.notice button.link{color:inherit;font-weight:600;text-decoration:underline;background:none;border:0;padding:0}
 .tablewrap{overflow-x:auto;border:1px solid var(--line-2);border-radius:8px}
@@ -231,7 +234,8 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 .bmdoc tr.grp td{font-weight:600;background:var(--surface-2)}
 .bmdoc tr.tot td{font-weight:700;border-top:2px solid var(--ink)}
 .bmdoc .sig{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:26px}
-.bmdoc .sig div{border-top:1px solid var(--ink);padding-top:6px;text-align:center;font-size:11.5px}
+.bmdoc .sig > div{border-top:1px solid var(--ink);padding-top:6px;text-align:center;font-size:11.5px}
+.bmdoc .sig .stamp{display:table;margin:2px auto 8px}
 .bmdoc .fin{display:grid;grid-template-columns:1fr auto;gap:4px 14px;max-width:360px;margin-left:auto;font-size:12.5px}
 .bmdoc .fin span:nth-child(odd){text-transform:uppercase;font-size:10.5px;letter-spacing:.04em;color:var(--ink-2);font-weight:600;align-self:center}
 .bmdoc .fin .big{font-family:var(--display);font-size:18px;font-weight:700}
@@ -519,7 +523,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
           <div class="cols">
             <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Colaboradores</h3><button class="btn sm" id="c-new">Novo colaborador</button></div>
               <input id="c-busca" placeholder="buscar por nome, código ou empresa…" style="margin-top:8px">
-              <div class="tablewrap" style="margin-top:8px"><table id="c-table"></table></div></div>
+              <div class="tablewrap" style="margin-top:8px"><table id="c-table"></table></div><div class="row" id="c-pager" style="justify-content:center;margin-top:10px"></div></div>
             <div class="card"><h3 id="c-form-title">Novo colaborador</h3>
               <div class="stack">
                 <div id="c-need" class="notice warn" hidden></div>
@@ -560,7 +564,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 
         <div id="cfg-obras" class="cfg-pane" hidden>
           <div class="cols">
-            <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Obras</h3><button class="btn sm" id="o-new">Nova obra</button></div><div class="list" id="o-list" style="margin-top:8px"></div></div>
+            <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Obras</h3><button class="btn sm" id="o-new">Nova obra</button></div><div class="list" id="o-list" style="margin-top:8px"></div><div class="row" id="o-pager" style="justify-content:center;margin-top:10px"></div></div>
             <div class="card"><h3 id="o-form-title">Nova obra</h3>
               <div class="stack">
                 <div class="field"><label for="o-nome">Nome da obra</label><input id="o-nome" placeholder="ex.: SEDE BENEVIDES"></div>
@@ -575,7 +579,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         <div id="cfg-contratos" class="cfg-pane" hidden>
           <div class="cols">
             <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Contratos</h3><div class="row"><select id="ctr-filtro" style="width:auto"><option value="">Todos</option><option value="ativos">Ativos</option><option value="inativos">Inativos / encerrados</option></select><button class="btn sm" id="ctr-new">Novo contrato</button></div></div>
-              <div class="tablewrap" style="margin-top:10px"><table id="ctr-table"></table></div></div>
+              <div class="tablewrap" style="margin-top:10px"><table id="ctr-table"></table></div><div class="row" id="ctr-pager" style="justify-content:center;margin-top:10px"></div></div>
             <div class="card"><h3 id="ctr-form-title">Novo contrato</h3>
               <div class="stack">
                 <div class="grid2"><div class="field"><label for="ctr-num">Nº do contrato (até 7 caracteres)</label><input id="ctr-num" maxlength="7" class="mono" style="text-transform:uppercase"></div><div class="field"><label for="ctr-ativo">Situação</label><select id="ctr-ativo"><option value="1">Ativo</option><option value="0">Inativo</option></select></div></div>
@@ -714,7 +718,7 @@ const PERMS=[
   {id:'rest.estornar',nome:'Estornar registro do dia'},
   {id:'rest.data_manual',nome:'Registrar refeição com data manual (retroativa)'},
   {id:'rest.validar',nome:'Validar BM (assinatura eletrônica do restaurante)'},
-  {grp:'Suprimentos'},
+  {grp:'Administrativo'},
   {id:'sup.ver',nome:'Visualizar registros e resumos'},
   {id:'sup.bm',nome:'Emitir, fechar, imprimir e assinar BM'},
   {id:'sup.nf',nome:'Informar nota fiscal e anexar BM assinado'},
@@ -832,7 +836,7 @@ function contratoErro(obraId,d){const c=contrato(cidOf(obraId));if(!c)return nul
 function fillSelect(sel,items,val,allLabel){sel.innerHTML=(allLabel!==undefined?`<option value="">${allLabel}</option>`:'')+items.map(i=>`<option value="${esc(i.id)}"${i.id===val?' selected':''}>${esc(i.nome)}</option>`).join('')}
 
 /* =================== AUDITORIA (núcleo) =================== */
-const ABAS={login:'Login',rest:'Restaurante',sup:'Suprimentos',aud:'Auditoria',cfg:'Configurações'};
+const ABAS={login:'Login',rest:'Restaurante',sup:'Administrativo',aud:'Auditoria',cfg:'Configurações'};
 const ACOES={
   'login.ok':'Login','login.falha':'Tentativa de login inválida','logout':'Logout','nav':'Acessou aba','nav.cfg':'Acessou seção de configurações',
   'refeicao.registrar':'Registrou refeição','refeicao.estornar':'Estornou refeição','sobra.registrar':'Registrou sobra','bm.compartilhar':'Compartilhou PDF do BM','sobra.excluir':'Excluiu sobra',
@@ -1102,7 +1106,7 @@ const ICONS={aud:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 function navItems(){
   const it=[];
   if(['rest.registrar','rest.sobras','rest.estornar'].some(can))it.push({id:'rest',n:'Restaurante'});
-  if(can('sup.ver')||can('sup.bm'))it.push({id:'sup',n:'Suprimentos'});
+  if(can('sup.ver')||can('sup.bm'))it.push({id:'sup',n:'Administrativo'});
   if(can('aud.ver'))it.push({id:'aud',n:'Auditoria'});
   if(['cfg.usuarios','cfg.colab','cfg.empresas','cfg.obras','cfg.contratos','cfg.precos','cfg.contratada'].some(can))it.push({id:'cfg',n:'Configurações'});
   return it;
@@ -1459,7 +1463,7 @@ function buildBM(ini,fim,empId,ctId){
     const c=contr[t.id]||{};const antes=antesAll.filter(r=>r.tipo===t.id);
     const acumQtd=(c.acumQtd||0)+antes.length;const acumVal=(c.acumVal||0)+antes.reduce((s,r)=>s+r.valor,0);
     const atual=regs.filter(r=>r.tipo===t.id);const atualQtd=atual.length;const atualVal=atual.reduce((s,r)=>s+r.valor,0);
-    const preco=atual.length?atual[atual.length-1].valor:precoVigente(t.id,fim);const qtdCt=c.qtd||null;const totalCt=qtdCt&&preco!==null?Math.trunc(qtdCt*preco*100)/100:null;
+    const preco=atual.length?atual[atual.length-1].valor:precoVigente(t.id,fim,cidOf((regs.find(r=>r.obraId)||{}).obraId));const qtdCt=c.qtd||null;const totalCt=qtdCt&&preco!==null?Math.trunc(qtdCt*preco*100)/100:null;
     return {tipo:t.id,item:'1.'+(i+1),preco,qtdCt,totalCt,acumQtd,acumVal,atualQtd,atualVal,totAcQtd:acumQtd+atualQtd,totAcVal:acumVal+atualVal,saldoQtd:qtdCt!==null?qtdCt-acumQtd-atualQtd:null,saldoVal:totalCt!==null?totalCt-acumVal-atualVal:null};
   });
   const dias=[];for(let d=ini;d<=fim;d=addDays(d,1)){const l=regs.filter(r=>r.data===d);dias.push({d,porTipo:TIPOS.map(t=>l.filter(r=>r.tipo===t.id).length),total:l.length,valor:l.reduce((s,r)=>s+r.valor,0)})}
@@ -1642,8 +1646,8 @@ function bmPdf(b){
   if(lastPage>1){doc.setPage(1)}
   const line=(k,v,bold)=>{doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(bold?10:8.5);doc.text(k,fx,fy);doc.text(v,fx+fw,fy,{align:'right'});fy+=bold?7:6};
   line('VALOR DA MEDIÇÃO:',money(b.valor));line('DEDUÇÕES / DESCONTOS:',money(b.deducoes));line('ADIANTAMENTOS E OUTROS:',money(b.adiant));line('TOTAL DA FATURA:',money(b.liquido));
-  doc.setDrawColor(23,33,43);doc.line(fx,fy-3,fx+fw,fy-3);line('TOTAL LÍQUIDO DA MEDIÇÃO:',money(b.liquido),true);
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text('Obs.: '+(b.obs||'—')+(b.sobrasQtd?` · Inclui ${b.sobrasQtd} refeições de sobras (${money(b.sobrasValor)}).`:''),fx,fy+2,{maxWidth:fw});
+  doc.setDrawColor(23,33,43);doc.line(fx,fy-3,fx+fw,fy-3);fy+=2.5;line('TOTAL LÍQUIDO DA MEDIÇÃO:',money(b.liquido),true);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text('Obs.: '+([b.obs,b.sobrasQtd?`Inclui ${b.sobrasQtd} refeições de sobras (${money(b.sobrasValor)}).`:''].filter(Boolean).join(' · ')||'—'),fx,fy+2,{maxWidth:fw});
   if(b.nf)doc.text('Nota fiscal: '+b.nf,fx,fy+12);
   // signatures on the last page
   doc.setPage(lastPage);
@@ -1861,6 +1865,15 @@ $('u-save').onclick=async()=>{
   }catch(e){toast('Erro: '+(e.message||e))}
   $('u-save').disabled=false;
 };
+/* paginação das listas de Configurações */
+const PAGES={};
+function paginate(key,list,pp){const pages=Math.max(1,Math.ceil(list.length/pp));let pg=PAGES[key]||1;if(pg>pages)pg=pages;if(pg<1)pg=1;PAGES[key]=pg;const i0=(pg-1)*pp;return {rows:list.slice(i0,i0+pp),pg,pages,i0,total:list.length}}
+function renderPager(el,key,P,unit,rerender){
+  if(!el)return;
+  const un=Array.isArray(unit)?(P.total===1?unit[0]:unit[1]):unit;const faixa=P.total?`${P.i0+1}–${P.i0+P.rows.length} de ${P.total} ${un}`:'';
+  el.innerHTML=P.pages>1?`<button class="btn sec sm" data-pg="1" ${P.pg===1?'disabled':''}>« Primeira</button><button class="btn sec sm" data-pg="${P.pg-1}" ${P.pg===1?'disabled':''}>‹ Anterior</button><span class="small num" style="padding:0 8px;text-align:center">Página <b>${P.pg}</b> de ${P.pages}<br><span class="muted">${faixa}</span></span><button class="btn sec sm" data-pg="${P.pg+1}" ${P.pg===P.pages?'disabled':''}>Próxima ›</button><button class="btn sec sm" data-pg="${P.pages}" ${P.pg===P.pages?'disabled':''}>Última »</button>`:(P.total?`<span class="small muted">${faixa}</span>`:'');
+  el.querySelectorAll('[data-pg]').forEach(b=>b.onclick=()=>{PAGES[key]=+b.dataset.pg;rerender()});
+}
 /* colaboradores */
 function renderColab(){
   fillSelect($('c-emp'),S.empresas,$('c-emp').value);fillSelect($('c-obra'),S.obras.filter(o=>o.ativo!==false),$('c-obra').value);
@@ -1869,9 +1882,10 @@ function renderColab(){
   $('c-save').disabled=!!need.length;
   const q=$('c-busca').value.trim().toLowerCase();
   const l=S.colab.filter(c=>obraOk(c.obraId)).filter(c=>{const e=emp(c.empresaId);return !q||[c.nome,c.qr,e?e.nome:''].some(x=>x.toLowerCase().includes(q))});
-  renderRealoc();
-  $('c-table').innerHTML=`<thead><tr><th>QR Code</th><th>Nome</th><th>Empresa</th><th>Obra</th><th></th></tr></thead><tbody>${l.map(c=>{const e=emp(c.empresaId),o=obra(c.obraId);return `<tr><td class="mono">${esc(c.qr)}</td><td>${esc(c.nome)}${c.ativo?'':' <span class="pill bad">inativo</span>'}</td><td>${esc(e?e.nome:'—')}${e&&e.ativo===false?' <span class="pill bad">inativa</span>':''}</td><td>${esc(o?o.nome:'—')}${c.realocacoes&&c.realocacoes.length?` <span class="pill neutral" title="realocações">${c.realocacoes.length}×</span>`:''}</td><td><button class="btn sec sm" data-c="${c.id}">Editar</button></td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Nenhum colaborador cadastrado. Leia o QR Code do crachá para começar.</td></tr>'}</tbody>`;
+  renderRealoc();const P=paginate('colab',l,25);
+  $('c-table').innerHTML=`<thead><tr><th>QR Code</th><th>Nome</th><th>Empresa</th><th>Obra</th><th></th></tr></thead><tbody>${P.rows.map(c=>{const e=emp(c.empresaId),o=obra(c.obraId);return `<tr><td class="mono">${esc(c.qr)}</td><td>${esc(c.nome)}${c.ativo?'':' <span class="pill bad">inativo</span>'}</td><td>${esc(e?e.nome:'—')}${e&&e.ativo===false?' <span class="pill bad">inativa</span>':''}</td><td>${esc(o?o.nome:'—')}${c.realocacoes&&c.realocacoes.length?` <span class="pill neutral" title="realocações">${c.realocacoes.length}×</span>`:''}</td><td><button class="btn sec sm" data-c="${c.id}">Editar</button></td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Nenhum colaborador cadastrado. Leia o QR Code do crachá para começar.</td></tr>'}</tbody>`;
   $('c-table').querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{CEDIT=S.colab.find(c=>c.id===b.dataset.c);fillColab()});
+  renderPager($('c-pager'),'colab',P,['colaborador','colaboradores'],renderColab);
 }
 function fillColab(){const c=CEDIT||{qr:'',nome:'',empresaId:(S.empresas.find(e=>e.ativo!==false)||{}).id,obraId:(S.obras.find(o=>o.ativo!==false&&obraOk(o.id))||{}).id,ativo:true};
   $('c-form-title').textContent=CEDIT?'Editar colaborador':'Novo colaborador';$('c-qr').value=c.qr;$('c-qr').readOnly=true;$('c-nome').value=c.nome;
@@ -1906,7 +1920,7 @@ $('c-realoc').onclick=()=>{
     concluir('Colaborador realocado');$('info-modal').classList.remove('on');fillColab();renderColab();
   };
 };
-$('c-busca').oninput=renderColab;$('c-new').onclick=()=>{CEDIT=null;fillColab()};$('c-cancel').onclick=()=>{CEDIT=null;fillColab()};
+$('c-busca').oninput=()=>{PAGES.colab=1;renderColab()};$('c-new').onclick=()=>{CEDIT=null;fillColab()};$('c-cancel').onclick=()=>{CEDIT=null;fillColab()};
 $('btn-scan-colab').onclick=()=>openScanner('Ler QR Code do crachá para cadastro',code=>{
   const dup=S.colab.find(x=>x.qr.toLowerCase()===code.toLowerCase()&&x!==CEDIT);
   $('c-qr').value=code;
@@ -2000,8 +2014,10 @@ function excluirObra(O){
 }
 /* obras */
 function renderObras(){
-  $('o-list').innerHTML=S.obras.filter(o=>obraOk(o.id)).map(o=>`<div class="item"><div class="avatar">${ini(o.nome)}</div><div class="t"><b>${esc(o.nome)} ${contrato(o.contratoId)?`<span class="pill neutral mono">${esc(contrato(o.contratoId).numero)}</span>`:'<span class="pill warn">sem contrato</span>'}</b><span>${o.endereco?esc(o.endereco)+' · ':''}${S.colab.filter(c=>c.obraId===o.id).length} colaboradores · restaurante: ${esc((S.contratadas||[]).filter(c=>(c.obras||[]).includes(o.id)).map(c=>c.nome).join(', ')||'nenhum')}${o.ativo===false?' · encerrada':''}</span></div><button class="btn sec sm" data-func="${o.id}">Funcionários</button><button class="btn sec sm" data-o="${o.id}">Editar</button>${can('del.obras')?`<button class="btn danger sm" data-odel="${o.id}">Excluir</button>`:''}</div>`).join('')||'<div class="small muted">Nenhuma obra cadastrada.</div>';
+  const PO=paginate('obras',S.obras.filter(o=>obraOk(o.id)),10);
+  $('o-list').innerHTML=PO.rows.map(o=>`<div class="item"><div class="avatar">${ini(o.nome)}</div><div class="t"><b>${esc(o.nome)} ${contrato(o.contratoId)?`<span class="pill neutral mono">${esc(contrato(o.contratoId).numero)}</span>`:'<span class="pill warn">sem contrato</span>'}</b><span>${o.endereco?esc(o.endereco)+' · ':''}${S.colab.filter(c=>c.obraId===o.id).length} colaboradores · restaurante: ${esc((S.contratadas||[]).filter(c=>(c.obras||[]).includes(o.id)).map(c=>c.nome).join(', ')||'nenhum')}${o.ativo===false?' · encerrada':''}</span></div><button class="btn sec sm" data-func="${o.id}">Funcionários</button><button class="btn sec sm" data-o="${o.id}">Editar</button>${can('del.obras')?`<button class="btn danger sm" data-odel="${o.id}">Excluir</button>`:''}</div>`).join('')||'<div class="small muted">Nenhuma obra cadastrada.</div>';
   $('o-list').querySelectorAll('[data-odel]').forEach(b=>b.onclick=()=>excluirObra(obra(b.dataset.odel)));
+  renderPager($('o-pager'),'obras',PO,['obra','obras'],renderObras);
   $('o-list').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{OEDIT=obra(b.dataset.o);fillObra()});
   $('o-list').querySelectorAll('[data-func]').forEach(b=>b.onclick=()=>{const o=obra(b.dataset.func);const l=S.colab.filter(c=>c.obraId===o.id).sort((a,c)=>a.nome.localeCompare(c.nome));
     infoModal(`Funcionários — ${esc(o.nome)} (${l.length})`,`<div class="tablewrap"><table><thead><tr><th>#</th><th>Nome</th><th>Empresa</th><th>QR Code</th><th>Situação</th></tr></thead><tbody>${l.map((c,i)=>{const e=emp(c.empresaId);return `<tr><td class="num">${i+1}</td><td>${esc(c.nome)}</td><td>${esc(e?e.nome:'—')}</td><td class="mono">${esc(c.qr)}</td><td>${c.ativo?'<span class="pill ok">ativo</span>':'<span class="pill bad">inativo</span>'}</td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Nenhum colaborador alocado nesta obra.</td></tr>'}</tbody></table></div>`)});
@@ -2060,15 +2076,16 @@ let CTREDIT=null;
 function renderContratos(){
   const f=$('ctr-filtro').value;const t=today();
   const l=(S.contratos||[]).filter(c=>{const st=contratoStatus(c,t);return !f||(f==='ativos'?(st==='vigente'||st==='a iniciar'):(st==='inativo'||st==='encerrado'))}).sort((a,b)=>a.numero.localeCompare(b.numero));
-  const pill={vigente:'ok','a iniciar':'warn',encerrado:'bad',inativo:'bad'};
-  $('ctr-table').innerHTML=`<thead><tr><th>Nº</th><th>Início</th><th>Término</th><th>Situação</th><th>Obras</th><th></th></tr></thead><tbody>${l.map(c=>{const st=contratoStatus(c,t);const ob=S.obras.filter(o=>o.contratoId===c.id);
+  const pill={vigente:'ok','a iniciar':'warn',encerrado:'bad',inativo:'bad'};const PC=paginate('contratos',l,25);
+  $('ctr-table').innerHTML=`<thead><tr><th>Nº</th><th>Início</th><th>Término</th><th>Situação</th><th>Obras</th><th></th></tr></thead><tbody>${PC.rows.map(c=>{const st=contratoStatus(c,t);const ob=S.obras.filter(o=>o.contratoId===c.id);
     return `<tr><td class="mono"><b>${esc(c.numero)}</b></td><td class="num">${c.inicio?br(c.inicio):'<span class="muted">—</span>'}</td><td class="num">${c.fim?br(c.fim):'<span class="muted">—</span>'}</td><td><span class="pill ${pill[st]}">${st}</span></td><td class="small">${esc(ob.map(o=>o.nome).join(', ')||'—')}</td><td><button class="btn sec sm" data-ctr="${c.id}">Editar</button></td></tr>`}).join('')||'<tr><td colspan="6" class="empty">Nenhum contrato.</td></tr>'}</tbody>`;
   $('ctr-table').querySelectorAll('[data-ctr]').forEach(b=>b.onclick=()=>{CTREDIT=contrato(b.dataset.ctr);fillContrato()});
+  renderPager($('ctr-pager'),'contratos',PC,['contrato','contratos'],renderContratos);
   if(!$('ctr-form-title').dataset.init){$('ctr-form-title').dataset.init=1;fillContrato()}
 }
 function fillContrato(){const c=CTREDIT||{numero:'',descricao:'',inicio:'',fim:'',ativo:true};
   $('ctr-form-title').textContent=CTREDIT?'Editar contrato':'Novo contrato';$('ctr-num').value=c.numero;$('ctr-ini').value=c.inicio||'';$('ctr-fim').value=c.fim||'';$('ctr-ativo').value=c.ativo===false?'0':'1';$('ctr-err').hidden=true;$('ctr-precos').hidden=!CTREDIT}
-$('ctr-filtro').onchange=renderContratos;$('ctr-new').onclick=()=>{CTREDIT=null;fillContrato()};$('ctr-cancel').onclick=()=>{CTREDIT=null;fillContrato()};
+$('ctr-filtro').onchange=()=>{PAGES.contratos=1;renderContratos()};$('ctr-new').onclick=()=>{CTREDIT=null;fillContrato()};$('ctr-cancel').onclick=()=>{CTREDIT=null;fillContrato()};
 $('ctr-precos').onclick=()=>{if(!CTREDIT||!can('cfg.precos'))return;const id=CTREDIT.id;CFGTAB='precos';renderCfg();$('p-ct').value=id;renderPrecos()};
 $('ctr-save').onclick=()=>{
   const err=$('ctr-err');const show=m=>{err.hidden=false;err.textContent=m};
