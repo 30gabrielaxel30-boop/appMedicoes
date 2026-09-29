@@ -204,6 +204,20 @@ td.empty{color:var(--ink-3);text-align:center;padding:18px}
 .scanbox .frame::after{content:"";position:absolute;left:8%;right:8%;top:50%;height:2px;background:var(--accent);opacity:.9;animation:scan 2s ease-in-out infinite}
 @keyframes scan{0%,100%{transform:translateY(-70px)}50%{transform:translateY(70px)}}
 @media (prefers-reduced-motion:reduce){.scanbox .frame::after{animation:none}}
+.fotobox{position:relative;border-radius:14px;overflow:hidden;background:#0b1116;aspect-ratio:3/4;width:100%;max-width:340px;margin:10px auto 0;display:grid;place-items:center;color:#9fb1bd}
+@media (max-height:700px){.fotobox{max-width:260px}}
+.fotobox video,.fotobox img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.fotobox video.espelho{transform:scaleX(-1)}
+.fotobox .oval{position:absolute;left:18%;right:18%;top:9%;bottom:24%;border:3px dashed rgba(255,255,255,.85);border-radius:50%;pointer-events:none;box-shadow:0 0 0 999px rgba(0,0,0,.30)}
+.fotobox .dica{position:absolute;left:0;right:0;bottom:10px;text-align:center;font-size:13px;font-weight:600;color:#fff;text-shadow:0 1px 3px #000;pointer-events:none}
+.fotothumb{width:46px;height:61px;border-radius:8px;object-fit:cover;flex:0 0 auto;border:1px solid var(--line);background:#0b1116}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit;font-size:13px;text-transform:none;letter-spacing:0;margin:0}
+.fvimg{border-radius:12px;overflow:hidden;background:var(--surface-2);border:1px solid var(--line);aspect-ratio:3/4;max-width:340px;margin:0 auto;display:grid;place-items:center;text-align:center}
+.fvimg.sem{aspect-ratio:auto}
+.fvimg img{width:100%;height:100%;object-fit:cover;display:block}
+.fvimg .vazio{padding:18px;font-size:13.5px;color:var(--ink-2);line-height:1.5}
+.fvinfo{display:grid;grid-template-columns:auto 1fr;gap:7px 14px;font-size:14px;margin:14px 0 0}
+.fvinfo dt{color:var(--ink-3);font-size:12.5px;padding-top:2px}.fvinfo dd{margin:0;font-weight:500;min-width:0;overflow-wrap:anywhere}
 .mealbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .mealbtn{border:2px solid var(--line);background:var(--surface);border-radius:10px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:600}
 .mealbtn small{font-weight:400;color:var(--ink-3);font-family:var(--mono)}
@@ -379,6 +393,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
             <div class="card" id="confirm-card" hidden>
               <h3>Confirmar refeição</h3>
               <div class="colab-card" id="colab-card"></div>
+              <div id="foto-slot" style="margin-top:10px"></div>
               <div id="dup-msg" class="notice warn" style="margin-top:10px" hidden></div>
               <div class="row" id="dm-row" style="margin-top:10px" hidden><label class="row" style="text-transform:none;letter-spacing:0;font-size:13px;margin:0;gap:6px;cursor:pointer"><input type="checkbox" id="dm-check" style="width:auto"> Data manual</label><input type="date" id="dm-date" style="width:170px" hidden></div>
               <div style="margin:12px 0 6px" class="small muted">Tipo de refeição</div>
@@ -481,9 +496,24 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
           <div class="tablewrap"><table id="aud-table"></table></div>
           <div class="row" id="aud-pager" style="justify-content:center;margin-top:10px"></div>
         </div>
-        <div class="card" style="margin-top:14px"><h3>Arquivos compactados</h3>
-          <div class="notice info small" data-hint="aud-arq" style="margin-bottom:8px">Eventos antigos, compactados automaticamente ao atingir 1.000 registros. Para consultar, baixe o CSV.</div>
-          <div class="tablewrap"><table id="aud-arq"></table></div>
+        <div class="card" style="margin-top:14px" id="arq-card"><h3>Arquivos compactados</h3>
+          <div class="subtabs" id="arq-tabs"><button type="button" data-at="aud" class="on">Auditoria</button><button type="button" data-at="fotos">Fotos</button></div>
+          <div id="arq-aud">
+            <div class="notice info small" data-hint="aud-arq" style="margin-bottom:8px">Eventos antigos, compactados automaticamente ao atingir 1.000 registros. Para consultar, baixe o CSV.</div>
+            <div class="tablewrap"><table id="aud-arq"></table></div>
+          </div>
+          <div id="arq-fotos" hidden>
+            <div class="notice info small" data-hint="aud-fotos" style="margin-bottom:10px">As fotos ficam visíveis em Administrativo › Registros por 20 dias. Toda madrugada (03h) o servidor junta as fotos do dia anterior em um arquivo compactado (.zip) com uma planilha de índice. Os arquivos ficam guardados por 12 meses.</div>
+            <div class="tiles" id="fotos-uso"></div>
+            <div class="row" style="margin-top:12px;align-items:flex-end">
+              <div class="field" style="min-width:150px"><label for="fa-de">Selecionar período dos arquivos — de</label><input id="fa-de" type="date"></div>
+              <div class="field" style="min-width:150px"><label for="fa-ate">até</label><input id="fa-ate" type="date"></div>
+              <button class="btn" id="fa-baixar" type="button">Baixar arquivos</button>
+              <button class="btn sec sm" id="fa-agora" type="button" hidden title="Compacta agora as fotos que ainda aguardam (inclusive as de hoje)">Compactar agora</button>
+            </div>
+            <div class="small muted" id="fa-resumo" style="margin-top:8px"></div>
+            <div class="tablewrap" style="margin-top:8px"><table id="fa-table"></table></div>
+          </div>
         </div>
       </section>
 
@@ -659,6 +689,42 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
   </div>
 </div>
 
+<!-- ============ FOTO DO COLABORADOR (registro por QR Code) ============ -->
+<div class="modal" id="foto-modal">
+  <div class="sheet narrow">
+    <div class="mh"><h2>Foto do colaborador</h2><button class="btn sec sm" id="foto-close" type="button">Fechar</button></div>
+    <div class="small" id="foto-quem"></div>
+    <div class="fotobox" id="fotobox">
+      <div id="foto-idle" class="small">Iniciando câmera…</div>
+      <video id="foto-video" playsinline muted hidden></video>
+      <img id="foto-prev" alt="Pré-visualização da foto" hidden>
+      <div class="oval" id="foto-oval" hidden></div>
+      <div class="dica" id="foto-dica" hidden>Enquadre o rosto no oval</div>
+    </div>
+    <div id="foto-msg" class="small" style="margin-top:10px;color:var(--warn);font-weight:500" hidden></div>
+    <div class="row" id="foto-acoes-cam" style="margin-top:12px;flex-wrap:nowrap">
+      <button class="btn big" id="foto-tirar" type="button" style="flex:1" disabled>📸 Tirar foto</button>
+      <button class="btn sec" id="foto-virar" type="button" title="Alternar entre a câmera traseira e a frontal" aria-label="Trocar câmera">⟲ Câmera</button>
+    </div>
+    <div class="row" id="foto-acoes-ok" style="margin-top:12px;flex-wrap:nowrap" hidden>
+      <button class="btn big" id="foto-usar" type="button" style="flex:1">✓ Usar esta foto</button>
+      <button class="btn sec" id="foto-refazer" type="button">Refazer</button>
+    </div>
+    <div class="row" style="margin-top:12px;justify-content:space-between;gap:10px">
+      <label class="linkbtn" for="foto-file">Usar o app de câmera do celular<input id="foto-file" type="file" accept="image/*" capture="environment" hidden></label>
+      <button class="linkbtn" id="foto-pular" type="button">Registrar sem foto (justificar)</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FOTO / DETALHES DO REGISTRO (Administrativo) ============ -->
+<div class="modal" id="fv-modal">
+  <div class="sheet narrow">
+    <div class="mh"><h2 id="fv-title">Registro</h2><button class="btn sec sm" id="fv-close" type="button">Fechar</button></div>
+    <div id="fv-body"></div>
+  </div>
+</div>
+
 <!-- ============ BM CHOOSER (empresa + período) ============ -->
 <div class="modal" id="emp-modal">
   <div class="sheet narrow">
@@ -730,8 +796,10 @@ const PERMS=[
   {id:'sup.bm',nome:'Emitir, fechar, imprimir e assinar BM'},
   {id:'sup.nf',nome:'Informar nota fiscal e anexar BM assinado'},
   {id:'sup.fechar',nome:'Fechar refeição sem incluir em BM (com justificativa)'},
+  {id:'fotos.ver',nome:'Ver fotos do rosto nos registros'},
   {grp:'Auditoria'},
   {id:'aud.ver',nome:'Visualizar a trilha de auditoria'},
+  {id:'fotos.baixar',nome:'Baixar arquivos compactados de fotos'},
   {grp:'Exclusões'},
   {id:'del.bm',nome:'Excluir boletim de medição (o último de cada empresa)'},
   {id:'del.sobras',nome:'Excluir sobras informadas'},
@@ -850,7 +918,7 @@ const ACOES={
   'refeicao.registrar':'Registrou refeição','refeicao.fechar':'Fechou refeição sem BM','refeicao.reabrir':'Reabriu refeição fechada sem BM','refeicao.estornar':'Estornou refeição','sobra.registrar':'Registrou sobra','bm.compartilhar':'Compartilhou PDF do BM','sobra.excluir':'Excluiu sobra',
   'bm.emitir':'Gerou rascunho de BM','bm.fechar':'Fechou BM','bm.validar':'Validou BM (assinatura eletrônica do restaurante)','bm.homologar':'Homologou assinatura física do restaurante','bm.assinar_sup':'Registrou assinatura do Suprimentos','bm.nf':'Informou nota fiscal','bm.pdf':'Exportou BM em PDF','bm.imprimir':'Imprimiu BM','bm.anexar':'Anexou BM assinado','bm.anexo_remover':'Removeu anexo do BM','bm.anexo_baixar':'Baixou anexo do BM',
   'usuario.salvar':'Cadastrou/alterou usuário','colab.salvar':'Cadastrou/alterou colaborador','colab.realocar':'Realocou colaborador (empresa/obra)','empresa.salvar':'Cadastrou/alterou empresa','obra.salvar':'Cadastrou/alterou obra','preco.salvar':'Cadastrou/alterou preço','contrato.salvar':'Cadastrou/alterou contrato',
-  'contratada.salvar':'Cadastrou/alterou contratada (restaurante)','usuario.senha':'Redefiniu senha de usuário','auditoria.csv':'Exportou auditoria em CSV','dados.apagar':'Apagou todos os dados','perfil.salvar':'Cadastrou/alterou perfil','perfil.excluir':'Excluiu perfil','usuario.excluir':'Excluiu usuário','usuario.aprovar':'Aprovou conta','usuario.negar':'Negou conta','bm.excluir':'Excluiu boletim de medição','empresa.excluir':'Excluiu empresa','obra.excluir':'Excluiu obra','auditoria.arquivo':'Baixou arquivo compactado da auditoria'
+  'contratada.salvar':'Cadastrou/alterou contratada (restaurante)','usuario.senha':'Redefiniu senha de usuário','auditoria.csv':'Exportou auditoria em CSV','dados.apagar':'Apagou todos os dados','perfil.salvar':'Cadastrou/alterou perfil','perfil.excluir':'Excluiu perfil','usuario.excluir':'Excluiu usuário','usuario.aprovar':'Aprovou conta','usuario.negar':'Negou conta','bm.excluir':'Excluiu boletim de medição','empresa.excluir':'Excluiu empresa','obra.excluir':'Excluiu obra','auditoria.arquivo':'Baixou arquivo compactado da auditoria','foto.ver':'Visualizou foto do registro','fotos.baixar':'Baixou arquivos compactados de fotos','fotos.compactar':'Compactou fotos (rotina do servidor)'
 };
 let DEVICE='';try{DEVICE=localStorage.getItem('refeicoes_device')||'';if(!DEVICE){DEVICE='DEV-'+Math.random().toString(36).slice(2,8).toUpperCase();localStorage.setItem('refeicoes_device',DEVICE)}}catch(e){DEVICE='DEV-?'}
 function audit(acao,descricao,x){
@@ -929,7 +997,7 @@ async function sync(){
     SYNC.retry=setTimeout(sync,15000);
   }finally{SYNC.running=false;if(SYNC.pending&&!SYNC.offline)setTimeout(sync,200)}
 }
-window.addEventListener('online',()=>{if(SYNC.pending)sync()});
+window.addEventListener('online',()=>{if(SYNC.pending)sync();fotoEnviar()});
 // atualização periódica com dados de outros aparelhos
 setInterval(async()=>{if(!USER||SYNC.pending||SYNC.running||document.hidden)return;try{await loadAll();refreshBadges();if(PAGE==='rest')renderRest();else if(PAGE==='sup'&&!$('bm-modal').classList.contains('on'))renderSup();else if(PAGE==='aud')renderAud()}catch(e){}},45000);
 
@@ -961,7 +1029,7 @@ async function enterApp(){
   $('login').style.display='none';$('app').classList.add('on');
   $('who-name').textContent=USER.nome;$('who-role').textContent=USER.tipo||USER.perfil;
   audit('login.ok','',{aba:'login'});save();
-  seedPerfis();buildNav();loadSocial();return true;
+  seedPerfis();buildNav();loadSocial();setTimeout(fotoEnviar,1500);return true;
 }
 async function resolveEmail(login){login=login.trim();if(login.includes('@'))return login.toLowerCase();
   try{const {data}=await sb.rpc('email_por_login',{p_login:login});if(data)return data}catch(e){}return toEmail(login)}
@@ -1203,7 +1271,7 @@ function renderRest(){
   $('rest-notif-list').innerHTML=pend.map(b=>`<div class="item"><span class="pill warn">Atenção</span><div class="t"><b>BM nº ${b.numero} — ${esc(b.empresaNome)}</b><span>${esc(bmK(b).nome)} · Período ${br(b.ini)} à ${br(b.fim)} fechado em ${brdt(b.fechadoEm)} · ${b.qtd} refeições · ${money(b.liquido)}</span></div><button class="btn sm" data-vbm="${b.id}">Ver e validar</button></div>`).join('');
   $('rest-notif-list').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
   const itensRec=recent.map(r=>({em:r.registradoEm,r})).concat(sobHoje.map(o=>({em:o.registradoEm,o}))).sort((a,b)=>a.em<b.em?1:-1).slice(0,12);
-  $('rest-recent').innerHTML=itensRec.length?itensRec.map(({r,o})=>o?sobraItemRec(o):`<div class="item"><div class="avatar">${ini(r.nome)}</div><div class="t"><b>${esc(r.nome)} ${modPill(r)}${r.dataManual?' <span class="pill warn">data '+br(r.data)+'</span>':''}</b><span>${esc(r.empresaNome)} · ${esc(r.obraNome||'obra não informada')}${modOf(r)==='retirada'?' · '+esc(retInfo(r)):''}${r.terceirizada?' · terc.: '+esc(r.terceirizada):''} · ${hm(r.registradoEm)}</span></div><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span>${r.fechado?'<span class="pill bad">fechada</span>':can('rest.estornar')&&!r.bmId?`<button class="btn sec sm" data-undo="${r.id}">Estornar</button>`:''}</div>`).join(''):'<div class="small muted">Nenhum registro hoje ainda.</div>';
+  $('rest-recent').innerHTML=itensRec.length?itensRec.map(({r,o})=>o?sobraItemRec(o):`<div class="item"><div class="avatar">${ini(r.nome)}</div><div class="t"><b>${esc(r.nome)} ${modPill(r)}${fotoPill(r)}${r.dataManual?' <span class="pill warn">data '+br(r.data)+'</span>':''}</b><span>${esc(r.empresaNome)} · ${esc(r.obraNome||'obra não informada')}${modOf(r)==='retirada'?' · '+esc(retInfo(r)):''}${r.terceirizada?' · terc.: '+esc(r.terceirizada):''} · ${hm(r.registradoEm)}</span></div><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span>${r.fechado?'<span class="pill bad">fechada</span>':can('rest.estornar')&&!r.bmId?`<button class="btn sec sm" data-undo="${r.id}">Estornar</button>`:''}</div>`).join(''):'<div class="small muted">Nenhum registro hoje ainda.</div>';
   $('rest-recent').querySelectorAll('[data-rsdel]').forEach(b=>b.onclick=()=>excluirSobra(b.dataset.rsdel,renderRest));
   $('rest-recent').querySelectorAll('[data-undo]').forEach(b=>b.onclick=()=>{const rr=S.registros.find(r=>r.id===b.dataset.undo);S.registros=S.registros.filter(r=>r.id!==b.dataset.undo);if(rr)audit('refeicao.estornar',`${tipo(rr.tipo).curto} de ${rr.nome} (${money(rr.valor)}) registrada às ${hm(rr.registradoEm)}`,{obra:rr.obraNome,empresa:rr.empresaNome,entidade:'registro '+rr.id});concluir('Registro estornado');renderRest()});
   $('btn-scan-rest').disabled=!can('rest.registrar');$('qr-manual-go').disabled=!can('rest.registrar');
@@ -1229,12 +1297,19 @@ function lookup(code){
   if(!obraOk(c.obraId)){toast('Colaborador de obra fora do seu acesso');return}
   const RC=restCt();if(!RC){toast('Nenhuma contratada (restaurante) cadastrada ou liberada para você');return}
   if(!(RC.obras||[]).includes(c.obraId)){const o=obra(c.obraId);toast(`O restaurante ${RC.nome} não atende a obra ${o?o.nome:''} deste colaborador`);return}
-  CUR=c;CURTIPO=suggestTipo();
+  CUR=c;CURTIPO=suggestTipo();fotoReset();
   $('confirm-card').hidden=false;
-  const e=emp(c.empresaId),o=obra(c.obraId);
-  $('colab-card').innerHTML=`<div class="avatar">${ini(c.nome)}</div><div><b>${esc(c.nome)}</b><div class="meta">${esc(e?e.nome:'—')}<br>${esc(o?o.nome:'—')} · <span class="mono">${esc(c.qr)}</span></div></div>`;
-  renderMeal();
+  renderColabCard();renderMeal();
   $('confirm-card').scrollIntoView({behavior:'smooth',block:'nearest'});
+  fotoAbrir();
+}
+function renderColabCard(){
+  if(!CUR)return;const c=CUR,e=emp(c.empresaId),o=obra(c.obraId);
+  $('colab-card').innerHTML=`${FOTO.thumb?`<img class="fotothumb" src="${FOTO.thumb}" alt="Foto de ${esc(c.nome)}">`:`<div class="avatar">${ini(c.nome)}</div>`}<div><b>${esc(c.nome)}</b><div class="meta">${esc(e?e.nome:'—')}<br>${esc(o?o.nome:'—')} · <span class="mono">${esc(c.qr)}</span></div></div>`;
+  $('foto-slot').innerHTML=FOTO.raw?`<div class="row" style="gap:10px"><span class="pill ok">📷 Foto tirada</span><button type="button" class="linkbtn" id="fs-tirar">Refazer foto</button></div>`
+    :FOTO.skip?`<div class="row" style="gap:8px"><span class="pill warn">Sem foto</span><span class="small">${esc(FOTO.skip)}</span><button type="button" class="linkbtn" id="fs-tirar">Tirar foto</button></div>`
+    :`<button type="button" class="btn sec" id="fs-tirar" style="width:100%">📸 Tirar foto do colaborador <span class="small muted">(obrigatória)</span></button>`;
+  $('fs-tirar').onclick=fotoAbrir;
 }
 function renderMeal(){
   const t=regDate('dm');const regs=S.registros.filter(r=>r.data===t&&r.colabId===CUR.id);
@@ -1246,19 +1321,34 @@ function renderMeal(){
   if(cerr)$('dup-msg').textContent=cerr;
   else if(dup)$('dup-msg').textContent=`${tipo(CURTIPO).curto} já registrado em ${br(t)} às ${hm(dup.registradoEm)}. Escolha outro tipo ou cancele.`;
   else if(p===null)$('dup-msg').textContent=`${tipo(CURTIPO).curto} não tem preço cadastrado. Cadastre em Configurações › Preços.`;
-  $('btn-confirm').disabled=!!dup||p===null||!!cerr;
+  $('btn-confirm').disabled=!!dup||p===null||!!cerr||!(FOTO.raw||FOTO.skip);
 }
-$('btn-confirm').onclick=()=>{
-  if(!CUR||!CURTIPO)return;const t=regDate('dm');const p=precoVigente(CURTIPO,t,cidOf(CUR.obraId));const manualDate=t!==today();
-  if(p===null||contratoErro(CUR.obraId,t)||S.registros.some(r=>r.data===t&&r.colabId===CUR.id&&r.tipo===CURTIPO))return;
-  const e=emp(CUR.empresaId),o=obra(CUR.obraId);
+$('btn-confirm').onclick=async()=>{
+  if(!CUR||!CURTIPO||FOTO.busy)return;if(!(FOTO.raw||FOTO.skip)){fotoAbrir();return}
+  const c=CUR,tp=CURTIPO,raw=FOTO.raw,skip=FOTO.skip;const t=regDate('dm');const p=precoVigente(tp,t,cidOf(c.obraId));const manualDate=t!==today();
+  const dup=()=>S.registros.some(r=>r.data===t&&r.colabId===c.id&&r.tipo===tp);
+  if(p===null||contratoErro(c.obraId,t)||dup())return;
+  const e=emp(c.empresaId),o=obra(c.obraId);
   const RC=restCt();if(!RC)return;
-  S.registros.push({id:uid(),data:t,colabId:CUR.id,modalidade:'presencial',nome:CUR.nome,empresaId:CUR.empresaId,empresaNome:e?e.nome:'',obraId:CUR.obraId,obraNome:o?o.nome:'',contratoId:cidOf(CUR.obraId)||undefined,contratoNumero:(contrato(cidOf(CUR.obraId))||{}).numero||undefined,contratadaId:RC.id,contratadaNome:RC.nome,tipo:CURTIPO,valor:p,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null,dataManual:manualDate||undefined});
-  audit('refeicao.registrar',`${tipo(CURTIPO).curto} — ${CUR.nome} (${money(p)})${manualDate?' — DATA MANUAL '+br(t):''}`,{obra:o?o.nome:'',empresa:e?e.nome:'',entidade:'colaborador '+CUR.qr});
-  concluir(`${tipo(CURTIPO).curto} registrado — ${CUR.nome.split(' ')[0]}${manualDate?' ('+br(t)+')':''}`);
-  CUR=null;$('confirm-card').hidden=true;$('qr-manual').value='';renderRest();
+  const reg={id:uid(),data:t,colabId:c.id,modalidade:'presencial',nome:c.nome,empresaId:c.empresaId,empresaNome:e?e.nome:'',obraId:c.obraId,obraNome:o?o.nome:'',contratoId:cidOf(c.obraId)||undefined,contratoNumero:(contrato(cidOf(c.obraId))||{}).numero||undefined,contratadaId:RC.id,contratadaNome:RC.nome,tipo:tp,valor:p,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null,dataManual:manualDate||undefined};
+  let item=null;
+  if(raw){
+    // 1º prepara e guarda a foto no aparelho; só depois grava o registro (sem espera entre gravar e sincronizar)
+    FOTO.busy=true;$('btn-confirm').disabled=true;$('btn-cancel').disabled=true;
+    try{const g=await fotoGerar(raw,fotoLinhas(reg));const fp=`${ymd(new Date(reg.registradoEm))}/${reg.id}.${g.ext}`;reg.foto={p:fp};
+      item={p:fp,tipo:g.tipo,c:await g.c.arrayBuffer(),a:await g.a.arrayBuffer(),em:reg.registradoEm};await fotoEnfileirar(item)}
+    catch(err){FOTO.busy=false;$('btn-cancel').disabled=false;if(CUR===c)renderMeal();toast('Não foi possível processar a foto: '+(err.message||err)+'. Tire a foto novamente.','bad');return}
+    FOTO.busy=false;$('btn-cancel').disabled=false;
+  }else reg.semFoto=skip;
+  if(dup()){if(CUR===c)renderMeal();return}
+  S.registros.push(reg);
+  audit('refeicao.registrar',`${tipo(tp).curto} — ${c.nome} (${money(p)})${manualDate?' — DATA MANUAL '+br(t):''}${reg.semFoto?' — SEM FOTO: '+reg.semFoto:' — com foto'}`,{obra:o?o.nome:'',empresa:e?e.nome:'',entidade:'colaborador '+c.qr});
+  concluir(`${tipo(tp).curto} registrado — ${c.nome.split(' ')[0]}${manualDate?' ('+br(t)+')':''}${reg.semFoto?' (sem foto)':''}`);
+  if(CUR===c){CUR=null;fotoReset();$('confirm-card').hidden=true;$('qr-manual').value=''}
+  renderRest();
+  if(item)fotoEnviar();
 };
-$('btn-cancel').onclick=()=>{CUR=null;$('confirm-card').hidden=true};
+$('btn-cancel').onclick=()=>{CUR=null;fotoReset();$('confirm-card').hidden=true};
 /* ---- registro manual: Retirada (alguém leva a refeição de outro) ou Terceirizado (sem QR Code) ---- */
 let MTIPO=null,MMOD='',MRET=null;
 const MODS={presencial:'Presencial',retirada:'Retirada',terceirizado:'Terceirizado'};
@@ -1386,8 +1476,9 @@ function renderSup(){
   const ps=pendSup();$('sup-notif').hidden=!(ps.length&&can('sup.bm'));
   $('sup-notif-list').innerHTML=ps.map(b=>`<div class="item"><span class="pill ok">Assinado</span><div class="t"><b>BM nº ${b.numero} — ${esc(b.empresaNome)}</b><span>Período ${br(b.ini)} à ${br(b.fim)} · assinatura ${b.assRest.tipo==='eletronica'?'eletrônica':'física homologada'} em ${brdt(b.assRest.em)} · ${money(b.liquido)}</span></div><button class="btn sm" data-vbm="${b.id}">Ver / imprimir</button></div>`).join('');
   $('sup-notif-list').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
-  $('sup-table').innerHTML=`<thead><tr><th>Data refeição</th><th>Colaborador</th><th>Empresa</th><th>Obra</th><th>Restaurante</th><th>Tipo</th><th class="r">Valor</th><th>Registrado em</th><th>Por</th><th>Nº BM</th></tr></thead><tbody>${regs.slice(0,400).map(r=>{const b=r.bmId?S.bms.find(x=>x.id===r.bmId):null;return `<tr><td class="num">${br(r.data)}${r.dataManual?' <span class="pill warn" title="data informada manualmente">manual</span>':''}</td><td>${esc(r.nome)}${modOf(r)!=='presencial'?`<div class="small muted">${modOf(r)==='retirada'?esc(retInfo(r)):'terceirizado'+(r.terceirizada?' · terc.: '+esc(r.terceirizada):'')}</div>`:''}</td><td>${esc(r.empresaNome)}</td><td>${esc(r.obraNome)}</td><td>${esc((ct(ctOf(r))||{}).nome||r.contratadaNome||'—')}</td><td><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span></td><td class="r num">${money(r.valor)}</td><td class="num">${brdt(r.registradoEm)}</td><td>${esc(r.usuario)}</td><td style="min-width:150px">${b?`<button class="btn sec sm num" data-vbm="${b.id}">BM ${b.numero}</button>`:r.fechado?`<div class="row" style="gap:6px"><span class="pill bad" title="${esc(r.fechado.motivo)}">fechada sem BM</span>${can('sup.fechar')?`<button class="btn sec sm" data-reabrir="${r.id}">Reabrir</button>`:''}</div><div class="small muted" style="margin-top:4px;max-width:210px">${esc(r.fechado.motivo)} — ${esc(r.fechado.por)}, ${brdt(r.fechado.em)}</div>`:`<div class="row" style="gap:6px"><span class="pill neutral">em aberto</span>${can('sup.fechar')?`<button class="btn sec sm" data-fechar="${r.id}">Fechar</button>`:''}</div>`}</td></tr>`}).join('')||'<tr><td colspan="10" class="empty">Nenhum registro com esses filtros.</td></tr>'}</tbody>`;
+  $('sup-table').innerHTML=`<thead><tr><th>Data refeição</th><th>Colaborador</th><th>Empresa</th><th>Obra</th><th>Restaurante</th><th>Tipo</th><th class="r">Valor</th><th>Foto</th><th>Por</th><th>Nº BM</th></tr></thead><tbody>${regs.slice(0,400).map(r=>{const b=r.bmId?S.bms.find(x=>x.id===r.bmId):null;return `<tr><td class="num">${br(r.data)}${r.dataManual?' <span class="pill warn" title="data informada manualmente">manual</span>':''}</td><td>${esc(r.nome)}${modOf(r)!=='presencial'?`<div class="small muted">${modOf(r)==='retirada'?esc(retInfo(r)):'terceirizado'+(r.terceirizada?' · terc.: '+esc(r.terceirizada):'')}</div>`:''}</td><td>${esc(r.empresaNome)}</td><td>${esc(r.obraNome)}</td><td>${esc((ct(ctOf(r))||{}).nome||r.contratadaNome||'—')}</td><td><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span></td><td class="r num">${money(r.valor)}</td><td>${fotoBtn(r)}</td><td>${esc(r.usuario)}</td><td style="min-width:150px">${b?`<button class="btn sec sm num" data-vbm="${b.id}">BM ${b.numero}</button>`:r.fechado?`<div class="row" style="gap:6px"><span class="pill bad" title="${esc(r.fechado.motivo)}">fechada sem BM</span>${can('sup.fechar')?`<button class="btn sec sm" data-reabrir="${r.id}">Reabrir</button>`:''}</div><div class="small muted" style="margin-top:4px;max-width:210px">${esc(r.fechado.motivo)} — ${esc(r.fechado.por)}, ${brdt(r.fechado.em)}</div>`:`<div class="row" style="gap:6px"><span class="pill neutral">em aberto</span>${can('sup.fechar')?`<button class="btn sec sm" data-fechar="${r.id}">Fechar</button>`:''}</div>`}</td></tr>`}).join('')||'<tr><td colspan="10" class="empty">Nenhum registro com esses filtros.</td></tr>'}</tbody>`;
   $('sup-table').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
+  $('sup-table').querySelectorAll('[data-foto]').forEach(x=>x.onclick=()=>verRegistro(S.registros.find(r=>r.id===x.dataset.foto)));
   $('sup-table').querySelectorAll('[data-fechar]').forEach(x=>x.onclick=()=>fecharRefeicao(S.registros.find(r=>r.id===x.dataset.fechar)));
   $('sup-table').querySelectorAll('[data-reabrir]').forEach(x=>x.onclick=()=>reabrirRefeicao(S.registros.find(r=>r.id===x.dataset.reabrir)));
   $('sup-sobras').innerHTML=`<thead><tr><th>Data</th><th>Tipo</th><th class="r">Qtd</th><th class="r">Preço unit.</th><th class="r">Total</th><th>Colaborador</th><th>Empresa</th><th>Obra</th><th>Restaurante</th><th>Informado por</th><th>Nº BM</th><th></th></tr></thead><tbody>${sob.map(s=>{const b=s.bmId?S.bms.find(x=>x.id===s.bmId):null;return `<tr><td class="num">${br(s.data)}</td><td><span class="pill ${s.tipo}">${tipo(s.tipo).curto}</span></td><td class="r num">${s.qtd}</td><td class="r num">${money(sobraUnit(s))}</td><td class="r num">${money(sobraTotal(s))}</td><td>${esc(s.colabNome)}</td><td>${s.empresaId?esc(s.empresaNome||'—'):'<span class="pill bad" title="Sem empresa: não entra em BM. Exclua e registre novamente.">sem empresa</span>'}</td><td>${s.obraId?esc(s.obraNome||'—'):'<span class="pill warn">não informada</span>'}</td><td>${esc((ct(ctOf(s))||{}).nome||s.contratadaNome||'—')}</td><td>${esc(s.usuario)}</td><td>${b?`<button class="btn sec sm num" data-vbm="${b.id}">BM ${b.numero}</button>`:'<span class="pill neutral">em aberto</span>'}</td><td>${can('del.sobras')&&!s.bmId?`<button class="btn danger sm" data-sdel2="${s.id}">Excluir</button>`:''}</td></tr>`}).join('')||'<tr><td colspan="12" class="empty">Nenhuma sobra informada na semana.</td></tr>'}</tbody>`;
@@ -2215,6 +2306,10 @@ function renderAud(){
   $('aud-table').innerHTML=`<thead><tr><th>Data / hora</th><th>Usuário</th><th>Aba</th><th>Ação</th><th>Descrição</th><th>Obra</th><th>Empresa</th><th>Antes → Depois</th><th>Dispositivo</th><th>IP</th></tr></thead><tbody>${pageRows.map(e=>`<tr><td class="num">${brdt(e.em)}:${pad(new Date(e.em).getSeconds())}</td><td><b>${esc(e.usuario)}</b><div class="small muted">${esc(e.perfil)}</div></td><td>${esc(ABAS[e.aba]||e.aba)}</td><td>${esc(ACOES[e.acao]||e.acao)}</td><td style="max-width:360px">${esc(e.descricao)}${e.entidade?`<div class="small muted">${esc(e.entidade)}</div>`:''}</td><td>${esc(e.obra||'—')}</td><td>${esc(e.empresa||'—')}</td><td class="small mono" style="max-width:220px;overflow-wrap:anywhere">${e.antes===null&&e.depois===null?'—':`${fmtAD(e.antes)} → ${fmtAD(e.depois)}`}</td><td class="mono">${esc(e.dispositivo)}</td><td class="mono small">${e.ip?esc(e.ip):'<span class="muted">—</span>'}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">Nenhum evento com esses filtros.</td></tr>'}</tbody>`;
 }
 function renderAudArq(){
+  const podeF=can('fotos.baixar');if(!podeF)ARQ_TAB='aud';
+  $('arq-tabs').hidden=!podeF;$('arq-tabs').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.at===ARQ_TAB));
+  $('arq-aud').hidden=ARQ_TAB!=='aud';$('arq-fotos').hidden=ARQ_TAB!=='fotos';
+  if(ARQ_TAB==='fotos')renderFotosArq();
   const l=S.auditArq||[];
   $('aud-arq').innerHTML=`<thead><tr><th>Compactado em</th><th>Eventos de</th><th>até</th><th class="r">Qtd</th><th></th></tr></thead><tbody>${l.map(a=>`<tr><td class="num">${brdt(a.criado_em)}</td><td class="num">${brdt(a.de)}</td><td class="num">${brdt(a.ate)}</td><td class="r num">${num(a.qtd)}</td><td><button class="btn sec sm" data-arq="${esc(String(a.id))}">Baixar CSV</button></td></tr>`).join('')||'<tr><td colspan="5" class="empty">Nenhum arquivo ainda — a primeira compactação acontece ao atingir 1.000 eventos.</td></tr>'}</tbody>`;
   $('aud-arq').querySelectorAll('[data-arq]').forEach(b=>b.onclick=async()=>{
@@ -2238,6 +2333,228 @@ $('aud-csv').onclick=async()=>{
   const dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;
   if(dl){try{await dl.save({filename:name,data:csv});sucesso('CSV salvo')}catch(e){if(e&&e.code!=='declined')toast('Não foi possível salvar o CSV')}}
   else{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();sucesso('CSV gerado')}
+};
+
+/* =================== FOTO DO ROSTO NO REGISTRO POR QR CODE (v2.1) ===================
+   Bucket "fotos" (privado):  c/AAAA-MM-DD/<registro>.webp  consulta 360x480, fica 20 dias
+                              a/AAAA-MM-DD/<registro>.webp  cópia 240x320 → vai para z/AAAA-MM-DD.zip de madrugada
+   O texto (data e hora, empresa, obra, colaborador) é gravado na própria imagem. */
+const FOTO_CFG={c:{w:360,h:480,q:.6},a:{w:240,h:320,q:.5},dias:20};
+let FOTO={raw:null,tmp:null,thumb:null,skip:null,busy:false,stream:null,facing:'environment',camSeq:0};
+try{FOTO.facing=localStorage.getItem('sismed_foto_cam')||'environment'}catch(e){}
+function fotoReset(){FOTO.raw=null;FOTO.tmp=null;FOTO.thumb=null;FOTO.skip=null;FOTO.busy=false}
+function fotoLinhas(r){return [brdt(r.registradoEm),`${r.empresaNome||'—'} · ${r.obraNome||'—'}`.toUpperCase(),String(r.nome||'').toUpperCase()]}
+/* recorte central 3:4 em 480x640 (o mesmo enquadramento que aparece na tela) */
+function fotoCrop(src,sw,sh){const W=480,H=640;let cw=sw,ch=sw*4/3;if(ch>sh){ch=sh;cw=sh*3/4}
+  const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';x.drawImage(src,(sw-cw)/2,(sh-ch)/2,cw,ch,0,0,W,H);return c}
+function fotoCanvas(raw,w,h,linhas){
+  const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';x.drawImage(raw,0,0,w,h);
+  if(linhas&&linhas.length){
+    const fs=Math.max(8,Math.round(w*.043)),lh=Math.round(fs*1.3),pad=Math.round(fs*.6),bh=lh*linhas.length+pad*2-Math.round(fs*.25);
+    x.fillStyle='rgba(0,0,0,.62)';x.fillRect(0,h-bh,w,bh);x.fillStyle='#fff';x.textBaseline='top';
+    linhas.forEach((t,i)=>{let f=fs;const fnt=()=>x.font=`${i===0?700:600} ${f}px Arial,Helvetica,sans-serif`;fnt();while(f>6&&x.measureText(t).width>w-pad*2){f--;fnt()}x.fillText(t,pad,h-bh+pad+i*lh+Math.round((fs-f)/2))});
+  }
+  return c}
+function canvasBlob(c,q,tipo){return new Promise(res=>{const jpg=()=>c.toBlob(b=>res(b),'image/jpeg',q);
+  if(tipo==='image/jpeg')return jpg();try{c.toBlob(b=>{if(b&&b.type==='image/webp')res(b);else jpg()},'image/webp',q)}catch(e){jpg()}})}
+async function fotoGerar(raw,linhas){
+  let c=await canvasBlob(fotoCanvas(raw,FOTO_CFG.c.w,FOTO_CFG.c.h,linhas),FOTO_CFG.c.q);
+  let a=await canvasBlob(fotoCanvas(raw,FOTO_CFG.a.w,FOTO_CFG.a.h,linhas),FOTO_CFG.a.q,c&&c.type);
+  if(!c||!a)throw new Error('o navegador não gerou a imagem');
+  if(c.type!==a.type){c=await canvasBlob(fotoCanvas(raw,FOTO_CFG.c.w,FOTO_CFG.c.h,linhas),FOTO_CFG.c.q,'image/jpeg');a=await canvasBlob(fotoCanvas(raw,FOTO_CFG.a.w,FOTO_CFG.a.h,linhas),FOTO_CFG.a.q,'image/jpeg')}
+  const tipo=c.type==='image/webp'?'image/webp':'image/jpeg';
+  return {c,a,tipo,ext:tipo==='image/webp'?'webp':'jpg'}}
+
+/* ---- câmera ---- */
+function fotoMsg(m){const e=$('foto-msg');e.hidden=!m;e.textContent=m||''}
+function fotoModo(m){$('foto-acoes-cam').hidden=m!=='cam';$('foto-acoes-ok').hidden=m!=='ok';$('foto-prev').hidden=m!=='ok';
+  if(m==='ok'){$('foto-video').hidden=true;$('foto-oval').hidden=true;$('foto-dica').hidden=true;$('foto-idle').hidden=true}}
+function fotoCamStop(){FOTO.camSeq++;if(FOTO.stream){FOTO.stream.getTracks().forEach(t=>t.stop());FOTO.stream=null}const v=$('foto-video');v.srcObject=null;v.hidden=true;$('foto-oval').hidden=true;$('foto-dica').hidden=true}
+function fotoSemCam(m){$('foto-idle').hidden=false;$('foto-idle').textContent='Sem câmera';$('foto-tirar').disabled=true;fotoMsg(m+' Use “Usar o app de câmera do celular” ou registre sem foto, com justificativa.')}
+async function fotoCamStart(){
+  fotoCamStop();const seq=FOTO.camSeq;fotoMsg('');$('foto-idle').hidden=false;$('foto-idle').textContent='Iniciando câmera…';$('foto-tirar').disabled=true;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){fotoSemCam('Câmera indisponível neste navegador.');return}
+  let st=null;try{st=await navigator.mediaDevices.getUserMedia({video:{facingMode:FOTO.facing,width:{ideal:1280},height:{ideal:960}},audio:false})}
+  catch(e){if(seq===FOTO.camSeq)fotoSemCam('A câmera não pôde ser aberta (permissão negada ou em uso).');return}
+  if(seq!==FOTO.camSeq||!$('foto-modal').classList.contains('on')){st.getTracks().forEach(t=>t.stop());return}
+  FOTO.stream=st;const v=$('foto-video');v.srcObject=st;v.hidden=false;v.classList.toggle('espelho',FOTO.facing==='user');
+  $('foto-idle').hidden=true;$('foto-oval').hidden=false;$('foto-dica').hidden=false;
+  try{await v.play()}catch(e){}
+  $('foto-tirar').disabled=false;
+}
+function fotoAbrir(){
+  if(!CUR)return;FOTO.tmp=null;
+  $('foto-quem').innerHTML=`<b>${esc(CUR.nome)}</b> · ${esc((emp(CUR.empresaId)||{}).nome||'—')} · ${esc((obra(CUR.obraId)||{}).nome||'—')}`;
+  fotoModo('cam');$('foto-modal').classList.add('on');fotoCamStart();
+}
+function fotoFechar(){fotoCamStop();$('foto-modal').classList.remove('on')}
+function fotoPreview(raw){
+  FOTO.tmp=raw;const c=CUR||{};const e=emp(c.empresaId),o=obra(c.obraId);
+  $('foto-prev').src=fotoCanvas(raw,FOTO_CFG.c.w,FOTO_CFG.c.h,fotoLinhas({registradoEm:new Date().toISOString(),empresaNome:e&&e.nome,obraNome:o&&o.nome,nome:c.nome})).toDataURL('image/jpeg',.85);
+  fotoCamStop();fotoModo('ok');fotoMsg('');
+}
+async function imagemDeArquivo(f){
+  try{return await createImageBitmap(f,{imageOrientation:'from-image'})}catch(e){}
+  try{return await createImageBitmap(f)}catch(e){}
+  return await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error('imagem inválida'));i.src=URL.createObjectURL(f)});
+}
+$('foto-tirar').onclick=()=>{const v=$('foto-video');if(!FOTO.stream||!v.videoWidth)return;fotoPreview(fotoCrop(v,v.videoWidth,v.videoHeight))};
+$('foto-refazer').onclick=()=>{FOTO.tmp=null;fotoModo('cam');fotoCamStart()};
+$('foto-usar').onclick=()=>{if(!FOTO.tmp)return;FOTO.raw=FOTO.tmp;FOTO.tmp=null;FOTO.skip=null;FOTO.thumb=fotoCanvas(FOTO.raw,96,128).toDataURL('image/jpeg',.75);fotoFechar();renderColabCard();renderMeal()};
+$('foto-virar').onclick=()=>{FOTO.facing=FOTO.facing==='user'?'environment':'user';try{localStorage.setItem('sismed_foto_cam',FOTO.facing)}catch(e){}fotoCamStart()};
+$('foto-close').onclick=()=>{fotoFechar();if(CUR){renderColabCard();renderMeal()}};
+$('foto-file').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{const im=await imagemDeArquivo(f);const w=im.naturalWidth||im.width,h=im.naturalHeight||im.height;fotoPreview(fotoCrop(im,w,h))}catch(err){fotoMsg('Não foi possível ler a foto. Tente de novo.')}};
+$('foto-pular').onclick=()=>{
+  if(!CUR)return;fotoFechar();
+  justModal({titulo:'Registrar sem foto',resumo:`<div class="notice warn">O registro de <b>${esc(CUR.nome)}</b> ficará marcado como <b>sem foto</b>, com a justificativa, em Administrativo › Registros e na Auditoria.</div><div class="row" style="gap:6px">${['Câmera com defeito','Colaborador recusou a foto','Sem iluminação adequada'].map(m=>`<button type="button" class="btn sec sm" data-jmm="${esc(m)}">${esc(m)}</button>`).join('')}</div>`,
+    botao:'Confirmar sem foto',onOk:m=>{FOTO.raw=null;FOTO.thumb=null;FOTO.skip=m;renderColabCard();renderMeal()}});
+  document.querySelectorAll('[data-jmm]').forEach(b=>b.onclick=()=>{$('jm-txt').value=b.dataset.jmm;$('jm-txt').focus()});
+};
+
+/* ---- fila de envio (IndexedDB): a foto fica no aparelho até o servidor confirmar ---- */
+const FQ={db:undefined,mem:new Map(),pend:new Set(),busy:false,timer:null,avisou:false};
+function fqDb(){if(FQ.db!==undefined)return Promise.resolve(FQ.db);
+  return new Promise(res=>{try{const r=indexedDB.open('sismed_fotos',1);r.onupgradeneeded=()=>r.result.createObjectStore('fila',{keyPath:'p'});
+    r.onsuccess=()=>{FQ.db=r.result;FQ.db.onclose=()=>{FQ.db=undefined};res(FQ.db)};r.onerror=r.onblocked=()=>{FQ.db=null;res(null)}}catch(e){FQ.db=null;res(null)}})}
+async function fqOp(mode,fn){const db=await fqDb();if(!db)return fn(null);
+  return new Promise((res,rej)=>{let out;try{const tx=db.transaction('fila',mode);out=fn(tx.objectStore('fila'));tx.oncomplete=()=>res(out&&typeof out==='object'&&'result' in out?out.result:out);tx.onerror=tx.onabort=()=>{FQ.db=undefined;rej(tx.error)}}catch(e){FQ.db=undefined;rej(e)}})}
+const fqPut=it=>fqOp('readwrite',st=>{if(!st){FQ.mem.set(it.p,it);return}return st.put(it)});
+const fqDel=p=>fqOp('readwrite',st=>{if(!st){FQ.mem.delete(p);return}return st.delete(p)});
+const fqAll=()=>fqOp('readonly',st=>st?st.getAll():[...FQ.mem.values()]);
+async function fotoEnfileirar(it){FQ.pend.add(it.p);try{await fqPut(it)}catch(e){FQ.mem.set(it.p,it)}}
+async function fotoLocal(p){try{const l=await fqAll();const it=(l||[]).find(i=>i.p===p)||FQ.mem.get(p);return it?new Blob([it.c],{type:it.tipo}):null}catch(e){const it=FQ.mem.get(p);return it?new Blob([it.c],{type:it.tipo}):null}}
+async function fotoEnviar(){
+  if(FQ.busy||!USER)return;FQ.busy=true;clearTimeout(FQ.timer);let erro=null,enviou=false;
+  try{
+    let itens=[];try{itens=(await fqAll())||[]}catch(e){}
+    FQ.mem.forEach(v=>{if(!itens.some(i=>i.p===v.p))itens.push(v)});
+    itens.forEach(i=>FQ.pend.add(i.p));
+    for(const it of itens){
+      let falhou=null;
+      for(const k of ['c','a']){
+        if(it['ok_'+k])continue;
+        const {error}=await sb.storage.from('fotos').upload(`${k}/${it.p}`,new Blob([it[k]],{type:it.tipo}),{contentType:it.tipo,upsert:false,cacheControl:'86400'});
+        if(error&&!/exist|duplicate|409/i.test(`${error.message||''} ${error.statusCode||''} ${error.error||''}`)){falhou=error;break}
+        it['ok_'+k]=true;try{await fqPut(it)}catch(e){}
+      }
+      if(falhou){erro=falhou;const st=String(falhou.statusCode||falhou.status||'');if(!st||/^5/.test(st)||/fetch|network|timeout/i.test(falhou.message||''))break;continue} // sem rede: para; recusa de uma foto: segue com as outras
+      try{await fqDel(it.p)}catch(e){}FQ.mem.delete(it.p);FQ.pend.delete(it.p);enviou=true;
+    }
+  }catch(e){erro=e}
+  finally{
+    FQ.busy=false;
+    if(erro&&!FQ.avisou&&/row-level security|permission|policy|403|Unauthorized/i.test(String(erro.message||erro))){FQ.avisou=true;toast('O servidor recusou o envio da foto (sem permissão). A foto continua guardada neste aparelho.','bad')}
+    if(FQ.pend.size)FQ.timer=setTimeout(fotoEnviar,erro?30000:1500);
+    if(enviou&&PAGE==='rest'&&USER)renderRest();
+  }
+}
+setInterval(()=>{if(FQ.pend.size&&!FQ.busy)fotoEnviar()},60000);
+
+/* ---- indicadores e visualização ---- */
+function fotoPill(r){
+  if(r.foto)return FQ.pend.has(r.foto.p)?' <span class="pill warn" title="Foto guardada neste aparelho — será enviada quando houver internet">📷 enviando</span>':' <span class="pill neutral" title="Foto registrada">📷</span>';
+  return r.semFoto?` <span class="pill warn" title="${esc(r.semFoto)}">sem foto</span>`:'';
+}
+function fotoBtn(r){
+  if(r.foto&&can('fotos.ver'))return `<button class="btn sec sm" data-foto="${esc(r.id)}" title="Foto, data e hora do registro" style="white-space:nowrap">📷 Ver foto</button>`;
+  return `<button class="btn sec sm" data-foto="${esc(r.id)}" title="Data, hora e detalhes do registro" style="white-space:nowrap">${r.semFoto?'<span style="color:var(--warn)">Sem foto</span>':'Detalhes'}</button>`;
+}
+function fotoDia(r){return r.foto&&r.foto.p?r.foto.p.slice(0,10):''}
+function fotoArquivada(r){return !!(r.foto&&fotoDia(r)<=addDays(today(),-FOTO_CFG.dias))}
+let FV_SEQ=0;
+async function verRegistro(r){
+  if(!r)return;const m=modOf(r),seq=++FV_SEQ;
+  $('fv-title').textContent=r.foto&&can('fotos.ver')?'Foto do registro':'Detalhes do registro';
+  const linhas=[['Data e hora do registro',`<b class="num">${brdt(r.registradoEm)}</b>`],['Colaborador',`<b>${esc(r.nome)}</b>`],['Empresa',esc(r.empresaNome||'—')],['Obra',esc(r.obraNome||'—')],
+    ['Refeição',`${tipo(r.tipo).curto} · ${br(r.data)}${r.dataManual?' <span class="pill warn">data manual</span>':''}`],
+    ['Modalidade',modPill(r)+(m==='retirada'?` <span class="small muted">${esc(retInfo(r))}</span>`:m==='terceirizado'&&r.terceirizada?` <span class="small muted">terc.: ${esc(r.terceirizada)}</span>`:'')],
+    ['Restaurante',esc((ct(ctOf(r))||{}).nome||r.contratadaNome||'—')],['Registrado por',esc(r.usuario||'—')]];
+  if(r.semFoto)linhas.push(['Foto',`<span class="pill warn">sem foto</span> ${esc(r.semFoto)}`]);
+  $('fv-body').innerHTML=`<div class="fvimg" id="fv-img"><div class="vazio">Carregando a foto…</div></div><dl class="fvinfo">${linhas.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
+  $('fv-modal').classList.add('on');
+  const box=$('fv-img');const vazio=t=>{box.classList.add('sem');box.innerHTML=`<div class="vazio">${t}</div>`};
+  if(!r.foto)return vazio(r.semFoto?'📷 Registro feito <b>sem foto</b> (justificativa abaixo).':m==='presencial'?'Registro sem foto — feito antes da foto obrigatória.':'Registro manual — sem foto.');
+  if(!can('fotos.ver'))return vazio('Você não tem permissão para ver fotos.<br>Peça ao administrador a permissão “Ver fotos do rosto nos registros”.');
+  if(fotoArquivada(r)){
+    vazio(`A foto tem mais de ${FOTO_CFG.dias} dias e foi para o arquivo compactado.<br>Baixe em <b>Auditoria › Arquivos compactados › Fotos</b> — dia <b>${br(fotoDia(r))}</b>.${can('fotos.baixar')&&can('aud.ver')?'<div style="margin-top:10px"><button class="btn sec sm" id="fv-ir" type="button">Ir para os arquivos de fotos</button></div>':''}`);
+    const b=$('fv-ir');if(b)b.onclick=()=>{$('fv-modal').classList.remove('on');ARQ_TAB='fotos';FA_DIA=fotoDia(r);go('aud');setTimeout(()=>{const c=$('arq-card');if(c)c.scrollIntoView({behavior:'smooth',block:'start'})},150)};
+    return;
+  }
+  let url=null;const loc=await fotoLocal(r.foto.p);if(loc)url=URL.createObjectURL(loc);
+  if(!url){try{const {data,error}=await sb.storage.from('fotos').createSignedUrl('c/'+r.foto.p,300);if(!error&&data)url=data.signedUrl}catch(e){}}
+  if(seq!==FV_SEQ)return;
+  const naoChegou='A foto ainda não chegou ao servidor — o aparelho que fez o registro pode estar sem internet. Tente de novo mais tarde.';
+  if(!url)return vazio(naoChegou);
+  const img=new Image();img.alt=`Foto de ${r.nome} — ${brdt(r.registradoEm)}`;
+  img.onload=()=>{if(seq!==FV_SEQ)return;box.classList.remove('sem');box.innerHTML='';box.appendChild(img)};img.onerror=()=>{if(seq===FV_SEQ)vazio(naoChegou)};img.src=url;
+  audit('foto.ver',`${r.nome} — ${tipo(r.tipo).curto} de ${br(r.data)} (registrado em ${brdt(r.registradoEm)})`,{obra:r.obraNome,empresa:r.empresaNome,entidade:'registro '+r.id});save();
+}
+$('fv-close').onclick=()=>{$('fv-modal').classList.remove('on');FV_SEQ++};
+
+/* ---- Auditoria › Arquivos compactados › Fotos ---- */
+let ARQ_TAB='aud',FA_DIA=null,FA_KEY='',FA_LIST=[],FA_USO=null,FA_BUSY=false;
+function tamanho(b){b=+b||0;if(!b)return '0 KB';return b<1048576?`${Math.max(1,Math.round(b/1024))} KB`:b<1073741824?`${(b/1048576).toFixed(1).replace('.',',')} MB`:`${(b/1073741824).toFixed(2).replace('.',',').replace(/,00$/,'')} GB`}
+$('arq-tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{ARQ_TAB=b.dataset.at;renderAudArq()});
+async function renderFotosArq(forcar){
+  const de=$('fa-de'),ate=$('fa-ate');
+  if(FA_DIA){de.value=FA_DIA;ate.value=FA_DIA;FA_DIA=null;forcar=true}
+  if(!de.value)de.value=addDays(today(),-30);if(!ate.value)ate.value=today();
+  if(de.value>ate.value){const x=de.value;de.value=ate.value;ate.value=x}
+  $('fa-agora').hidden=!isAdm(USER);
+  const key=de.value+'|'+ate.value;
+  if(forcar||FA_KEY!==key){
+    FA_KEY=key;$('fa-table').innerHTML='<tbody><tr><td class="empty">Carregando…</td></tr></tbody>';
+    try{
+      const [l,u]=await Promise.all([sb.from('fotos_arquivos').select('dia,qtd,bytes,atualizado_em').gte('dia',de.value).lte('dia',ate.value).order('dia',{ascending:false}),sb.rpc('fotos_uso')]);
+      if(l.error)throw l.error;FA_LIST=l.data||[];FA_USO=u&&!u.error?u.data:null;
+    }catch(e){FA_LIST=[];FA_KEY='';$('fa-table').innerHTML=`<tbody><tr><td class="empty">Não foi possível carregar os arquivos: ${esc(e.message||e)}</td></tr></tbody>`;return}
+  }
+  const U=FA_USO;
+  $('fotos-uso').innerHTML=U?`<div class="tile total"><div class="k">Fotos em consulta</div><div class="v num">${num(U.consulta_qtd)}</div><div class="s">${tamanho(U.consulta_bytes)} · últimos ${FOTO_CFG.dias} dias</div></div>
+    <div class="tile almoco"><div class="k">Aguardando compactação</div><div class="v num">${num(U.pendente_qtd)}</div><div class="s">${tamanho(U.pendente_bytes)} · compacta às 03h</div></div>
+    <div class="tile jantar"><div class="k">Arquivos compactados</div><div class="v num">${num(U.zip_qtd)}</div><div class="s">${tamanho(U.zip_bytes)} · guardados 12 meses</div></div>
+    <div class="tile lanche"><div class="k">Espaço de arquivos usado</div><div class="v num">${((U.total_bytes||0)/(U.limite_bytes||1073741824)*100).toFixed(1).replace('.',',')}%</div><div class="s">${tamanho(U.total_bytes)} de ${tamanho(U.limite_bytes||1073741824)} (inclui anexos de BM)</div></div>`:'';
+  const tq=FA_LIST.reduce((s,a)=>s+(a.qtd||0),0),tb=FA_LIST.reduce((s,a)=>s+(+a.bytes||0),0);
+  if(!FA_BUSY)$('fa-resumo').textContent=FA_LIST.length?`${FA_LIST.length} arquivo(s) no período · ${num(tq)} foto(s) · ${tamanho(tb)}`:'';
+  $('fa-baixar').disabled=!FA_LIST.length||FA_BUSY;
+  $('fa-table').innerHTML=`<thead><tr><th>Dia</th><th class="r">Fotos</th><th class="r">Tamanho</th><th>Atualizado em</th><th></th></tr></thead><tbody>${FA_LIST.map(a=>`<tr><td class="num">${wd(a.dia)}, ${br(a.dia)}</td><td class="r num">${num(a.qtd)}</td><td class="r num">${tamanho(a.bytes)}</td><td class="num small">${a.atualizado_em?brdt(a.atualizado_em):'—'}</td><td><button class="btn sec sm" type="button" data-fadia="${a.dia}">Baixar</button></td></tr>`).join('')||`<tr><td colspan="5" class="empty">Nenhum arquivo compactado neste período. O arquivo de cada dia fica pronto na madrugada seguinte.</td></tr>`}</tbody>`;
+  $('fa-table').querySelectorAll('[data-fadia]').forEach(b=>b.onclick=()=>baixarFotos(FA_LIST.filter(a=>a.dia===b.dataset.fadia)));
+}
+['fa-de','fa-ate'].forEach(id=>$(id).onchange=()=>renderFotosArq());
+$('fa-baixar').onclick=()=>baixarFotos(FA_LIST);
+function carregarFflate(){
+  if(window.fflate)return Promise.resolve(window.fflate);
+  return new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js';
+    s.onload=()=>window.fflate?res(window.fflate):rej(new Error('a biblioteca de compactação não carregou'));s.onerror=()=>rej(new Error('sem conexão para carregar a biblioteca de compactação'));document.head.appendChild(s)})}
+function salvarArquivo(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},5000)}
+async function baixarFotos(lista){
+  if(!lista.length||FA_BUSY)return;FA_BUSY=true;$('fa-baixar').disabled=true;const st=$('fa-resumo');
+  const ord=lista.slice().sort((a,b)=>a.dia<b.dia?-1:1);const de=ord[0].dia,ate=ord[ord.length-1].dia;const qtd=ord.reduce((s,a)=>s+(a.qtd||0),0);
+  try{
+    let blob,name;
+    if(ord.length===1){st.textContent=`Baixando ${br(de)}…`;const {data,error}=await sb.storage.from('fotos').download(`z/${de}.zip`);if(error)throw error;blob=data;name=`fotos-${de}.zip`}
+    else{
+      if(ord.reduce((s,a)=>s+(+a.bytes||0),0)>350*1048576)throw new Error('período grande demais para um único arquivo (mais de 350 MB). Escolha um período menor.');
+      const ff=await carregarFflate();const ent={};
+      for(let i=0;i<ord.length;i++){const a=ord[i];st.textContent=`Baixando ${i+1} de ${ord.length} (${br(a.dia)})…`;
+        const {data,error}=await sb.storage.from('fotos').download(`z/${a.dia}.zip`);if(error)throw new Error(`${br(a.dia)}: ${error.message||error}`);
+        const z=ff.unzipSync(new Uint8Array(await data.arrayBuffer()));for(const [k,v] of Object.entries(z))if(!k.endsWith('/'))ent[k]=[v,{level:0}]}
+      st.textContent='Montando o arquivo…';await new Promise(r=>setTimeout(r,30));
+      blob=new Blob([ff.zipSync(ent)],{type:'application/zip'});name=`fotos-${de}_a_${ate}.zip`;
+    }
+    audit('fotos.baixar',`${br(de)}${de!==ate?' a '+br(ate):''} — ${ord.length} arquivo(s), ${qtd} foto(s)`,{entidade:'fotos'});save();
+    salvarArquivo(blob,name);sucesso(`${num(qtd)} foto(s) baixada(s) — ${name}`);
+  }catch(e){toast('Não foi possível baixar as fotos: '+(e.message||e),'bad')}
+  FA_BUSY=false;renderFotosArq();
+}
+$('fa-agora').onclick=async()=>{
+  const b=$('fa-agora');b.disabled=true;const t=b.textContent;b.textContent='Compactando…';
+  try{const {data,error}=await sb.functions.invoke('fotos-compactar',{body:{incluirHoje:true}});if(error)throw error;if(data&&data.error)throw new Error(data.error);
+    sucesso(data&&data.fotosCompactadas?`${data.fotosCompactadas} foto(s) compactada(s)`:'Nenhuma foto nova para compactar');
+    try{await loadAll()}catch(e){}FA_KEY='';renderAud();
+  }catch(e){let m=e.message||String(e);try{if(e.context&&typeof e.context.json==='function'){const j=await e.context.json();if(j&&j.error)m=j.error}}catch(x){}toast('Não foi possível compactar agora: '+m,'bad')}
+  b.disabled=false;b.textContent=t;
 };
 
 /* =================== BOOT =================== */
