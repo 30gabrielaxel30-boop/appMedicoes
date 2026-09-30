@@ -38,6 +38,9 @@
   --cafe:#D9A06B; --almoco:#4FB4CB; --jantar:#A99AE0; --lanche:#B7C95A;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.35);
 }}
+:root{--viz-qtd:#2a78d6;--viz-val:#eb6834}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--viz-qtd:#3987e5;--viz-val:#d95926}}
+:root[data-theme="dark"]{--viz-qtd:#3987e5;--viz-val:#d95926}
 :root[data-theme="dark"]{
   color-scheme:dark; --bg:#0F151B; --surface:#171F27; --surface-2:#1E2831; --ink:#E7ECF0; --ink-2:#AEBAC4; --ink-3:#7E8B96;
   --line:#2C3843; --line-2:#242E38; --accent:#4FB4CB; --accent-ink:#0B1A20; --accent-soft:#163542; --accent-2:#6CC5D9;
@@ -92,7 +95,8 @@ main{flex:1;min-width:0;overflow:auto;padding:16px 16px calc(84px + env(safe-are
   main{padding:24px 28px 40px}
   .cols{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:start}
 }
-.page{display:none;max-width:1180px;margin:0 auto}
+.page{display:none;max-width:1640px;margin:0 auto}
+@media (min-width:1500px){main{padding-left:clamp(28px,2.6vw,48px);padding-right:clamp(28px,2.6vw,48px)}}
 .page.on{display:block}
 .page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .page-head p{margin:2px 0 0;color:var(--ink-3);font-size:13px}
@@ -217,6 +221,36 @@ td.empty{color:var(--ink-3);text-align:center;padding:18px}
 .fvimg img{width:100%;height:100%;object-fit:cover;display:block}
 .fvimg .vazio{padding:18px;font-size:13.5px;color:var(--ink-2);line-height:1.5}
 .fvinfo{display:grid;grid-template-columns:auto 1fr;gap:7px 14px;font-size:14px;margin:14px 0 0}
+.periodo{display:flex;align-items:center;gap:6px}.periodo input{flex:1;min-width:0}.periodo>span{color:var(--ink-3);font-size:13px}
+.chipbtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px;font-size:12.5px;color:var(--ink-2)}
+.chipbtn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-2);font-weight:600}
+.ana-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin-top:14px}.ana-grid>.card{margin:0}
+@media (min-width:1180px){.ana-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.viz-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
+.viz-tot{font-family:var(--display);font-size:24px;font-weight:700;line-height:1.15;margin-top:2px}
+.viz-card .viz-tab{display:none}.viz-card.tabela .viz-tab{display:block}.viz-card.tabela .viz-chart{display:none}
+.viz-chart{min-height:40px}
+.viz-svg{display:block;max-width:100%;height:auto}
+.viz-svg text{fill:var(--ink-3);font-size:11px;font-family:var(--font);font-variant-numeric:tabular-nums}
+.viz-svg .grid{stroke:var(--line-2);stroke-width:1}.viz-svg .base{stroke:var(--line);stroke-width:1}
+.viz-svg .viz-lbl{fill:var(--ink-2);font-weight:600}
+.viz-svg .hit{fill:transparent;outline:none;cursor:pointer}.viz-svg .bar.on{opacity:.72}
+#viz-tip{position:fixed;z-index:90;pointer-events:none;background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:8px;padding:8px 10px;font-size:12.5px;max-width:270px;line-height:1.45}
+#viz-tip b{display:block;font-size:14px;font-variant-numeric:tabular-nums}#viz-tip .m{color:var(--ink-2)}
+#viz-tip .lk{display:inline-block;width:12px;height:2px;border-radius:1px;vertical-align:middle;margin-right:6px}
+.pb-row{display:grid;grid-template-columns:minmax(110px,1fr) minmax(0,1fr) minmax(0,1.25fr);gap:4px 12px;align-items:center;padding:6px 4px;border-radius:6px;font-size:13px}
+.pb-row[data-i]:hover,.pb-row[data-i]:focus{background:var(--surface-2);outline:none}
+.pb-h{font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em;font-weight:600;padding-bottom:0}
+.pb-h span{display:flex;align-items:center;gap:6px}.pb-lab{overflow-wrap:anywhere;line-height:1.3}
+.pb-cell{display:flex;align-items:center;gap:6px;min-width:0}.pb-bar{height:16px;border-radius:0 4px 4px 0;min-width:2px;flex:0 0 auto}
+.pb-v{font-size:12px;color:var(--ink-2);white-space:nowrap;font-variant-numeric:tabular-nums}.key{width:10px;height:10px;border-radius:2px;display:inline-block}
+@media (max-width:560px){.pb-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.pb-lab{grid-column:1/-1;font-weight:500}.pb-h span:first-child{display:none}}
+tr.subgrp td{background:var(--surface-2);font-size:12.5px;color:var(--ink-2)}
+.hrow{display:grid;grid-template-columns:1.1fr .7fr 1fr 1fr;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line-2)}
+.hrow.hh{font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em;font-weight:600;padding-top:0}
+.hrow.off{opacity:.55}
+@media (max-width:560px){.hrow{grid-template-columns:1fr 1fr;row-gap:6px}.hrow.hh{display:none}.hrow>span:nth-child(2){justify-self:end}.hrow span[data-l]::before{content:attr(data-l);display:block;font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em;font-weight:600;margin-bottom:3px}}
+@media (max-width:480px){#ana-kpis .v{font-size:21px}}
 .fvinfo dt{color:var(--ink-3);font-size:12.5px;padding-top:2px}.fvinfo dd{margin:0;font-weight:500;min-width:0;overflow-wrap:anywhere}
 .mealbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .mealbtn{border:2px solid var(--line);background:var(--surface);border-radius:10px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:600}
@@ -381,6 +415,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         <div class="page-head"><div><h2>Registro de refeições</h2><p id="rest-date"></p></div>
           <div class="field" id="rest-ct-wrap" style="min-width:220px"><label for="rest-ct">Restaurante</label><select id="rest-ct"></select></div></div>
         <div id="rest-setup" class="notice warn" style="margin-bottom:14px" hidden></div>
+        <div id="rest-horarios" class="row small" style="gap:6px;margin:-4px 0 12px" hidden></div>
         <div class="card" id="rest-notif" style="margin-bottom:14px;border-left:4px solid var(--warn)" hidden><h3>Boletins aguardando validação do restaurante</h3><div class="list" id="rest-notif-list"></div></div>
         <div class="cols">
           <div class="stack">
@@ -465,9 +500,34 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
           </div>
         </div>
         <div class="card" id="sup-notif" style="margin-top:14px;border-left:4px solid var(--good)" hidden><h3>Boletins assinados pelo restaurante — prontos para impressão e assinatura do Suprimentos</h3><div class="list" id="sup-notif-list"></div></div>
-        <div class="card" style="margin-top:14px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Registros</h3><span class="small muted" id="sup-count"></span></div><div class="tablewrap" style="margin-top:8px"><table id="sup-table"></table></div></div>
+        <div class="card" style="margin-top:14px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Registros</h3><span class="small muted" id="sup-count"></span></div><div class="tablewrap" style="margin-top:8px"><table id="sup-table"></table></div><div class="row" id="sup-pager" style="justify-content:center;margin-top:10px"></div></div>
         <div class="card"><h3>Sobras informadas na semana <span class="small muted" style="font-weight:400">— cobradas no BM</span></h3><div class="tablewrap"><table id="sup-sobras"></table></div></div>
-        <div class="card"><h3>Boletins emitidos</h3><div class="tablewrap"><table id="bm-list"></table></div><input id="bm-anexo-file" type="file" accept="application/pdf,image/*" hidden></div>
+        <div class="card"><h3>Boletins emitidos</h3><div class="tablewrap"><table id="bm-list"></table></div><div class="row" id="bm-pager" style="justify-content:center;margin-top:10px"></div><input id="bm-anexo-file" type="file" accept="application/pdf,image/*" hidden></div>
+      </section>
+
+      <!-- ---------- ANALÍTICO ---------- -->
+      <section class="page" id="page-ana">
+        <div class="page-head"><div><h2>Analítico</h2><p id="ana-sub"></p></div></div>
+        <div class="card">
+          <div class="row" style="align-items:flex-start">
+            <div class="field" style="flex:1.5;min-width:260px"><label for="an-de">Período</label><div class="periodo"><input id="an-de" type="date" aria-label="Início do período"><span>a</span><input id="an-ate" type="date" aria-label="Fim do período"></div>
+              <div class="row" id="an-presets" style="gap:4px;margin-top:6px"><button type="button" class="chipbtn" data-p="mes">Mês atual</button><button type="button" class="chipbtn" data-p="mes-ant">Mês anterior</button><button type="button" class="chipbtn" data-p="30">Últimos 30 dias</button><button type="button" class="chipbtn" data-p="ano">Ano</button></div></div>
+            <div class="field" style="flex:1;min-width:150px"><label for="an-emp">Empresa</label><select id="an-emp"></select></div>
+            <div class="field" style="flex:1;min-width:150px"><label for="an-obra">Obra</label><select id="an-obra"></select></div>
+            <div class="field" style="flex:1;min-width:150px"><label for="an-colab">Colaborador</label><input id="an-colab" list="an-colab-list" placeholder="nome…" autocomplete="off"><datalist id="an-colab-list"></datalist></div>
+            <div class="field" style="flex:.8;min-width:120px"><label for="an-tipo">Tipo de refeição</label><select id="an-tipo"><option value="">Todos</option></select></div>
+            <div class="field" style="flex:1;min-width:150px"><label for="an-ct">Restaurante</label><select id="an-ct"></select></div>
+            <button class="btn sec sm" id="an-limpar" type="button" style="align-self:flex-end;margin-bottom:2px">Limpar filtros</button>
+          </div>
+        </div>
+        <div class="tiles" id="ana-kpis" style="margin-top:14px"></div>
+        <div id="ana-vazio" class="notice warn" style="margin-top:14px" hidden>Nenhuma refeição com esses filtros no período.</div>
+        <div class="ana-grid">
+          <div class="card viz-card"><div class="viz-head"><div><h3>Total de refeições <span class="small muted" style="font-weight:400" id="ana-c1-sub"></span></h3><div class="viz-tot num" id="ana-t1"></div></div><button class="btn sec sm" type="button" data-vista aria-pressed="false">Tabela</button></div><div class="viz-chart" id="ana-c1"></div><div class="viz-tab" id="ana-c1-tab"></div></div>
+          <div class="card viz-card"><div class="viz-head"><div><h3>Valor das refeições <span class="small muted" style="font-weight:400" id="ana-c2-sub"></span></h3><div class="viz-tot num" id="ana-t2"></div></div><button class="btn sec sm" type="button" data-vista aria-pressed="false">Tabela</button></div><div class="viz-chart" id="ana-c2"></div><div class="viz-tab" id="ana-c2-tab"></div></div>
+          <div class="card viz-card"><div class="viz-head"><div><h3>Por obra — quantidade e valor</h3><div class="small muted" id="ana-c3-n"></div></div><button class="btn sec sm" type="button" data-vista aria-pressed="false">Tabela</button></div><div class="viz-chart" id="ana-c3"></div><div class="viz-tab" id="ana-c3-tab"></div></div>
+          <div class="card viz-card"><div class="viz-head"><div><h3>Por empresa — quantidade e valor</h3><div class="small muted" id="ana-c4-n"></div></div><button class="btn sec sm" type="button" data-vista aria-pressed="false">Tabela</button></div><div class="viz-chart" id="ana-c4"></div><div class="viz-tab" id="ana-c4-tab"></div></div>
+        </div>
       </section>
 
       <!-- ---------- AUDITORIA ---------- -->
@@ -647,6 +707,19 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
           </div>
         </div>
 
+        <div id="cfg-horarios" class="cfg-pane" hidden>
+          <div class="card" style="max-width:760px">
+            <div class="row" style="justify-content:space-between;align-items:center;flex-wrap:nowrap;gap:14px">
+              <div><h3 style="margin:0">Horário limite de registro</h3><div class="small muted" style="margin-top:2px">Fora do horário definido, o registro daquele tipo de refeição fica bloqueado.</div></div>
+              <div class="row" style="gap:8px;flex-wrap:nowrap"><b class="small" id="h-ativo-txt"></b><button type="button" class="switch" id="h-ativo" role="switch" aria-label="Ativar limite de horário"></button></div>
+            </div>
+            <div id="h-tabela" style="margin-top:12px"></div>
+            <div class="notice info small" data-hint="horarios-info" style="margin-top:12px">Vale para o registro por QR Code, pelo código digitado e para o registro manual (Retirada e Terceirizado), pelo relógio do aparelho. Sobras e registros com data manual (retroativa) não são bloqueados. Tipo com o limite desligado pode ser registrado a qualquer hora.</div>
+            <div id="h-err" class="notice bad" style="margin-top:10px" hidden></div>
+            <div class="row" style="margin-top:12px"><button class="btn" id="h-save" type="button">Salvar horários</button><button class="btn sec" id="h-reset" type="button">Desfazer alterações</button></div>
+          </div>
+        </div>
+
         <div id="cfg-contratada" class="cfg-pane" hidden>
           <div class="cols">
             <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Contratadas (restaurantes)</h3><button class="btn sm" id="k-new">Nova contratada</button></div>
@@ -731,7 +804,8 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
     <div class="mh"><h2>Emitir BM</h2><button class="btn sec sm" id="emp-close">Fechar</button></div>
     <div class="stack">
       <div class="grid2"><div class="field"><label for="bm-emp">Empresa</label><select id="bm-emp"></select></div><div class="field"><label for="bm-ct">Restaurante (contratada)</label><select id="bm-ct"></select></div></div>
-      <div class="grid2"><div class="field"><label for="bm-ini">Período — início</label><input id="bm-ini" type="date"></div><div class="field"><label for="bm-fim">Período — fim</label><input id="bm-fim" type="date"></div></div>
+      <div class="grid2"><div class="field"><label for="bm-obra">Obra</label><select id="bm-obra"></select></div><div class="field"><label for="bm-contrato">Contrato</label><select id="bm-contrato"></select></div></div>
+      <div class="field"><label for="bm-ini">Período</label><div class="periodo"><input id="bm-ini" type="date" aria-label="Início do período"><span>a</span><input id="bm-fim" type="date" aria-label="Fim do período"></div></div>
       <div class="row"><button class="btn sec sm" data-q="semana-ant">Semana anterior</button><button class="btn sec sm" data-q="semana">Semana atual</button><button class="btn sec sm" data-q="quinzena">Últimos 15 dias</button><button class="btn sec sm" data-q="mes">Mês anterior</button></div>
       <div class="tiles" id="bm-prev-tiles"></div>
       <div id="bm-prev-msg" class="notice info small" hidden></div>
@@ -774,6 +848,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 </div>
 
 <div class="toasts" id="toasts" aria-live="polite"></div>
+<div id="viz-tip" role="tooltip" hidden></div>
 
 <script>
 /* =================== CONSTANTS =================== */
@@ -797,6 +872,8 @@ const PERMS=[
   {id:'sup.nf',nome:'Informar nota fiscal e anexar BM assinado'},
   {id:'sup.fechar',nome:'Fechar refeição sem incluir em BM (com justificativa)'},
   {id:'fotos.ver',nome:'Ver fotos do rosto nos registros'},
+  {grp:'Analítico'},
+  {id:'ana.ver',nome:'Visualizar a aba Analítico (gráficos)'},
   {grp:'Auditoria'},
   {id:'aud.ver',nome:'Visualizar a trilha de auditoria'},
   {id:'fotos.baixar',nome:'Baixar arquivos compactados de fotos'},
@@ -813,11 +890,12 @@ const PERMS=[
   {id:'cfg.obras',nome:'Cadastrar obras'},
   {id:'cfg.precos',nome:'Alterar preços'},
   {id:'cfg.contratada',nome:'Cadastrar contratadas (restaurantes)'},
+  {id:'cfg.horarios',nome:'Definir horário limite de registro das refeições'},
 ];
 const PERFIS={
   Administrador:PERMS.filter(p=>p.id).map(p=>p.id),
   Restaurante:['rest.registrar','rest.sobras','rest.estornar','rest.validar','del.sobras'],
-  Suprimentos:['sup.ver','sup.bm','sup.nf','cfg.colab','cfg.empresas','cfg.obras','cfg.contratos','cfg.precos'],
+  Suprimentos:['sup.ver','sup.bm','sup.nf','ana.ver','cfg.colab','cfg.empresas','cfg.obras','cfg.contratos','cfg.precos'],
   Personalizado:[]
 };
 let S=null, USER=null;
@@ -912,13 +990,13 @@ function contratoErro(obraId,d){const c=contrato(cidOf(obraId));if(!c)return nul
 function fillSelect(sel,items,val,allLabel){sel.innerHTML=(allLabel!==undefined?`<option value="">${allLabel}</option>`:'')+items.map(i=>`<option value="${esc(i.id)}"${i.id===val?' selected':''}>${esc(i.nome)}</option>`).join('')}
 
 /* =================== AUDITORIA (núcleo) =================== */
-const ABAS={login:'Login',rest:'Restaurante',sup:'Administrativo',aud:'Auditoria',cfg:'Configurações'};
+const ABAS={login:'Login',rest:'Restaurante',sup:'Administrativo',ana:'Analítico',aud:'Auditoria',cfg:'Configurações'};
 const ACOES={
   'login.ok':'Login','login.falha':'Tentativa de login inválida','logout':'Logout','nav':'Acessou aba','nav.cfg':'Acessou seção de configurações',
   'refeicao.registrar':'Registrou refeição','refeicao.fechar':'Fechou refeição sem BM','refeicao.reabrir':'Reabriu refeição fechada sem BM','refeicao.estornar':'Estornou refeição','sobra.registrar':'Registrou sobra','bm.compartilhar':'Compartilhou PDF do BM','sobra.excluir':'Excluiu sobra',
   'bm.emitir':'Gerou rascunho de BM','bm.fechar':'Fechou BM','bm.validar':'Validou BM (assinatura eletrônica do restaurante)','bm.homologar':'Homologou assinatura física do restaurante','bm.assinar_sup':'Registrou assinatura do Suprimentos','bm.nf':'Informou nota fiscal','bm.pdf':'Exportou BM em PDF','bm.imprimir':'Imprimiu BM','bm.anexar':'Anexou BM assinado','bm.anexo_remover':'Removeu anexo do BM','bm.anexo_baixar':'Baixou anexo do BM',
   'usuario.salvar':'Cadastrou/alterou usuário','colab.salvar':'Cadastrou/alterou colaborador','colab.realocar':'Realocou colaborador (empresa/obra)','empresa.salvar':'Cadastrou/alterou empresa','obra.salvar':'Cadastrou/alterou obra','preco.salvar':'Cadastrou/alterou preço','contrato.salvar':'Cadastrou/alterou contrato',
-  'contratada.salvar':'Cadastrou/alterou contratada (restaurante)','usuario.senha':'Redefiniu senha de usuário','auditoria.csv':'Exportou auditoria em CSV','dados.apagar':'Apagou todos os dados','perfil.salvar':'Cadastrou/alterou perfil','perfil.excluir':'Excluiu perfil','usuario.excluir':'Excluiu usuário','usuario.aprovar':'Aprovou conta','usuario.negar':'Negou conta','bm.excluir':'Excluiu boletim de medição','empresa.excluir':'Excluiu empresa','obra.excluir':'Excluiu obra','auditoria.arquivo':'Baixou arquivo compactado da auditoria','foto.ver':'Visualizou foto do registro','fotos.baixar':'Baixou arquivos compactados de fotos','fotos.compactar':'Compactou fotos (rotina do servidor)'
+  'contratada.salvar':'Cadastrou/alterou contratada (restaurante)','usuario.senha':'Redefiniu senha de usuário','auditoria.csv':'Exportou auditoria em CSV','dados.apagar':'Apagou todos os dados','perfil.salvar':'Cadastrou/alterou perfil','perfil.excluir':'Excluiu perfil','usuario.excluir':'Excluiu usuário','usuario.aprovar':'Aprovou conta','usuario.negar':'Negou conta','bm.excluir':'Excluiu boletim de medição','empresa.excluir':'Excluiu empresa','obra.excluir':'Excluiu obra','auditoria.arquivo':'Baixou arquivo compactado da auditoria','foto.ver':'Visualizou foto do registro','horarios.salvar':'Alterou horário limite de registro','fotos.baixar':'Baixou arquivos compactados de fotos','fotos.compactar':'Compactou fotos (rotina do servidor)'
 };
 let DEVICE='';try{DEVICE=localStorage.getItem('refeicoes_device')||'';if(!DEVICE){DEVICE='DEV-'+Math.random().toString(36).slice(2,8).toUpperCase();localStorage.setItem('refeicoes_device',DEVICE)}}catch(e){DEVICE='DEV-?'}
 function audit(acao,descricao,x){
@@ -937,9 +1015,9 @@ function toEmail(login){login=(login||'').trim().toLowerCase();return login.incl
 const TABLES={perfis:'perfis',empresas:'empresas',obras:'obras',colab:'colaboradores',precos:'precos',contratos:'contratos',contratadas:'contratadas',registros:'registros',sobras:'sobras',bms:'bms',users:'usuarios'};
 const CACHE_KEY='refeicoes_cache_v1';
 let LAST={}, AUDIT_SEEN=new Set(), SYNC={pending:false,running:false,offline:false,timer:null,retry:null};
-function fresh(){return {perfis:[],auditArq:[],users:[],empresas:[],obras:[],colab:[],precos:[],contratos:[],contratadas:[],registros:[],sobras:[],bms:[],audit:[],contratada:{nome:'',cnpj:'',gestor:'',cargo:'',servico:'FORNECIMENTO DE REFEIÇÕES'}}}
+function fresh(){return {perfis:[],auditArq:[],users:[],empresas:[],obras:[],colab:[],precos:[],contratos:[],contratadas:[],registros:[],sobras:[],bms:[],audit:[],contratada:{nome:'',cnpj:'',gestor:'',cargo:'',servico:'FORNECIMENTO DE REFEIÇÕES'},horarios:null}}
 function rowOf(key,r){const o={...r};delete o.senha;if(key==='users')delete o.id;return o}
-function snapshot(){LAST={};Object.keys(TABLES).forEach(k=>{LAST[k]={};(S[k]||[]).forEach(r=>LAST[k][r.id]=JSON.stringify(rowOf(k,r)))});LAST.contratada=JSON.stringify(S.contratada);AUDIT_SEEN=new Set((S.audit||[]).map(e=>e.id))}
+function snapshot(){LAST={};Object.keys(TABLES).forEach(k=>{LAST[k]={};(S[k]||[]).forEach(r=>LAST[k][r.id]=JSON.stringify(rowOf(k,r)))});LAST.contratada=JSON.stringify(S.contratada);LAST.horarios=JSON.stringify(S.horarios||null);AUDIT_SEEN=new Set((S.audit||[]).map(e=>e.id))}
 let SYNCST={c:'sync',t:'Sincronizado'};
 function applySync(){document.querySelectorAll('[data-sync]').forEach(d=>{d.className=SYNCST.c;d.title=SYNCST.t;d.setAttribute('aria-label','Conexão: '+SYNCST.t)})}
 function setSync(state,msg){SYNCST={c:'sync'+(state==='pend'?' pend':state==='off'?' off':''),t:msg||(state==='pend'?'Enviando alterações…':state==='off'?'Sem conexão — alterações guardadas neste aparelho e enviadas quando voltar':'Sincronizado')};applySync()}
@@ -952,6 +1030,8 @@ async function loadAll(){
     ns[k]=data.map(r=>({...r.data,id:r.id}));
   }
   const c=await sb.from('config').select('data').eq('id','contratada').maybeSingle();if(c.error)throw c.error;if(c.data)ns.contratada={...ns.contratada,...c.data.data};
+  const hz=await sb.from('config').select('data').eq('id','horarios').maybeSingle();if(!hz.error&&hz.data)ns.horarios=hz.data.data;
+  if(S&&SYNC.pending&&LAST.horarios!==JSON.stringify(S.horarios||null))ns.horarios=S.horarios;
   const a=await sb.from('auditoria').select('id,data,ip,user_agent,created_at').order('created_at',{ascending:false}).limit(3000);
   const arq=await sb.from('auditoria_arquivos').select('id,de,ate,qtd,criado_em').order('criado_em',{ascending:false});ns.auditArq=arq.error?[]:(arq.data||[]);
   ns.audit=a.error?[]:a.data.map(r=>({...r.data,id:r.id,ip:r.ip,navegador:r.user_agent||r.data.navegador,em:r.created_at||r.data.em})).reverse();
@@ -987,6 +1067,7 @@ async function sync(){
       LAST[k]=cur;
     }
     const cj=JSON.stringify(S.contratada);if(LAST.contratada!==cj){const {error}=await sb.from('config').upsert({id:'contratada',data:S.contratada});if(error)throw error;LAST.contratada=cj}
+    const hj=JSON.stringify(S.horarios||null);if(LAST.horarios!==hj&&S.horarios){const {error}=await sb.from('config').upsert({id:'horarios',data:S.horarios});if(error)throw error;LAST.horarios=hj}
     const novos=(S.audit||[]).filter(e=>!AUDIT_SEEN.has(e.id));
     if(novos.length){const {error}=await sb.from('auditoria').insert(novos.map(e=>({id:e.id,data:e})));if(error)throw error;novos.forEach(e=>AUDIT_SEEN.add(e.id));
       if(S.audit.length>=1000){setTimeout(async()=>{try{await loadAll();if(PAGE==='aud')renderAud()}catch(e){}},300)}}
@@ -999,7 +1080,7 @@ async function sync(){
 }
 window.addEventListener('online',()=>{if(SYNC.pending)sync();fotoEnviar()});
 // atualização periódica com dados de outros aparelhos
-setInterval(async()=>{if(!USER||SYNC.pending||SYNC.running||document.hidden)return;try{await loadAll();refreshBadges();if(PAGE==='rest')renderRest();else if(PAGE==='sup'&&!$('bm-modal').classList.contains('on'))renderSup();else if(PAGE==='aud')renderAud()}catch(e){}},45000);
+setInterval(async()=>{if(!USER||SYNC.pending||SYNC.running||document.hidden)return;try{await loadAll();refreshBadges();if(PAGE==='rest')renderRest();else if(PAGE==='sup'&&!$('bm-modal').classList.contains('on'))renderSup();else if(PAGE==='aud')renderAud();else if(PAGE==='ana')renderAna()}catch(e){}},45000);
 
 /* =================== THEME =================== */
 function isDark(){const t=document.documentElement.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
@@ -1176,15 +1257,16 @@ async function sendMsg(para,texto,btn,abrir){
 setInterval(()=>{if(USER&&!document.hidden)loadSocial()},30000);
 
 /* =================== NAV =================== */
-const ICONS={aud:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>',rest:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3M4 12h16"/></svg>',
+const ICONS={ana:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 20h18M6 16v-4M11 16V7M16 16v-7M21 16V4"/></svg>',aud:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>',rest:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3M4 12h16"/></svg>',
  sup:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10M15 10v10"/></svg>',
  cfg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>'};
 function navItems(){
   const it=[];
   if(['rest.registrar','rest.sobras','rest.estornar'].some(can))it.push({id:'rest',n:'Restaurante'});
   if(can('sup.ver')||can('sup.bm'))it.push({id:'sup',n:'Administrativo'});
+  if(can('ana.ver'))it.push({id:'ana',n:'Analítico'});
   if(can('aud.ver'))it.push({id:'aud',n:'Auditoria'});
-  if(['cfg.usuarios','cfg.colab','cfg.empresas','cfg.obras','cfg.contratos','cfg.precos','cfg.contratada'].some(can))it.push({id:'cfg',n:'Configurações'});
+  if(['cfg.usuarios','cfg.colab','cfg.empresas','cfg.obras','cfg.contratos','cfg.precos','cfg.contratada','cfg.horarios'].some(can))it.push({id:'cfg',n:'Configurações'});
   return it;
 }
 let PAGE=null;
@@ -1205,7 +1287,7 @@ function go(p){
   PAGE=p;
   document.querySelectorAll('.page').forEach(x=>x.classList.toggle('on',x.id==='page-'+p));
   document.querySelectorAll('#tabbar button,#sidenav button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));
-  if(p==='rest')renderRest();if(p==='sup')renderSup();if(p==='cfg')renderCfg();if(p==='aud')renderAud();
+  if(p==='rest')renderRest();if(p==='sup')renderSup();if(p==='cfg')renderCfg();if(p==='aud')renderAud();if(p==='ana')renderAna();vizTipHide();
 }
 
 /* =================== SCANNER (shared) =================== */
@@ -1250,7 +1332,7 @@ $('qr-file').onchange=async e=>{
 
 /* =================== RESTAURANTE =================== */
 let CUR=null, CURTIPO=null;
-function suggestTipo(){const h=new Date().getHours();return h<10?'cafe':h<15?'almoco':h<17?'lanche':'jantar'}
+function suggestTipo(){const H=horarios();if(H.ativo){const ok=TIPOS.find(t=>janela(t.id)&&!horarioErro(t.id));if(ok)return ok.id}const h=new Date().getHours();return h<10?'cafe':h<15?'almoco':h<17?'lanche':'jantar'}
 let REST_CT=null;try{REST_CT=localStorage.getItem('sismed_rest_ct')}catch(e){}
 function restCt(){const l=ctsAcessiveis();if(!l.find(c=>c.id===REST_CT))REST_CT=l[0]?l[0].id:null;return REST_CT?ct(REST_CT):null}
 $('rest-ct').onchange=()=>{REST_CT=$('rest-ct').value;try{localStorage.setItem('sismed_rest_ct',REST_CT)}catch(e){}CUR=null;$('confirm-card').hidden=true;renderRest()};
@@ -1259,6 +1341,7 @@ function renderRest(){
   fillSelect($('rest-ct'),ctsAcessiveis(),REST_CT);$('rest-ct-wrap').hidden=ctsAcessiveis().length<2;
   const t=today();const d=parse(t);
   $('rest-date').textContent=`${WD[d.getDay()]}, ${br(t)} · operador: ${USER.nome}${RC?' · restaurante: '+RC.nome:''}`;
+  renderHorariosRest();
   const missing=[];if(!RC)missing.push('uma contratada (restaurante) vinculada às obras');if(!S.colab.length)missing.push('colaboradores');if(!S.precos.length)missing.push('preços das refeições');
   $('rest-setup').hidden=!missing.length;$('rest-setup').textContent=missing.length?`Antes de registrar refeições, cadastre em Configurações: ${missing.join(' e ')}.`:'';
   setupDateManual('dm');
@@ -1313,21 +1396,24 @@ function renderColabCard(){
 }
 function renderMeal(){
   const t=regDate('dm');const regs=S.registros.filter(r=>r.data===t&&r.colabId===CUR.id);
-  $('mealbtns').innerHTML=TIPOS.map(tp=>{const done=regs.find(r=>r.tipo===tp.id);const p=precoVigente(tp.id,t,cidOf(CUR.obraId));const off=done||p===null;
-    return `<button class="mealbtn${CURTIPO===tp.id?' on':''}" data-t="${tp.id}" ${off?'disabled':''}>${tp.curto}<small>${done?'já registrado '+hm(done.registradoEm):p===null?'sem preço cadastrado':money(p)}</small></button>`}).join('');
+  $('mealbtns').innerHTML=TIPOS.map(tp=>{const done=regs.find(r=>r.tipo===tp.id);const p=precoVigente(tp.id,t,cidOf(CUR.obraId));const her=horarioErro(tp.id,t);const off=done||p===null||her;const jn=janela(tp.id);
+    return `<button class="mealbtn${CURTIPO===tp.id?' on':''}" data-t="${tp.id}" ${off?'disabled':''}>${tp.curto}<small>${done?'já registrado '+hm(done.registradoEm):p===null?'sem preço cadastrado':her?'fora do horário '+jn.ini+'–'+jn.fim:money(p)}</small></button>`}).join('');
   $('mealbtns').querySelectorAll('button').forEach(b=>b.onclick=()=>{CURTIPO=b.dataset.t;renderMeal()});
   const dup=regs.find(r=>r.tipo===CURTIPO);const p=precoVigente(CURTIPO,t,cidOf(CUR.obraId));const cerr=contratoErro(CUR.obraId,t);
-  $('dup-msg').hidden=!(dup||p===null||cerr);
+  const herr=horarioErro(CURTIPO,t);
+  $('dup-msg').hidden=!(dup||p===null||cerr||herr);
   if(cerr)$('dup-msg').textContent=cerr;
+  else if(herr)$('dup-msg').textContent=herr+' Escolha outro tipo ou procure o administrador.';
   else if(dup)$('dup-msg').textContent=`${tipo(CURTIPO).curto} já registrado em ${br(t)} às ${hm(dup.registradoEm)}. Escolha outro tipo ou cancele.`;
   else if(p===null)$('dup-msg').textContent=`${tipo(CURTIPO).curto} não tem preço cadastrado. Cadastre em Configurações › Preços.`;
-  $('btn-confirm').disabled=!!dup||p===null||!!cerr||!(FOTO.raw||FOTO.skip);
+  $('btn-confirm').disabled=!!dup||p===null||!!cerr||!!herr||!(FOTO.raw||FOTO.skip);
 }
 $('btn-confirm').onclick=async()=>{
   if(!CUR||!CURTIPO||FOTO.busy)return;if(!(FOTO.raw||FOTO.skip)){fotoAbrir();return}
   const c=CUR,tp=CURTIPO,raw=FOTO.raw,skip=FOTO.skip;const t=regDate('dm');const p=precoVigente(tp,t,cidOf(c.obraId));const manualDate=t!==today();
   const dup=()=>S.registros.some(r=>r.data===t&&r.colabId===c.id&&r.tipo===tp);
   if(p===null||contratoErro(c.obraId,t)||dup())return;
+  const herr=horarioErro(tp,t);if(herr){toast(herr,'warn');renderMeal();return}
   const e=emp(c.empresaId),o=obra(c.obraId);
   const RC=restCt();if(!RC)return;
   const reg={id:uid(),data:t,colabId:c.id,modalidade:'presencial',nome:c.nome,empresaId:c.empresaId,empresaNome:e?e.nome:'',obraId:c.obraId,obraNome:o?o.nome:'',contratoId:cidOf(c.obraId)||undefined,contratoNumero:(contrato(cidOf(c.obraId))||{}).numero||undefined,contratadaId:RC.id,contratadaNome:RC.nome,tipo:tp,valor:p,registradoEm:new Date().toISOString(),usuario:USER.nome,bmId:null,dataManual:manualDate||undefined};
@@ -1387,7 +1473,7 @@ function renderManual(){
   $('terc-names').innerHTML=[...new Set(man.map(r=>r.terceirizada).filter(Boolean))].sort().map(n=>`<option value="${esc(n)}">`).join('');
   $('m-obra').onchange=renderManual;
   colabOpts($('m-dest'),$('m-obra').value,$('m-dest').value);
-  $('m-mealbtns').innerHTML=TIPOS.map(tp=>{const p=precoVigente(tp.id,t,cidOf($('m-obra').value));return `<button class="mealbtn${MTIPO===tp.id?' on':''}" data-t="${tp.id}" ${p===null?'disabled':''}>${tp.curto}<small>${p===null?'sem preço cadastrado':money(p)}</small></button>`}).join('');
+  $('m-mealbtns').innerHTML=TIPOS.map(tp=>{const p=precoVigente(tp.id,t,cidOf($('m-obra').value));const her=horarioErro(tp.id,t);const jn=janela(tp.id);return `<button class="mealbtn${MTIPO===tp.id?' on':''}" data-t="${tp.id}" ${p===null||her?'disabled':''}>${tp.curto}<small>${p===null?'sem preço cadastrado':her?'fora do horário '+jn.ini+'–'+jn.fim:money(p)}</small></button>`}).join('');
   $('m-mealbtns').querySelectorAll('button').forEach(b=>b.onclick=()=>{MTIPO=b.dataset.t;renderManual()});
   $('m-msg').hidden=true;
 }
@@ -1403,6 +1489,7 @@ $('m-save').onclick=()=>{
   const RC=restCt();if(!RC)return show('Nenhuma contratada (restaurante) disponível.');
   const cerr=contratoErro(obraId,t);if(cerr)return show(cerr);
   const p=precoVigente(MTIPO,t,cidOf(obraId));if(p===null)return show(`${tipo(MTIPO).curto} não tem preço cadastrado para o contrato desta obra.`);
+  const herr=horarioErro(MTIPO,t);if(herr)return show(herr);
   const nomeR=ret?dest.nome:nome;
   const dup=S.registros.find(r=>r.data===t&&r.tipo===MTIPO&&(ret?r.colabId===dest.id:(r.manual&&r.nome.toLowerCase()===nome.toLowerCase()&&r.empresaId===empId)));
   if(dup)return show(`${tipo(MTIPO).curto} de ${nomeR} já registrado em ${br(t)} às ${hm(dup.registradoEm)} (${MODS[modOf(dup)].toLowerCase()}).`);
@@ -1452,14 +1539,18 @@ $('s-save').onclick=()=>{
 let WK=mondayOf(today());
 const STATUS={rascunho:['Rascunho','warn'],fechado:['Aguardando restaurante','warn'],assinado_restaurante:['Assinado pelo restaurante','ok'],assinado:['Assinado (ambos)','ok'],faturado:['Faturado','ok']};
 function statusPill(b){const s=STATUS[b.status]||[b.status,'neutral'];return `<span class="pill ${s[1]}">${s[0]}</span>`}
-function periodRegs(ini,fim,empId,ctId){return S.registros.filter(r=>r.data>=ini&&r.data<=fim&&(!empId||r.empresaId===empId)&&(!ctId||ctOf(r)===ctId))}
+const SEM_CT='-';
+function cidReg(x){return x.contratoId||cidOf(x.obraId)||SEM_CT}
+function noEscopo(x,empId,ctId,obraId,cid){return (!empId||x.empresaId===empId)&&(!ctId||ctOf(x)===ctId)&&(!obraId||x.obraId===obraId)&&(!cid||cidReg(x)===cid)}
+function periodRegs(ini,fim,empId,ctId,obraId,cid){return S.registros.filter(r=>r.data>=ini&&r.data<=fim&&noEscopo(r,empId,ctId,obraId,cid))}
 /* sobras entram na medição como refeições (1 unidade por refeição que sobrou) */
 function sobraOk(s){return ctOk(ctOf(s))&&(s.obraId?obraOk(s.obraId):(!s.obraNome||obraNomeOk(s.obraNome)))}
 function sobraUnit(s){if(s.valorUnit!=null)return s.valorUnit;const p=precoVigente(s.tipo,s.data,s.contratoId||cidOf(s.obraId));return p===null?0:p}
 function sobraTotal(s){return Math.round((s.qtd||0)*sobraUnit(s)*100)/100}
 function sobraUnits(s){const v=sobraUnit(s);return Array.from({length:s.qtd||0},(_,i)=>({id:s.id+'#'+i,data:s.data,tipo:s.tipo,valor:v,empresaId:s.empresaId,empresaNome:s.empresaNome,obraId:s.obraId,obraNome:s.obraNome||'',contratadaId:s.contratadaId,bmId:s.bmId||null,sobra:true,sobraId:s.id,registradoEm:s.registradoEm,usuario:s.usuario,nome:'Sobra'}))}
-function periodSobras(ini,fim,empId,ctId){return (S.sobras||[]).filter(s=>s.empresaId&&s.data>=ini&&s.data<=fim&&(!empId||s.empresaId===empId)&&(!ctId||ctOf(s)===ctId))}
-function periodItens(ini,fim,empId,ctId){return periodRegs(ini,fim,empId,ctId).concat(...periodSobras(ini,fim,empId,ctId).map(sobraUnits))}
+function periodSobras(ini,fim,empId,ctId,obraId,cid){return (S.sobras||[]).filter(s=>s.empresaId&&s.data>=ini&&s.data<=fim&&noEscopo(s,empId,ctId,obraId,cid))}
+function periodItens(ini,fim,empId,ctId,obraId,cid){return periodRegs(ini,fim,empId,ctId,obraId,cid).concat(...periodSobras(ini,fim,empId,ctId,obraId,cid).map(sobraUnits))}
+let PREG=null,PBM=null;
 function renderSup(){
   const fim=addDays(WK,6);
   $('wk-label').textContent=`${br(WK)} a ${br(fim)}`;
@@ -1476,7 +1567,8 @@ function renderSup(){
   const ps=pendSup();$('sup-notif').hidden=!(ps.length&&can('sup.bm'));
   $('sup-notif-list').innerHTML=ps.map(b=>`<div class="item"><span class="pill ok">Assinado</span><div class="t"><b>BM nº ${b.numero} — ${esc(b.empresaNome)}</b><span>Período ${br(b.ini)} à ${br(b.fim)} · assinatura ${b.assRest.tipo==='eletronica'?'eletrônica':'física homologada'} em ${brdt(b.assRest.em)} · ${money(b.liquido)}</span></div><button class="btn sm" data-vbm="${b.id}">Ver / imprimir</button></div>`).join('');
   $('sup-notif-list').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
-  $('sup-table').innerHTML=`<thead><tr><th>Data refeição</th><th>Colaborador</th><th>Empresa</th><th>Obra</th><th>Restaurante</th><th>Tipo</th><th class="r">Valor</th><th>Foto</th><th>Por</th><th>Nº BM</th></tr></thead><tbody>${regs.slice(0,400).map(r=>{const b=r.bmId?S.bms.find(x=>x.id===r.bmId):null;return `<tr><td class="num">${br(r.data)}${r.dataManual?' <span class="pill warn" title="data informada manualmente">manual</span>':''}</td><td>${esc(r.nome)}${modOf(r)!=='presencial'?`<div class="small muted">${modOf(r)==='retirada'?esc(retInfo(r)):'terceirizado'+(r.terceirizada?' · terc.: '+esc(r.terceirizada):'')}</div>`:''}</td><td>${esc(r.empresaNome)}</td><td>${esc(r.obraNome)}</td><td>${esc((ct(ctOf(r))||{}).nome||r.contratadaNome||'—')}</td><td><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span></td><td class="r num">${money(r.valor)}</td><td>${fotoBtn(r)}</td><td>${esc(r.usuario)}</td><td style="min-width:150px">${b?`<button class="btn sec sm num" data-vbm="${b.id}">BM ${b.numero}</button>`:r.fechado?`<div class="row" style="gap:6px"><span class="pill bad" title="${esc(r.fechado.motivo)}">fechada sem BM</span>${can('sup.fechar')?`<button class="btn sec sm" data-reabrir="${r.id}">Reabrir</button>`:''}</div><div class="small muted" style="margin-top:4px;max-width:210px">${esc(r.fechado.motivo)} — ${esc(r.fechado.por)}, ${brdt(r.fechado.em)}</div>`:`<div class="row" style="gap:6px"><span class="pill neutral">em aberto</span>${can('sup.fechar')?`<button class="btn sec sm" data-fechar="${r.id}">Fechar</button>`:''}</div>`}</td></tr>`}).join('')||'<tr><td colspan="10" class="empty">Nenhum registro com esses filtros.</td></tr>'}</tbody>`;
+  $('sup-table').innerHTML=`<thead><tr><th>Data refeição</th><th>Colaborador</th><th>Empresa</th><th>Obra</th><th>Restaurante</th><th>Tipo</th><th class="r">Valor</th><th>Foto</th><th>Por</th><th>Nº BM</th></tr></thead><tbody>${(PREG=paginate('supRegs',regs,30)).rows.map(r=>{const b=r.bmId?S.bms.find(x=>x.id===r.bmId):null;return `<tr><td class="num">${br(r.data)}${r.dataManual?' <span class="pill warn" title="data informada manualmente">manual</span>':''}</td><td>${esc(r.nome)}${modOf(r)!=='presencial'?`<div class="small muted">${modOf(r)==='retirada'?esc(retInfo(r)):'terceirizado'+(r.terceirizada?' · terc.: '+esc(r.terceirizada):'')}</div>`:''}</td><td>${esc(r.empresaNome)}</td><td>${esc(r.obraNome)}</td><td>${esc((ct(ctOf(r))||{}).nome||r.contratadaNome||'—')}</td><td><span class="pill ${r.tipo}">${tipo(r.tipo).curto}</span></td><td class="r num">${money(r.valor)}</td><td>${fotoBtn(r)}</td><td>${esc(r.usuario)}</td><td style="min-width:150px">${b?`<button class="btn sec sm num" data-vbm="${b.id}">BM ${b.numero}</button>`:r.fechado?`<div class="row" style="gap:6px"><span class="pill bad" title="${esc(r.fechado.motivo)}">fechada sem BM</span>${can('sup.fechar')?`<button class="btn sec sm" data-reabrir="${r.id}">Reabrir</button>`:''}</div><div class="small muted" style="margin-top:4px;max-width:210px">${esc(r.fechado.motivo)} — ${esc(r.fechado.por)}, ${brdt(r.fechado.em)}</div>`:`<div class="row" style="gap:6px"><span class="pill neutral">em aberto</span>${can('sup.fechar')?`<button class="btn sec sm" data-fechar="${r.id}">Fechar</button>`:''}</div>`}</td></tr>`}).join('')||'<tr><td colspan="10" class="empty">Nenhum registro com esses filtros.</td></tr>'}</tbody>`;
+  renderPager($('sup-pager'),'supRegs',PREG,['registro','registros'],renderSup);
   $('sup-table').querySelectorAll('[data-vbm]').forEach(x=>x.onclick=()=>openBM(S.bms.find(b=>b.id===x.dataset.vbm)));
   $('sup-table').querySelectorAll('[data-foto]').forEach(x=>x.onclick=()=>verRegistro(S.registros.find(r=>r.id===x.dataset.foto)));
   $('sup-table').querySelectorAll('[data-fechar]').forEach(x=>x.onclick=()=>fecharRefeicao(S.registros.find(r=>r.id===x.dataset.fechar)));
@@ -1486,15 +1578,16 @@ function renderSup(){
   $('sup-sobras').querySelectorAll('[data-sdel2]').forEach(b=>b.onclick=()=>excluirSobra(b.dataset.sdel2,renderSup));
   $('btn-emitir').disabled=!can('sup.bm')||!S.empresas.length;
   $('btn-emitir').onclick=openEmitir;
-  $('bm-list').innerHTML=`<thead><tr><th>Nº</th><th>Empresa</th><th>Restaurante</th><th>Período</th><th class="r">Qtd</th><th class="r">Valor líquido</th><th>Situação</th><th>Nota fiscal</th><th>BM assinado</th><th></th></tr></thead><tbody>${[...S.bms].filter(b=>ctOk(ctOf(b))&&(!ctF||ctOf(b)===ctF)).sort((a,b)=>b.emitidoEm<a.emitidoEm?-1:1).map(b=>`<tr><td class="num"><b>${b.numero}</b></td><td>${esc(b.empresaNome)}</td><td>${esc(bmK(b).nome||'—')}</td><td class="num">${br(b.ini)} – ${br(b.fim)}</td><td class="r num">${b.qtd}</td><td class="r num">${money(b.liquido)}</td><td>${statusPill(b)}</td><td>${b.nf?esc(b.nf):'<span class="muted">—</span>'}</td><td>${b.anexo?`<button class="btn sec sm" data-anx="${b.id}">${b.anexo.type.startsWith('image/')?'Ver imagem':'Ver PDF'}</button>`:'<span class="muted small">sem anexo</span>'}</td><td style="white-space:nowrap"><button class="btn sec sm" data-vbm="${b.id}">Ver BM</button> ${can('sup.nf')&&b.status!=='rascunho'&&b.status!=='fechado'?`<button class="btn sec sm" data-att="${b.id}" title="Anexar BM assinado">📎 Anexar</button>`:''} ${can('del.bm')?(bmPosterior(b)?`<button class="btn sec sm" disabled title="Existe o BM ${bmPosterior(b).numero} posterior desta empresa">Excluir</button>`:`<button class="btn danger sm" data-bdel="${b.id}">Excluir</button>`):''}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">Nenhum BM emitido ainda.</td></tr>'}</tbody>`;
+  $('bm-list').innerHTML=`<thead><tr><th>Nº</th><th>Empresa</th><th>Obra / contrato</th><th>Restaurante</th><th>Período</th><th class="r">Qtd</th><th class="r">Valor líquido</th><th>Situação</th><th>Nota fiscal</th><th>BM assinado</th><th></th></tr></thead><tbody>${(PBM=paginate('bms',[...S.bms].filter(b=>ctOk(ctOf(b))&&(!ctF||ctOf(b)===ctF)).sort((a,b)=>b.emitidoEm<a.emitidoEm?-1:1),10)).rows.map(b=>`<tr><td class="num"><b>${b.numero}</b></td><td>${esc(b.empresaNome)}</td><td>${b.obraNome?`${esc(b.obraNome)}<div class="small muted">${esc(b.contratoNumero||'')}</div>`:'<span class="small muted">todas as obras</span>'}</td><td>${esc(bmK(b).nome||'—')}</td><td class="num">${br(b.ini)} – ${br(b.fim)}</td><td class="r num">${b.qtd}</td><td class="r num">${money(b.liquido)}</td><td>${statusPill(b)}</td><td>${b.nf?esc(b.nf):'<span class="muted">—</span>'}</td><td>${b.anexo?`<button class="btn sec sm" data-anx="${b.id}">${b.anexo.type.startsWith('image/')?'Ver imagem':'Ver PDF'}</button>`:'<span class="muted small">sem anexo</span>'}</td><td style="white-space:nowrap"><button class="btn sec sm" data-vbm="${b.id}">Ver BM</button> ${can('sup.nf')&&b.status!=='rascunho'&&b.status!=='fechado'?`<button class="btn sec sm" data-att="${b.id}" title="Anexar BM assinado">📎 Anexar</button>`:''} ${can('del.bm')?(bmPosterior(b)?`<button class="btn sec sm" disabled title="Existe o BM ${bmPosterior(b).numero} posterior desta empresa">Excluir</button>`:`<button class="btn danger sm" data-bdel="${b.id}">Excluir</button>`):''}</td></tr>`).join('')||'<tr><td colspan="11" class="empty">Nenhum BM emitido ainda.</td></tr>'}</tbody>`;
+  renderPager($('bm-pager'),'bms',PBM,['boletim','boletins'],renderSup);
   $('bm-list').querySelectorAll('[data-vbm]').forEach(b=>b.onclick=()=>openBM(S.bms.find(x=>x.id===b.dataset.vbm)));
   $('bm-list').querySelectorAll('[data-att]').forEach(b=>b.onclick=()=>{ATT_BM=b.dataset.att;$('bm-anexo-file').click()});
   $('bm-list').querySelectorAll('[data-anx]').forEach(b=>b.onclick=()=>viewAnexo(S.bms.find(x=>x.id===b.dataset.anx)));
   $('bm-list').querySelectorAll('[data-bdel]').forEach(x=>x.onclick=()=>excluirBM(S.bms.find(b=>b.id===x.dataset.bdel)));
   refreshBadges();
 }
-$('wk-prev').onclick=()=>{WK=addDays(WK,-7);renderSup()};$('wk-next').onclick=()=>{WK=addDays(WK,7);renderSup()};
-['f-emp','f-ct','f-tipo'].forEach(id=>$(id).onchange=renderSup);$('f-busca').oninput=renderSup;
+$('wk-prev').onclick=()=>{WK=addDays(WK,-7);PAGES.supRegs=1;renderSup()};$('wk-next').onclick=()=>{WK=addDays(WK,7);PAGES.supRegs=1;renderSup()};
+['f-emp','f-ct','f-tipo'].forEach(id=>$(id).onchange=()=>{PAGES.supRegs=1;if(id==='f-ct')PAGES.bms=1;renderSup()});$('f-busca').oninput=()=>{PAGES.supRegs=1;renderSup()};
 
 /* ---- fechar refeição sem incluir em BM (permissão sup.fechar) ---- */
 function justModal({titulo,resumo,botao,classe,onOk}){
@@ -1577,26 +1670,56 @@ function confirmDelete({titulo,resumo,opcoes,botao,onOk}){
 function infoModal(title,html){$('info-title').innerHTML=title;$('info-body').innerHTML=html;$('info-modal').classList.add('on')}
 $('info-close').onclick=()=>$('info-modal').classList.remove('on');
 
-/* ---- Emitir BM: empresa + período ---- */
+/* ---- Emitir BM: empresa → restaurante, obra e contrato vinculados + período ---- */
+/* vínculos da empresa: colaboradores (obra) × restaurantes que atendem a obra × contrato da obra, e o que já foi registrado */
+function bmTuplas(empId){
+  const T=new Map();const add=(k,o,c)=>{if(!k||!o||!ctOk(k)||!obraOk(o))return;const key=k+'|'+o+'|'+c;if(!T.has(key))T.set(key,{k,o,c})};
+  const obs=new Set();S.colab.forEach(c=>{if(c.empresaId===empId&&c.obraId)obs.add(c.obraId)});
+  ctsAcessiveis().forEach(K=>(K.obras||[]).forEach(o=>{if(obs.has(o)&&(obra(o)||{}).ativo!==false)add(K.id,o,cidOf(o)||SEM_CT)}));
+  S.registros.forEach(r=>{if(r.empresaId===empId&&r.obraId)add(ctOf(r),r.obraId,cidReg(r))});
+  (S.sobras||[]).forEach(s=>{if(s.empresaId===empId&&s.obraId)add(ctOf(s),s.obraId,cidReg(s))});
+  return [...T.values()];
+}
+function bmCtLabel(c){if(c===SEM_CT)return 'Sem contrato';const C=contrato(c);if(!C)return c;const st=contratoStatus(C);return C.numero+(st&&st!=='vigente'?` (${st})`:'')}
+function bmOpcoes(mudou){
+  const T=bmTuplas($('bm-emp').value);const sel={k:$('bm-ct').value,o:$('bm-obra').value,c:$('bm-contrato').value};
+  // o campo que acabou de mudar manda: limpa os outros que ficaram incompatíveis com ele
+  if(mudou&&sel[mudou])['k','o','c'].forEach(f=>{if(f!==mudou&&sel[f]&&!T.some(t=>t[mudou]===sel[mudou]&&t[f]===sel[f]))sel[f]=''});
+  for(let volta=0;volta<3;volta++){
+    ['k','o','c'].forEach(f=>{const vals=[...new Set(T.filter(t=>['k','o','c'].every(g=>g===f||!sel[g]||t[g]===sel[g])).map(t=>t[f]))];
+      if(sel[f]&&!vals.includes(sel[f]))sel[f]='';if(!sel[f]&&vals.length===1)sel[f]=vals[0]});
+  }
+  const opts=f=>[...new Set(T.filter(t=>['k','o','c'].every(g=>g===f||!sel[g]||t[g]===sel[g])).map(t=>t[f]))];
+  const nome={k:v=>(ct(v)||{}).nome||v,o:v=>(obra(v)||{}).nome||v,c:bmCtLabel};
+  [['k','bm-ct'],['o','bm-obra'],['c','bm-contrato']].forEach(([f,id])=>{const vs=opts(f).sort((a,b)=>nome[f](a).localeCompare(nome[f](b)));
+    $(id).innerHTML=(vs.length>1?'<option value="">Selecione…</option>':vs.length?'':'<option value="">Nenhum vínculo</option>')+vs.map(v=>`<option value="${esc(v)}"${v===sel[f]?' selected':''}>${esc(nome[f](v))}</option>`).join('');
+    $(id).value=sel[f]||'';$(id).disabled=!vs.length});
+  previewBM();
+}
 function openEmitir(){
   const ativas=S.empresas.filter(e=>e.ativo!==false);if(!ativas.length){toast('Nenhuma empresa ativa');return}
+  if(!ctsAcessiveis().length){toast('Cadastre uma contratada (restaurante) em Configurações');return}
   fillSelect($('bm-emp'),ativas,$('f-emp').value||ativas[0].id);
-  const cts=ctsAcessiveis();if(!cts.length){toast('Cadastre uma contratada (restaurante) em Configurações');return}
-  fillSelect($('bm-ct'),cts,$('f-ct').value||cts[0].id);
+  $('bm-ct').innerHTML=`<option value="${esc($('f-ct').value||'')}"></option>`;$('bm-ct').value=$('f-ct').value||'';$('bm-obra').value='';$('bm-contrato').value='';
   $('bm-ini').value=WK;$('bm-fim').value=addDays(WK,6);
-  previewBM();$('emp-modal').classList.add('on');
+  bmOpcoes('k');$('emp-modal').classList.add('on');
 }
+function bmEscolha(){return {ini:$('bm-ini').value,fim:$('bm-fim').value,empId:$('bm-emp').value,ctId:$('bm-ct').value,obraId:$('bm-obra').value,cid:$('bm-contrato').value}}
 function previewBM(){
-  const ini=$('bm-ini').value,fim=$('bm-fim').value,empId=$('bm-emp').value,ctId=$('bm-ct').value;const msg=$('bm-prev-msg');
+  const {ini,fim,empId,ctId,obraId,cid}=bmEscolha();const msg=$('bm-prev-msg');
+  const falta=[!ctId&&'restaurante',!obraId&&'obra',!cid&&'contrato'].filter(Boolean);
+  if(falta.length){$('bm-prev-tiles').innerHTML='';msg.hidden=false;msg.className='notice warn small';msg.textContent=bmTuplas(empId).length?`Selecione ${falta.join(', ').replace(/, ([^,]*)$/,' e $1')} — o BM é fechado por empresa, restaurante, obra e contrato.`:'Esta empresa não tem obra vinculada (colaboradores ou registros) a um restaurante que você acessa.';$('bm-emit-go').disabled=true;return}
   if(!ini||!fim||fim<ini){$('bm-prev-tiles').innerHTML='';msg.hidden=false;msg.className='notice bad small';msg.textContent='Informe um período válido (fim igual ou posterior ao início).';$('bm-emit-go').disabled=true;return}
-  const all=periodItens(ini,fim,empId,ctId);const livres=all.filter(r=>!r.bmId&&!r.fechado);const fechadas=all.filter(r=>r.fechado&&!r.bmId).length;const presos=all.length-livres.length-fechadas;const nsob=livres.filter(r=>r.sobra).length;
+  const all=periodItens(ini,fim,empId,ctId,obraId,cid);const livres=all.filter(r=>!r.bmId&&!r.fechado);const fechadas=all.filter(r=>r.fechado&&!r.bmId).length;const presos=all.length-livres.length-fechadas;const nsob=livres.filter(r=>r.sobra).length;const nterc=livres.filter(r=>!r.sobra&&modOf(r)==='terceirizado').length;
   $('bm-prev-tiles').innerHTML=TIPOS.map(t=>{const l=livres.filter(r=>r.tipo===t.id);return `<div class="tile ${t.id}"><div class="k">${t.curto}</div><div class="v num">${l.length}</div><div class="s num">${money(l.reduce((s,r)=>s+r.valor,0))}</div></div>`}).join('')+`<div class="tile total"><div class="k">Total</div><div class="v num">${livres.length}</div><div class="s num">${money(livres.reduce((s,r)=>s+r.valor,0))}</div></div>`;
   const dias=Math.round((parse(fim)-parse(ini))/864e5)+1;
-  let t=`${dias} dia(s) · ${livres.length} refeições em aberto${nsob?` (inclui ${nsob} de sobras)`:''}.`;if(presos)t+=` ${presos} refeição(ões) do período já pertencem a outro BM e ficam de fora.`;if(fechadas)t+=` ${fechadas} refeição(ões) fechada(s) sem BM também ficam de fora.`;
+  let t=`${dias} dia(s) · ${livres.length} refeições em aberto${nsob||nterc?` (inclui ${[nsob&&nsob+' de sobras',nterc&&nterc+' de terceirizados'].filter(Boolean).join(' e ')})`:''}.`;if(presos)t+=` ${presos} refeição(ões) do período já pertencem a outro BM e ficam de fora.`;if(fechadas)t+=` ${fechadas} refeição(ões) fechada(s) sem BM também ficam de fora.`;
   msg.hidden=false;msg.className='notice '+(livres.length?'info':'warn')+' small';msg.textContent=t;
   $('bm-emit-go').disabled=!livres.length||dias>62;if(dias>62){msg.className='notice bad small';msg.textContent='Período máximo de 62 dias.'}
 }
-['bm-ini','bm-fim','bm-emp','bm-ct'].forEach(id=>$(id).onchange=previewBM);
+$('bm-emp').onchange=()=>{$('bm-ct').value='';$('bm-obra').value='';$('bm-contrato').value='';bmOpcoes()};
+$('bm-ct').onchange=()=>bmOpcoes('k');$('bm-obra').onchange=()=>bmOpcoes('o');$('bm-contrato').onchange=()=>bmOpcoes('c');
+['bm-ini','bm-fim'].forEach(id=>$(id).onchange=previewBM);
 document.querySelectorAll('#emp-modal [data-q]').forEach(b=>b.onclick=()=>{
   const t=today();const q=b.dataset.q;let ini,fim;
   if(q==='semana'){ini=mondayOf(t);fim=addDays(ini,6)}
@@ -1605,37 +1728,40 @@ document.querySelectorAll('#emp-modal [data-q]').forEach(b=>b.onclick=()=>{
   else{const d=parse(t);const first=new Date(d.getFullYear(),d.getMonth()-1,1);const last=new Date(d.getFullYear(),d.getMonth(),0);ini=ymd(first);fim=ymd(last)}
   $('bm-ini').value=ini;$('bm-fim').value=fim;previewBM();
 });
-$('bm-emit-go').onclick=()=>{$('emp-modal').classList.remove('on');const nb=buildBM($('bm-ini').value,$('bm-fim').value,$('bm-emp').value,$('bm-ct').value);audit('bm.emitir',`BM ${nb.numero} — ${nb.empresaNome} — ${nb.contratadaNome} — ${br(nb.ini)} à ${br(nb.fim)} — ${nb.qtd} refeições — ${money(nb.valor)}`,{empresa:nb.empresaNome,entidade:'BM '+nb.numero});concluir(`Rascunho do BM nº ${nb.numero} gerado — confira a lista e feche o BM`);openBM(nb)};
+$('bm-emit-go').onclick=()=>{const e=bmEscolha();if(!e.ctId||!e.obraId||!e.cid)return;$('emp-modal').classList.remove('on');const nb=buildBM(e.ini,e.fim,e.empId,e.ctId,e.obraId,e.cid);audit('bm.emitir',`BM ${nb.numero} — ${nb.empresaNome} — ${nb.obraNome} (${nb.contratoNumero||'—'}) — ${nb.contratadaNome} — ${br(nb.ini)} à ${br(nb.fim)} — ${nb.qtd} refeições — ${money(nb.valor)}`,{empresa:nb.empresaNome,obra:nb.obraNome,entidade:'BM '+nb.numero});concluir(`Rascunho do BM nº ${nb.numero} gerado — confira a lista e feche o BM`);openBM(nb)};
 $('emp-close').onclick=()=>$('emp-modal').classList.remove('on');
 
 /* ---- BM build ---- */
-function buildBM(ini,fim,empId,ctId){
-  const E=emp(empId);const C=ct(ctId)||{};const regs=periodItens(ini,fim,empId,ctId).filter(r=>!r.bmId&&!r.fechado);
+function buildBM(ini,fim,empId,ctId,obraId,cid){
+  const E=emp(empId);const C=ct(ctId)||{};const O=obra(obraId)||{};const CT=cid&&cid!==SEM_CT?contrato(cid):null;
+  const regs=periodItens(ini,fim,empId,ctId,obraId,cid).filter(r=>!r.bmId&&!r.fechado);
   const contr=E.contrato||{};
-  const antesAll=S.registros.filter(r=>r.empresaId===empId&&ctOf(r)===ctId&&r.data<ini&&r.bmId).concat(...(S.sobras||[]).filter(s=>s.empresaId===empId&&ctOf(s)===ctId&&s.data<ini&&s.bmId).map(sobraUnits));
+  // acumulado anterior: BMs anteriores da empresa com o mesmo restaurante (a quantidade contratada fica no cadastro da empresa)
+  const prev=new Set(S.bms.filter(x=>x.empresaId===empId&&ctOf(x)===ctId&&x.numero<(E.proximoBM||1)).map(x=>x.id));
+  const antesAll=S.registros.filter(r=>r.bmId&&prev.has(r.bmId)).concat(...(S.sobras||[]).filter(s=>s.bmId&&prev.has(s.bmId)).map(sobraUnits));
   const itens=TIPOS.map((t,i)=>{
     const c=contr[t.id]||{};const antes=antesAll.filter(r=>r.tipo===t.id);
     const acumQtd=(c.acumQtd||0)+antes.length;const acumVal=(c.acumVal||0)+antes.reduce((s,r)=>s+r.valor,0);
     const atual=regs.filter(r=>r.tipo===t.id);const atualQtd=atual.length;const atualVal=atual.reduce((s,r)=>s+r.valor,0);
-    const preco=atual.length?atual[atual.length-1].valor:precoVigente(t.id,fim,cidOf((regs.find(r=>r.obraId)||{}).obraId));const qtdCt=c.qtd||null;const totalCt=qtdCt&&preco!==null?Math.trunc(qtdCt*preco*100)/100:null;
+    const preco=atual.length?atual[atual.length-1].valor:precoVigente(t.id,fim,cid&&cid!==SEM_CT?cid:cidOf(obraId));const qtdCt=c.qtd||null;const totalCt=qtdCt&&preco!==null?Math.trunc(qtdCt*preco*100)/100:null;
     return {tipo:t.id,item:'1.'+(i+1),preco,qtdCt,totalCt,acumQtd,acumVal,atualQtd,atualVal,totAcQtd:acumQtd+atualQtd,totAcVal:acumVal+atualVal,saldoQtd:qtdCt!==null?qtdCt-acumQtd-atualQtd:null,saldoVal:totalCt!==null?totalCt-acumVal-atualVal:null};
   });
   const dias=[];for(let d=ini;d<=fim;d=addDays(d,1)){const l=regs.filter(r=>r.data===d);dias.push({d,porTipo:TIPOS.map(t=>l.filter(r=>r.tipo===t.id).length),total:l.length,valor:l.reduce((s,r)=>s+r.valor,0)})}
   const obrasN=[...new Set(regs.map(r=>r.obraNome))];
   const obras=obrasN.map(o=>{const l=regs.filter(r=>r.obraNome===o);return {o,porTipo:TIPOS.map(t=>l.filter(r=>r.tipo===t.id).length),total:l.length,valor:l.reduce((s,r)=>s+r.valor,0)}});
   const valor=regs.reduce((s,r)=>s+r.valor,0);const sobU=regs.filter(r=>r.sobra);
-  return {id:uid(),sobrasQtd:sobU.length,sobrasValor:sobU.reduce((s,r)=>s+r.valor,0),numero:E.proximoBM||1,empresaId:empId,empresaNome:E.nome,empresaCnpj:E.cnpj||'',contratadaId:ctId,contratadaNome:C.nome||'',contratadaCnpj:C.cnpj||'',gestor:C.gestor||'',cargo:C.cargo||'',servico:C.servico||'FORNECIMENTO DE REFEIÇÕES',ini,fim,itens,dias,obras,qtd:regs.length,valor,deducoes:0,adiant:0,liquido:valor,status:'rascunho',emitidoEm:new Date().toISOString(),usuario:USER.nome,nf:'',obs:'',assRest:null,assSup:null};
+  return {id:uid(),sobrasQtd:sobU.length,sobrasValor:sobU.reduce((s,r)=>s+r.valor,0),numero:E.proximoBM||1,empresaId:empId,empresaNome:E.nome,empresaCnpj:E.cnpj||'',obraId:obraId||null,obraNome:O.nome||'',contratoId:cid||null,contratoNumero:CT?CT.numero:cid===SEM_CT?'sem contrato':'',contratadaId:ctId,contratadaNome:C.nome||'',contratadaCnpj:C.cnpj||'',gestor:C.gestor||'',cargo:C.cargo||'',servico:C.servico||'FORNECIMENTO DE REFEIÇÕES',ini,fim,itens,dias,obras,qtd:regs.length,valor,deducoes:0,adiant:0,liquido:valor,status:'rascunho',emitidoEm:new Date().toISOString(),usuario:USER.nome,nf:'',obs:'',assRest:null,assSup:null};
 }
 function bmK(b){const C=ct(ctOf(b))||{};const L=S.contratada||{};return {nome:b.contratadaNome||C.nome||L.nome||'',cnpj:b.contratadaCnpj||C.cnpj||L.cnpj||'',gestor:b.gestor||C.gestor||L.gestor||'',cargo:b.cargo||C.cargo||L.cargo||'',servico:b.servico||C.servico||L.servico||'FORNECIMENTO DE REFEIÇÕES'}}
 let BM=null, BMTAB='bm'; const LISTA_VISTA=new Set();
 function openBM(b){BM=b;BMTAB='bm';renderBM();$('bm-modal').classList.add('on');$('bm-modal').querySelector('.sheet').scrollTop=0}
 const TIPO_ORD={cafe:0,almoco:1,jantar:2,lanche:3};
 function bmRegs(b){
-  const l=b.status==='rascunho'?periodRegs(b.ini,b.fim,b.empresaId,ctOf(b)).filter(r=>!r.bmId&&!r.fechado):S.registros.filter(r=>r.bmId===b.id);
+  const l=b.status==='rascunho'?periodRegs(b.ini,b.fim,b.empresaId,ctOf(b),b.obraId,b.contratoId).filter(r=>!r.bmId&&!r.fechado):S.registros.filter(r=>r.bmId===b.id);
   return l.sort((a,c)=>a.data<c.data?-1:a.data>c.data?1:(TIPO_ORD[a.tipo]-TIPO_ORD[c.tipo])||(a.registradoEm<c.registradoEm?-1:1));
 }
 function bmSobras(b){
-  const l=b.status==='rascunho'?periodSobras(b.ini,b.fim,b.empresaId,ctOf(b)).filter(s=>!s.bmId):(S.sobras||[]).filter(s=>s.bmId===b.id);
+  const l=b.status==='rascunho'?periodSobras(b.ini,b.fim,b.empresaId,ctOf(b),b.obraId,b.contratoId).filter(s=>!s.bmId):(S.sobras||[]).filter(s=>s.bmId===b.id);
   return l.sort((a,c)=>a.data<c.data?-1:a.data>c.data?1:(a.registradoEm<c.registradoEm?-1:1));
 }
 function bmQtdLista(b){return bmRegs(b).length+bmSobras(b).reduce((a,s)=>a+s.qtd,0)}
@@ -1647,13 +1773,19 @@ function bmGrupos(b){
 function sobraLinha(s){return `Sobra — ${s.qtd} ${s.qtd===1?'refeição':'refeições'}${s.colabNome?' · '+s.colabNome:''}`}
 function sobraAssTxt(s){return `Sobra informada · ${hm(s.registradoEm)} · por ${s.usuario}`}
 function assinaturaTxt(r){const m=modOf(r);if(m==='retirada')return `Retirada · ${hm(r.registradoEm)} · ${retInfo(r)} · lançado por ${r.usuario}`;return m==='terceirizado'?`Manual · ${hm(r.registradoEm)} · ${r.terceirizada?'terc.: '+r.terceirizada+' · ':''}por ${r.usuario}`:`QR Code · ${hm(r.registradoEm)}`}
+/* terceirizados: separados por empresa terceirizada (no boletim, na lista e no PDF) */
+function tercNome(r){return String(r.terceirizada||'').trim()||'Empresa não informada'}
+function tercGrupos(regs){const m=new Map();regs.filter(r=>modOf(r)==='terceirizado').forEach(r=>{const k=tercNome(r);const a=m.get(k)||{nome:k,porTipo:TIPOS.map(()=>0),total:0,valor:0};const ix=TIPOS.findIndex(t=>t.id===r.tipo);if(ix>=0)a.porTipo[ix]++;a.total++;a.valor+=r.valor||0;m.set(k,a)});return [...m.values()].sort((a,b)=>a.nome.localeCompare(b.nome))}
+function listaLinhas(regs){const out=[];let i=0;regs.filter(r=>modOf(r)!=='terceirizado').forEach(r=>out.push({i:++i,r}));
+  const g=new Map();regs.filter(r=>modOf(r)==='terceirizado').forEach(r=>{const k=tercNome(r);if(!g.has(k))g.set(k,[]);g.get(k).push(r)});
+  [...g.keys()].sort((a,b)=>a.localeCompare(b)).forEach(k=>{out.push({sub:k,n:g.get(k).length});g.get(k).forEach(r=>out.push({i:++i,r}))});return out}
 function renderLista(b){
   const g=bmGrupos(b);const tot=g.reduce((s,x)=>s+x.total,0);const ts=g.reduce((s,x)=>s+x.sobras.reduce((a,o)=>a+o.qtd,0),0);
   if(!g.length)return '<div class="notice warn">Nenhuma refeição no período.</div>';
   return `<div class="notice info small" style="margin-bottom:10px">${tot} refeições em ${g.length} lista(s) por dia e tipo${ts?`, das quais <b>${ts} são sobras</b>`:''}. <b>Assinatura digital</b> = leitura do QR Code do crachá do colaborador; <b>retirada</b> = refeição levada por outro colaborador, identificado pelo QR Code do crachá (ou digitado); registros <b>manuais</b> são de terceirizados sem crachá, lançados pelo restaurante; <b>sobras</b> são refeições preparadas e não consumidas, informadas pelo restaurante e cobradas.</div>`+
   g.map((x,i)=>`<div class="card" style="margin-bottom:10px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${i+1}. ${br(x.d)} — ${x.tipo.curto}</h3><span class="pill ${x.tipo.id}">${x.total} refeições</span></div>
     <div class="tablewrap" style="margin-top:8px"><table><thead><tr><th>#</th><th>Colaborador</th><th>Obra</th><th>Assinatura digital</th></tr></thead><tbody>
-    ${x.regs.map((r,j)=>`<tr><td class="num">${j+1}</td><td>${esc(r.nome)}${modOf(r)!=='presencial'?' '+modPill(r):''}</td><td>${esc(r.obraNome||'—')}</td><td class="small">${modOf(r)==='retirada'?'<span class="pill warn">Retirada</span>':modOf(r)==='terceirizado'?'<span class="pill warn">Manual</span>':'<span class="pill ok">✓ QR Code</span>'} <span class="muted">${esc(modOf(r)==='presencial'?hm(r.registradoEm):assinaturaTxt(r).replace(/^(Manual|Retirada) · /,''))}</span></td></tr>`).join('')}
+    ${listaLinhas(x.regs).map(l=>l.sub?`<tr class="subgrp"><td colspan="4">Terceirizada: <b>${esc(l.sub)}</b> · ${l.n} ${l.n===1?'refeição':'refeições'}</td></tr>`:`<tr><td class="num">${l.i}</td><td>${esc(l.r.nome)}${modOf(l.r)!=='presencial'?' '+modPill(l.r):''}</td><td>${esc(l.r.obraNome||'—')}</td><td class="small">${modOf(l.r)==='retirada'?'<span class="pill warn">Retirada</span>':modOf(l.r)==='terceirizado'?'<span class="pill warn">Manual</span>':'<span class="pill ok">✓ QR Code</span>'} <span class="muted">${esc(modOf(l.r)==='presencial'?hm(l.r.registradoEm):assinaturaTxt(l.r).replace(/^(Manual|Retirada) · /,''))}</span></td></tr>`).join('')}
     ${x.sobras.map((s,k)=>`<tr><td class="num">${x.regs.length+k+1}</td><td>${esc(sobraLinha(s))} <span class="pill warn">sobra</span></td><td>${esc(s.obraNome||'—')}</td><td class="small"><span class="pill neutral">Sobra</span> <span class="muted">${esc(sobraAssTxt(s).replace(/^Sobra informada · /,''))}</span></td></tr>`).join('')}
     </tbody></table></div></div>`).join('');
 }
@@ -1666,7 +1798,8 @@ function renderBM(){
   const b=BM,K=bmK(b),E=emp(b.empresaId);const mes=parse(b.ini).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).toUpperCase();
   const isDraft=b.status==='rascunho';const st=b.status;
   b.liquido=b.valor-(b.deducoes||0)-(b.adiant||0);
-  $('bm-title').textContent=`BM nº ${b.numero} — ${b.empresaNome}`;
+  $('bm-title').textContent=`BM nº ${b.numero} — ${b.empresaNome}${b.obraNome?' · '+b.obraNome:''}`;
+  const TG=tercGrupos(bmRegs(b));
   const tot=k=>b.itens.reduce((s,i)=>s+(i[k]||0),0);const anyCt=b.itens.some(i=>i.qtdCt!==null);
   const dash=v=>v===null||v===undefined?'—':v;
   const order=['rascunho','fechado','assinado_restaurante','assinado','faturado'];const idx=order.indexOf(st);
@@ -1689,7 +1822,7 @@ function renderBM(){
     <div class="hd">
       ${E&&E.logo?`<img class="lg" src="${E.logo}" alt="Logotipo ${esc(E.nome)}">`:`<div class="lg-empty">logotipo da empresa<br>(Configurações › Empresas)</div>`}
       <div><h2>Medição do contrato de ${esc((K.servico||'fornecimento de refeições').toLowerCase())}</h2>
-      <div class="kv" style="margin-top:6px"><span>Empresa</span><span><b>${esc(b.empresaNome)}</b>${b.empresaCnpj?` · CNPJ ${esc(b.empresaCnpj)}`:''}</span><span>Contratada</span><span>${esc(K.nome||'—')}${K.cnpj?` · CNPJ ${esc(K.cnpj)}`:''}</span></div></div>
+      <div class="kv" style="margin-top:6px"><span>Empresa</span><span><b>${esc(b.empresaNome)}</b>${b.empresaCnpj?` · CNPJ ${esc(b.empresaCnpj)}`:''}</span><span>Contratada</span><span>${esc(K.nome||'—')}${K.cnpj?` · CNPJ ${esc(K.cnpj)}`:''}</span>${b.obraNome?`<span>Obra</span><span><b>${esc(b.obraNome)}</b></span><span>Contrato</span><span>${esc(b.contratoNumero||'—')}</span>`:''}</div></div>
       <div class="kv"><span>Medição</span><span><b class="num">${b.numero}</b></span><span>Período</span><span class="num">${br(b.ini)} à ${br(b.fim)}</span><span>Ref.</span><span>${mes}</span></div></div>
     <div class="tablewrap"><table>
       <thead><tr><th>Item</th><th>Descrição</th><th class="c">Unid</th><th class="r">Preço unit.</th>${anyCt?'<th class="r">Qtd contrato</th><th class="r">Total contrato</th>':''}<th class="r">Acum. anterior</th><th class="r">Atual</th><th class="r">Total acum.</th>${anyCt?'<th class="r">Saldo</th>':''}<th class="r">R$ acum. anterior</th><th class="r">R$ desta medição</th><th class="r">R$ acum. atual</th>${anyCt?'<th class="r">R$ saldo</th>':''}</tr></thead>
@@ -1706,6 +1839,11 @@ function renderBM(){
         ${b.obras.length>1?`<h3 style="margin-top:14px">Resumo por obra</h3>
         <div class="tablewrap"><table><thead><tr><th>Obra</th>${TIPOS.map(t=>`<th class="r">${t.curto}</th>`).join('')}<th class="r">Total</th><th class="r">Valor</th></tr></thead><tbody>
         ${b.obras.map(e=>`<tr><td>${esc(e.o||'—')}</td>${e.porTipo.map(n=>`<td class="r num">${n||'–'}</td>`).join('')}<td class="r num"><b>${e.total}</b></td><td class="r num">${money(e.valor)}</td></tr>`).join('')}</tbody></table></div>`:''}
+        ${TG.length?`<h3 style="margin-top:14px">Terceirizados por empresa</h3>
+        <div class="tablewrap"><table><thead><tr><th>Empresa terceirizada</th>${TIPOS.map(t=>`<th class="r">${t.curto}</th>`).join('')}<th class="r">Total</th><th class="r">Valor</th></tr></thead><tbody>
+        ${TG.map(g=>`<tr><td>${esc(g.nome)}</td>${g.porTipo.map(n=>`<td class="r num">${n||'–'}</td>`).join('')}<td class="r num"><b>${g.total}</b></td><td class="r num">${money(g.valor)}</td></tr>`).join('')}
+        <tr class="tot"><td>Total terceirizados</td>${TIPOS.map((t,i)=>`<td class="r num">${TG.reduce((s,g)=>s+g.porTipo[i],0)}</td>`).join('')}<td class="r num">${TG.reduce((s,g)=>s+g.total,0)}</td><td class="r num">${money(TG.reduce((s,g)=>s+g.valor,0))}</td></tr></tbody></table></div>
+        <div class="small muted" style="margin-top:6px">Refeições lançadas manualmente para terceirizados (sem crachá). Já estão incluídas nos totais acima; o custo é de ${esc(b.empresaNome)}.</div>`:''}
       </div>
       <div>
         <div class="fin">
@@ -1741,9 +1879,9 @@ function renderBM(){
   const on=(id,fn)=>{const e=$(id);if(e)e.onclick=fn};
   on('bm-fechar',()=>{
     b.status='fechado';b.fechadoEm=new Date().toISOString();b.fechadoPor=USER.nome;
-    S.registros.forEach(r=>{if(r.empresaId===b.empresaId&&ctOf(r)===ctOf(b)&&r.data>=b.ini&&r.data<=b.fim&&!r.bmId&&!r.fechado)r.bmId=b.id});
-    (S.sobras||[]).forEach(s=>{if(s.empresaId===b.empresaId&&ctOf(s)===ctOf(b)&&s.data>=b.ini&&s.data<=b.fim&&!s.bmId){s.valorUnit=sobraUnit(s);s.valor=sobraTotal(s);s.bmId=b.id}});
-    S.bms.push(b);if(E)E.proximoBM=b.numero+1;audit('bm.fechar',`BM ${b.numero} — ${b.empresaNome} — ${br(b.ini)} à ${br(b.fim)} — ${b.qtd} refeições — líquido ${money(b.liquido)}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,depois:'fechado'});concluir(`BM ${b.numero} fechado e enviado ao restaurante`);notify('bm.fechado',`BM nº ${b.numero} — ${b.empresaNome} — período ${br(b.ini)} à ${br(b.fim)} fechado e aguardando validação do restaurante`,destRest(ctOf(b)),{bmId:b.id});renderBM();renderSup();
+    S.registros.forEach(r=>{if(noEscopo(r,b.empresaId,ctOf(b),b.obraId,b.contratoId)&&r.data>=b.ini&&r.data<=b.fim&&!r.bmId&&!r.fechado)r.bmId=b.id});
+    (S.sobras||[]).forEach(s=>{if(s.empresaId&&noEscopo(s,b.empresaId,ctOf(b),b.obraId,b.contratoId)&&s.data>=b.ini&&s.data<=b.fim&&!s.bmId){s.valorUnit=sobraUnit(s);s.valor=sobraTotal(s);s.bmId=b.id}});
+    S.bms.push(b);if(E)E.proximoBM=b.numero+1;audit('bm.fechar',`BM ${b.numero} — ${b.empresaNome}${b.obraNome?' — '+b.obraNome+(b.contratoNumero?' ('+b.contratoNumero+')':''):''} — ${br(b.ini)} à ${br(b.fim)} — ${b.qtd} refeições — líquido ${money(b.liquido)}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,depois:'fechado'});concluir(`BM ${b.numero} fechado e enviado ao restaurante`);notify('bm.fechado',`BM nº ${b.numero} — ${b.empresaNome} — período ${br(b.ini)} à ${br(b.fim)} fechado e aguardando validação do restaurante`,destRest(ctOf(b)),{bmId:b.id});renderBM();renderSup();
   });
   on('bm-validar',()=>{b.status='assinado_restaurante';b.assRest={tipo:'eletronica',usuario:USER.nome,em:new Date().toISOString()};audit('bm.validar',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:'fechado',depois:'assinado_restaurante'});concluir(`BM ${b.numero} validado — devolvido ao Suprimentos assinado`);notify('bm.validado',`BM nº ${b.numero} — ${b.empresaNome} validado (assinatura eletrônica) pelo restaurante ${bmK(b).nome}`,destSup(),{bmId:b.id});$('bm-modal').classList.remove('on');refreshBadges();if(can('sup.ver')){go('sup');openBM(b)}else renderRest()});
   on('bm-homologar',()=>{b.status='assinado_restaurante';b.assRest={tipo:'fisica',usuario:K.nome||'Restaurante',por:USER.nome,em:new Date().toISOString()};audit('bm.homologar',`BM ${b.numero} — ${b.empresaNome}`,{empresa:b.empresaNome,entidade:'BM '+b.numero,antes:'fechado',depois:'assinado_restaurante'});concluir('Assinatura física do restaurante homologada');notify('bm.validado',`BM nº ${b.numero} — ${b.empresaNome}: assinatura física do restaurante homologada`,destSup().concat(destRest(ctOf(b))),{bmId:b.id});renderBM();renderSup()});
@@ -1766,9 +1904,10 @@ function bmPdf(b){
   doc.setFontSize(9);doc.setFont('helvetica','normal');
   doc.text(`Empresa: ${b.empresaNome}${b.empresaCnpj?'   CNPJ: '+b.empresaCnpj:''}`,x,y+11);
   doc.text(`Contratada: ${K.nome||'—'}${K.cnpj?'   CNPJ: '+K.cnpj:''}`,x,y+16);
+  if(b.obraNome)doc.text(`Obra: ${b.obraNome}${b.contratoNumero?'   Contrato: '+b.contratoNumero:''}`,x,y+21);
   doc.setFont('helvetica','bold');doc.text(`MEDIÇÃO Nº ${b.numero}`,W-M,y+5,{align:'right'});
   doc.setFont('helvetica','normal');doc.text(`Período: ${br(b.ini)} à ${br(b.fim)}`,W-M,y+11,{align:'right'});doc.text(`Ref.: ${mes}`,W-M,y+16,{align:'right'});
-  y+=22;doc.setDrawColor(23,33,43);doc.setLineWidth(.5);doc.line(M,y,W-M,y);y+=3;
+  y+=b.obraNome?27:22;doc.setDrawColor(23,33,43);doc.setLineWidth(.5);doc.line(M,y,W-M,y);y+=3;
   const anyCt=b.itens.some(i=>i.qtdCt!==null);const dash=v=>v===null||v===undefined?'—':v;
   const head=['Item','Descrição','Unid','Preço unit.'].concat(anyCt?['Qtd contrato','Total contrato']:[]).concat(['Acum. anterior','Atual','Total acum.']).concat(anyCt?['Saldo']:[]).concat(['R$ acum. ant.','R$ desta medição','R$ acum. atual']).concat(anyCt?['R$ saldo']:[]);
   const body=b.itens.map(i=>[i.item,tipo(i.tipo).nome,'un',i.preco===null?'—':money(i.preco)].concat(anyCt?[dash(i.qtdCt&&num(i.qtdCt)),i.totalCt===null?'—':money(i.totalCt)]:[]).concat([num(i.acumQtd),num(i.atualQtd),num(i.totAcQtd)]).concat(anyCt?[i.saldoQtd===null?'—':num(i.saldoQtd)]:[]).concat([money(i.acumVal),money(i.atualVal),money(i.totAcVal)]).concat(anyCt?[i.saldoVal===null?'—':money(i.saldoVal)]:[]));
@@ -1792,6 +1931,15 @@ function bmPdf(b){
     const oBody=b.obras.map(e=>[e.o||'—'].concat(e.porTipo.map(n=>n||'–')).concat([String(e.total),money(e.valor)]));
     doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text('RESUMO POR OBRA',M,yL+7);
     doc.autoTable({...base,startY:yL+9,head:[oHead],body:oBody,tableWidth:leftW,margin:{left:M,bottom:30},headStyles:grey,columnStyles:dCols});
+    yL=doc.lastAutoTable.finalY;
+  }
+  const TGp=tercGrupos(bmRegs(b));
+  if(TGp.length){
+    const tHead=['Empresa terceirizada'].concat(TIPOS.map(t=>t.curto)).concat(['Total','Valor']);
+    const tBody=TGp.map(g=>[g.nome].concat(g.porTipo.map(n=>n||'–')).concat([String(g.total),money(g.valor)]));
+    tBody.push(['Total terceirizados'].concat(TIPOS.map((t,i)=>String(TGp.reduce((s,g)=>s+g.porTipo[i],0)))).concat([String(TGp.reduce((s,g)=>s+g.total,0)),money(TGp.reduce((s,g)=>s+g.valor,0))]));
+    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text('TERCEIRIZADOS POR EMPRESA (já incluídos nos totais)',M,yL+7);
+    doc.autoTable({...base,startY:yL+9,head:[tHead],body:tBody,tableWidth:leftW,margin:{left:M,bottom:30},headStyles:grey,columnStyles:dCols,didParseCell:d=>{if(d.section==='body'&&d.row.index===tBody.length-1)d.cell.styles.fontStyle='bold'}});
     yL=doc.lastAutoTable.finalY;
   }
   // financial block on the first page position of the resumo (if resumo spilled to a new page, place fin on that page)
@@ -1828,7 +1976,7 @@ function bmPdf(b){
       if(ly>175){doc.addPage();ly=M+4}
       doc.setFont('helvetica','bold');doc.setFontSize(9.5);doc.text(`${i+1}. ${br(x.d)} — ${x.tipo.curto} (${x.total})`,M,ly+4);
       doc.autoTable({startY:ly+6,head:[['#','Colaborador','Obra','Assinatura digital']],
-        body:x.regs.map((r,j)=>[String(j+1),r.nome,r.obraNome||'—',assinaturaTxt(r)]).concat(x.sobras.map((o,k)=>[String(x.regs.length+k+1),sobraLinha(o),o.obraNome||'—',sobraAssTxt(o)])),
+        body:listaLinhas(x.regs).map(l=>l.sub?[{content:`Terceirizada: ${l.sub} — ${l.n} ${l.n===1?'refeição':'refeições'}`,colSpan:4,styles:{fillColor:[245,247,248],fontStyle:'bold',fontSize:7.5,halign:'left'}}]:[String(l.i),l.r.nome,l.r.obraNome||'—',assinaturaTxt(l.r)]).concat(x.sobras.map((o,k)=>[String(x.regs.length+k+1),sobraLinha(o),o.obraNome||'—',sobraAssTxt(o)])),
         theme:'grid',margin:{left:M,right:M,bottom:14},styles:{fontSize:8,cellPadding:1.4,lineColor:[200,208,214],lineWidth:.2,textColor:[23,33,43]},
         headStyles:{fillColor:[236,241,244],textColor:[23,33,43],fontSize:7.5},columnStyles:{0:{cellWidth:10,halign:'right'},1:{cellWidth:110},2:{cellWidth:70}}});
       ly=doc.lastAutoTable.finalY+4;
@@ -1889,13 +2037,13 @@ function renderSetup(){
   $('setup-list').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{CFGTAB=b.dataset.t;renderCfg()});
 }
 function renderCfg(){
-  const tabs=[];if(can('cfg.usuarios'))tabs.push(['usuarios','Usuários'],['perfis','Perfis']);if(can('cfg.colab'))tabs.push(['colab','Colaboradores']);if(can('cfg.empresas'))tabs.push(['empresas','Empresas']);if(can('cfg.obras'))tabs.push(['obras','Obras']);if(can('cfg.contratos'))tabs.push(['contratos','Contratos']);if(can('cfg.precos'))tabs.push(['precos','Preços']);if(can('cfg.contratada'))tabs.push(['contratada','Contratadas']);
+  const tabs=[];if(can('cfg.usuarios'))tabs.push(['usuarios','Usuários'],['perfis','Perfis']);if(can('cfg.colab'))tabs.push(['colab','Colaboradores']);if(can('cfg.empresas'))tabs.push(['empresas','Empresas']);if(can('cfg.obras'))tabs.push(['obras','Obras']);if(can('cfg.contratos'))tabs.push(['contratos','Contratos']);if(can('cfg.precos'))tabs.push(['precos','Preços']);if(can('cfg.contratada'))tabs.push(['contratada','Contratadas']);if(can('cfg.horarios'))tabs.push(['horarios','Horários']);
   if(!tabs.some(t=>t[0]===CFGTAB))CFGTAB=tabs[0]&&tabs[0][0];
   $('cfg-tabs').innerHTML=tabs.map(t=>`<button data-t="${t[0]}" class="${CFGTAB===t[0]?'on':''}">${t[1]}</button>`).join('');
   $('cfg-tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(CFGTAB!==b.dataset.t){audit('nav.cfg','Configurações › '+b.textContent);save()}CFGTAB=b.dataset.t;renderCfg()});
   document.querySelectorAll('.cfg-pane').forEach(p=>p.hidden=p.id!=='cfg-'+CFGTAB);
   renderSetup();
-  ({perfis:renderPerfis,usuarios:renderUsers,colab:renderColab,empresas:renderEmpresas,obras:renderObras,precos:renderPrecos,contratos:renderContratos,contratada:renderContratada}[CFGTAB]||(()=>{}))();
+  ({perfis:renderPerfis,usuarios:renderUsers,colab:renderColab,empresas:renderEmpresas,obras:renderObras,precos:renderPrecos,contratos:renderContratos,contratada:renderContratada,horarios:renderHorarios}[CFGTAB]||(()=>{}))();
 }
 /* users */
 /* perfis */
@@ -2466,9 +2614,9 @@ let FV_SEQ=0;
 async function verRegistro(r){
   if(!r)return;const m=modOf(r),seq=++FV_SEQ;
   $('fv-title').textContent=r.foto&&can('fotos.ver')?'Foto do registro':'Detalhes do registro';
-  const linhas=[['Data e hora do registro',`<b class="num">${brdt(r.registradoEm)}</b>`],['Colaborador',`<b>${esc(r.nome)}</b>`],['Empresa',esc(r.empresaNome||'—')],['Obra',esc(r.obraNome||'—')],
+  const linhas=[['Data e hora do registro',`<b class="num">${brdt(r.registradoEm)}</b>`],['Colaborador',`<b>${esc(r.nome)}</b>`],[m==='terceirizado'?'Empresa (custo)':'Empresa',esc(r.empresaNome||'—')],...(m==='terceirizado'?[['Empresa terceirizada',`<b>${esc(r.terceirizada||'não informada')}</b>`]]:[]),['Obra',esc(r.obraNome||'—')],
     ['Refeição',`${tipo(r.tipo).curto} · ${br(r.data)}${r.dataManual?' <span class="pill warn">data manual</span>':''}`],
-    ['Modalidade',modPill(r)+(m==='retirada'?` <span class="small muted">${esc(retInfo(r))}</span>`:m==='terceirizado'&&r.terceirizada?` <span class="small muted">terc.: ${esc(r.terceirizada)}</span>`:'')],
+    ['Modalidade',modPill(r)+(m==='retirada'?` <span class="small muted">${esc(retInfo(r))}</span>`:'')],
     ['Restaurante',esc((ct(ctOf(r))||{}).nome||r.contratadaNome||'—')],['Registrado por',esc(r.usuario||'—')]];
   if(r.semFoto)linhas.push(['Foto',`<span class="pill warn">sem foto</span> ${esc(r.semFoto)}`]);
   $('fv-body').innerHTML=`<div class="fvimg" id="fv-img"><div class="vazio">Carregando a foto…</div></div><dl class="fvinfo">${linhas.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
@@ -2556,6 +2704,155 @@ $('fa-agora').onclick=async()=>{
   }catch(e){let m=e.message||String(e);try{if(e.context&&typeof e.context.json==='function'){const j=await e.context.json();if(j&&j.error)m=j.error}}catch(x){}toast('Não foi possível compactar agora: '+m,'bad')}
   b.disabled=false;b.textContent=t;
 };
+
+/* =================== HORÁRIO LIMITE DE REGISTRO (v2.2) ===================
+   Configurações › Horários (permissão cfg.horarios). Guardado em config id "horarios".
+   Bloqueia QR, código digitado e registro manual (Retirada/Terceirizado) fora da janela do tipo, pelo relógio do aparelho.
+   Não bloqueia sobras nem registros com data manual (retroativa). */
+const HORARIOS_PADRAO={ativo:false,tipos:{cafe:{ativo:true,ini:'06:00',fim:'08:00'},almoco:{ativo:true,ini:'11:00',fim:'13:00'},jantar:{ativo:true,ini:'18:00',fim:'21:00'},lanche:{ativo:false,ini:'15:00',fim:'16:00'}}};
+function horarios(){const h=(S&&S.horarios)||{};const tipos={};TIPOS.forEach(t=>{tipos[t.id]=Object.assign({},HORARIOS_PADRAO.tipos[t.id],(h.tipos||{})[t.id]||{})});return {ativo:!!h.ativo,tipos}}
+function agoraHM(){const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())}
+function janela(tipoId){const H=horarios();if(!H.ativo)return null;const c=H.tipos[tipoId];return c&&c.ativo&&c.ini&&c.fim?c:null}
+function horarioErro(tipoId,dataRef){
+  if(dataRef&&dataRef!==today())return null;const c=janela(tipoId);if(!c)return null;const h=agoraHM();
+  const dentro=c.ini<=c.fim?(h>=c.ini&&h<=c.fim):(h>=c.ini||h<=c.fim);
+  return dentro?null:`${tipo(tipoId).curto}: registro permitido das ${c.ini} às ${c.fim} (agora são ${h}).`}
+function renderHorariosRest(){
+  const el=$('rest-horarios');const H=horarios();el.hidden=!H.ativo;if(!H.ativo){el.innerHTML='';return}
+  el.innerHTML='<span class="muted">Horário de registro:</span>'+TIPOS.map(t=>{const c=janela(t.id);const livre=!horarioErro(t.id);return `<span class="pill ${c?(livre?'ok':'neutral'):'neutral'}" title="${c?(livre?'aberto agora':'fechado agora'):'sem limite de horário'}">${t.curto} ${c?c.ini+'–'+c.fim:'livre'}${c&&livre?' · aberto':''}</span>`}).join('');
+}
+setInterval(()=>{if(!USER||PAGE!=='rest')return;renderHorariosRest();if(CUR&&!$('confirm-card').hidden&&!FOTO.busy)renderMeal()},30000);
+/* Configurações › Horários */
+let HED=null;
+function renderHorarios(){HED=JSON.parse(JSON.stringify(horarios()));$('h-err').hidden=true;desenhaHorarios()}
+function desenhaHorarios(){
+  const on=HED.ativo;$('h-ativo').classList.toggle('on',on);$('h-ativo').setAttribute('aria-checked',String(on));$('h-ativo-txt').textContent=on?'Limite ativado':'Limite desativado';$('h-ativo-txt').style.color=on?'var(--good)':'var(--ink-3)';
+  $('h-tabela').innerHTML=`<div class="hrow hh"><span>Refeição</span><span>Limitar</span><span>Início</span><span>Término</span></div>`+TIPOS.map(t=>{const c=HED.tipos[t.id];return `<div class="hrow${on&&c.ativo?'':' off'}"><span><span class="pill ${t.id}">${t.curto}</span></span><span><button type="button" class="switch${c.ativo?' on':''}" data-ht="${t.id}" role="switch" aria-checked="${c.ativo}" aria-label="Limitar horário — ${t.curto}"></button></span><span data-l="Início"><input type="time" data-hi="${t.id}" value="${esc(c.ini)}" ${c.ativo?'':'disabled'} aria-label="Início — ${t.curto}"></span><span data-l="Término"><input type="time" data-hf="${t.id}" value="${esc(c.fim)}" ${c.ativo?'':'disabled'} aria-label="Término — ${t.curto}"></span></div>`}).join('');
+  $('h-tabela').querySelectorAll('[data-ht]').forEach(b=>b.onclick=()=>{const c=HED.tipos[b.dataset.ht];c.ativo=!c.ativo;desenhaHorarios()});
+  $('h-tabela').querySelectorAll('[data-hi]').forEach(i=>i.onchange=()=>{HED.tipos[i.dataset.hi].ini=i.value});
+  $('h-tabela').querySelectorAll('[data-hf]').forEach(i=>i.onchange=()=>{HED.tipos[i.dataset.hf].fim=i.value});
+  $('h-save').disabled=!can('cfg.horarios');
+}
+$('h-ativo').onclick=()=>{HED.ativo=!HED.ativo;desenhaHorarios()};
+$('h-reset').onclick=renderHorarios;
+$('h-save').onclick=()=>{
+  if(!can('cfg.horarios'))return;const err=$('h-err');
+  const ruim=TIPOS.filter(t=>{const c=HED.tipos[t.id];return c.ativo&&(!c.ini||!c.fim||c.ini===c.fim)});
+  if(ruim.length){err.hidden=false;err.textContent=`Informe início e término diferentes para: ${ruim.map(t=>t.curto).join(', ')}.`;return}
+  err.hidden=true;const antes=horarios();
+  const txt=H=>(H.ativo?'ATIVADO':'DESATIVADO')+' — '+TIPOS.map(t=>{const c=H.tipos[t.id];return `${t.curto} ${c.ativo?c.ini+'–'+c.fim:'livre'}`}).join(', ');
+  S.horarios=JSON.parse(JSON.stringify(HED));
+  audit('horarios.salvar',txt(S.horarios),{entidade:'horários de registro',antes:txt(antes),depois:txt(S.horarios)});
+  concluir(S.horarios.ativo?'Horários salvos — limite ativado':'Horários salvos — limite desativado');desenhaHorarios();
+};
+
+/* =================== ANALÍTICO (v2.2) ===================
+   Refeições registradas + sobras cobradas (1 unidade por refeição que sobrou); não inclui as fechadas sem BM.
+   Cores dos gráficos: --viz-qtd (quantidade) e --viz-val (valor) — par validado para daltonismo, claro e escuro. */
+let ANA={preset:'mes'};
+function anaDatas(p){const t=today();const d=parse(t);
+  if(p==='mes')return [ymd(new Date(d.getFullYear(),d.getMonth(),1)),ymd(new Date(d.getFullYear(),d.getMonth()+1,0))];
+  if(p==='mes-ant')return [ymd(new Date(d.getFullYear(),d.getMonth()-1,1)),ymd(new Date(d.getFullYear(),d.getMonth(),0))];
+  if(p==='30')return [addDays(t,-29),t];
+  if(p==='ano')return [ymd(new Date(d.getFullYear(),0,1)),ymd(new Date(d.getFullYear(),11,31))];
+  return null}
+function anaFiltros(){return {de:$('an-de').value,ate:$('an-ate').value,emp:$('an-emp').value,obra:$('an-obra').value,colab:$('an-colab').value.trim().toLowerCase(),tipo:$('an-tipo').value,ct:$('an-ct').value}}
+function anaItens(F){
+  const ok=x=>x.data>=F.de&&x.data<=F.ate&&(!F.emp||x.empresaId===F.emp)&&(!F.obra||x.obraId===F.obra)&&(!F.tipo||x.tipo===F.tipo)&&(!F.ct||ctOf(x)===F.ct);
+  const regs=S.registros.filter(r=>!r.fechado&&regOk(r)&&ok(r)&&(!F.colab||String(r.nome||'').toLowerCase().includes(F.colab)));
+  const sob=F.colab?[]:(S.sobras||[]).filter(s=>s.empresaId&&sobraOk(s)&&ok(s)).flatMap(sobraUnits);
+  return regs.concat(sob)}
+function anaNum(v){return Math.round(v).toLocaleString('pt-BR')}
+function anaMoedaCurta(v){return v>=1e6?'R$ '+(v/1e6).toFixed(1).replace('.',',')+' mi':v>=1e4?'R$ '+(v/1e3).toFixed(0)+' mil':v>=1e3?'R$ '+(v/1e3).toFixed(1).replace('.',',')+' mil':'R$ '+Math.round(v)}
+function niceMax(v){if(v<=0)return 1;const e=Math.pow(10,Math.floor(Math.log10(v)));const f=v/e;return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*e}
+function renderAna(){
+  if(!$('an-de').value||!$('an-ate').value){const r=anaDatas(ANA.preset)||anaDatas('mes');$('an-de').value=r[0];$('an-ate').value=r[1]}
+  if($('an-de').value>$('an-ate').value){const x=$('an-de').value;$('an-de').value=$('an-ate').value;$('an-ate').value=x}
+  document.querySelectorAll('#an-presets [data-p]').forEach(b=>b.classList.toggle('on',b.dataset.p===ANA.preset));
+  fillSelect($('an-emp'),S.empresas.slice().sort((a,b)=>a.nome.localeCompare(b.nome)),$('an-emp').value,'Todas');
+  fillSelect($('an-obra'),S.obras.filter(o=>obraOk(o.id)).sort((a,b)=>a.nome.localeCompare(b.nome)),$('an-obra').value,'Todas');
+  fillSelect($('an-ct'),(S.contratadas||[]).filter(c=>ctOk(c.id)),$('an-ct').value,'Todos');
+  if($('an-tipo').options.length<2)TIPOS.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.curto;$('an-tipo').appendChild(o)});
+  $('an-colab-list').innerHTML=[...new Set(S.colab.map(c=>c.nome).concat(S.registros.filter(r=>modOf(r)==='terceirizado').map(r=>r.nome)))].sort().map(n=>`<option value="${esc(n)}">`).join('');
+  const F=anaFiltros();const it=anaItens(F);
+  const qtd=it.length,val=it.reduce((s,r)=>s+(r.valor||0),0),nsob=it.filter(r=>r.sobra).length;
+  const fimEfetivo=F.ate<today()?F.ate:today();const diasCorridos=F.de>fimEfetivo?0:Math.round((parse(fimEfetivo)-parse(F.de))/864e5)+1;
+  const diasCom=new Set(it.map(r=>r.data)).size;
+  $('ana-sub').textContent=`${br(F.de)} a ${br(F.ate)} · refeições registradas e sobras cobradas · não inclui refeições fechadas sem BM`;
+  $('ana-kpis').innerHTML=`<div class="tile total"><div class="k">Refeições no período</div><div class="v num">${anaNum(qtd)}</div><div class="s">${nsob?`inclui ${anaNum(nsob)} sobra${nsob>1?'s':''}`:'&nbsp;'}</div></div>
+    <div class="tile total"><div class="k">Valor no período</div><div class="v num">${money(val)}</div><div class="s">${qtd?`preço médio ${money(val/qtd)}`:'&nbsp;'}</div></div>
+    <div class="tile total"><div class="k">Média por dia</div><div class="v num">${diasCorridos?anaNum(qtd/diasCorridos):'—'}</div><div class="s">${diasCorridos?`${diasCorridos} dia(s) corrido(s) · ${money(diasCorridos?val/diasCorridos:0)}/dia`:'período futuro'}</div></div>
+    <div class="tile total"><div class="k">Dias com registro</div><div class="v num">${diasCom}</div><div class="s">${new Set(it.filter(r=>!r.sobra).map(r=>r.colabId||r.nome)).size} colaborador(es)</div></div>`;
+  // série temporal: por dia (até 62 dias) ou por mês
+  const dias=Math.round((parse(F.ate)-parse(F.de))/864e5)+1;const porMes=dias>62;const buckets=[];
+  if(porMes){let d=parse(F.de);d=new Date(d.getFullYear(),d.getMonth(),1);const fim=parse(F.ate);while(d<=fim){const k=ymd(d).slice(0,7);buckets.push({k,lab:d.toLocaleDateString('pt-BR',{month:'short'}).replace('.','')+'/'+String(d.getFullYear()).slice(2),tit:d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})});d=new Date(d.getFullYear(),d.getMonth()+1,1)}}
+  else for(let d=F.de;d<=F.ate;d=addDays(d,1))buckets.push({k:d,lab:d.slice(8),tit:`${wd(d)}, ${br(d)}`});
+  const key=r=>porMes?r.data.slice(0,7):r.data;const agg={};it.forEach(r=>{const k=key(r);const a=agg[k]||(agg[k]={q:0,v:0,t:{}});a.q++;a.v+=r.valor||0;a.t[r.tipo]=(a.t[r.tipo]||0)+1});
+  const pts=buckets.map(b=>{const a=agg[b.k]||{q:0,v:0,t:{}};return {...b,q:a.q,v:a.v,t:a.t}});
+  const detalhe=p=>TIPOS.filter(t=>p.t[t.id]).map(t=>`${t.curto}: ${p.t[t.id]}`);
+  $('ana-t1').textContent=`${anaNum(qtd)} refeições`;$('ana-t2').textContent=money(val);
+  $('ana-c1-sub').textContent=porMes?'por mês':'por dia';$('ana-c2-sub').textContent=porMes?'por mês':'por dia';
+  colChart($('ana-c1'),pts.map(p=>({lab:p.lab,v:p.q,tit:p.tit,linhas:[`${money(p.v)}`].concat(detalhe(p)),fmt:anaNum(p.q)+(p.q===1?' refeição':' refeições')})),'var(--viz-qtd)',anaNum);
+  colChart($('ana-c2'),pts.map(p=>({lab:p.lab,v:p.v,tit:p.tit,linhas:[`${anaNum(p.q)} refeições`],fmt:money(p.v)})),'var(--viz-val)',anaMoedaCurta);
+  $('ana-c1-tab').innerHTML=anaTabela([porMes?'Mês':'Dia','Refeições'].concat(TIPOS.map(t=>t.curto)).concat(['Valor']),pts.filter(p=>p.q).map(p=>[p.tit,anaNum(p.q)].concat(TIPOS.map(t=>p.t[t.id]?anaNum(p.t[t.id]):'–')).concat([money(p.v)])));
+  $('ana-c2-tab').innerHTML=anaTabela([porMes?'Mês':'Dia','Valor','Refeições'],pts.filter(p=>p.q).map(p=>[p.tit,money(p.v),anaNum(p.q)]));
+  // por obra e por empresa (quantidade e valor lado a lado, mesma linha)
+  const grupo=(fk,fn)=>{const m=new Map();it.forEach(r=>{const k=fk(r)||'—';const a=m.get(k)||{nome:fn(r)||'—',q:0,v:0};a.q++;a.v+=r.valor||0;m.set(k,a)});return [...m.values()].sort((a,b)=>b.q-a.q||b.v-a.v)};
+  const obs=grupo(r=>r.obraId||r.obraNome,r=>(obra(r.obraId)||{}).nome||r.obraNome),ems=grupo(r=>r.empresaId,r=>(emp(r.empresaId)||{}).nome||r.empresaNome);
+  pairBars($('ana-c3'),obs,qtd,val);pairBars($('ana-c4'),ems,qtd,val);
+  $('ana-c3-n').textContent=`${obs.length} obra(s)`;$('ana-c4-n').textContent=`${ems.length} empresa(s)`;
+  $('ana-c3-tab').innerHTML=anaTabela(['Obra','Refeições','% qtd','Valor','% valor'],obs.map(g=>[g.nome,anaNum(g.q),pct(g.q,qtd),money(g.v),pct(g.v,val)]));
+  $('ana-c4-tab').innerHTML=anaTabela(['Empresa','Refeições','% qtd','Valor','% valor'],ems.map(g=>[g.nome,anaNum(g.q),pct(g.q,qtd),money(g.v),pct(g.v,val)]));
+  $('ana-vazio').hidden=!!qtd;
+}
+function pct(a,b){return b?(a/b*100).toFixed(1).replace('.',',')+'%':'—'}
+function anaTabela(cab,linhas){return `<div class="tablewrap"><table><thead><tr>${cab.map((c,i)=>`<th${i?' class="r"':''}>${esc(c)}</th>`).join('')}</tr></thead><tbody>${linhas.map(l=>`<tr>${l.map((c,i)=>`<td${i?' class="r num"':''}>${esc(c)}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${cab.length}" class="empty">Sem dados no período.</td></tr>`}</tbody></table></div>`}
+/* colunas (uma série): barra ≤24px, topo arredondado 4px, base reta; grade discreta; rótulo só no maior valor */
+function colChart(el,pts,cor,fmtEixo){
+  const W=Math.max(280,el.clientWidth||600),H=230,ml=Math.max(34,String(fmtEixo(niceMax(Math.max(0,...pts.map(p=>p.v))))).length*6.6+10),mr=6,mt=22,mb=24;
+  const pw=W-ml-mr,ph=H-mt-mb,n=pts.length||1,band=pw/n,bw=Math.max(2,Math.min(24,band-2));
+  const max=niceMax(Math.max(0,...pts.map(p=>p.v)));const y=v=>mt+ph-(v/max)*ph;
+  const ticks=[0,.25,.5,.75,1].map(f=>f*max);
+  const passo=Math.max(1,Math.ceil(n*26/pw));const iMax=pts.reduce((m,p,i)=>p.v>pts[m].v?i:m,0);
+  let s=`<svg class="viz-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Gráfico de colunas">`;
+  s+=ticks.map((t,i)=>`<line class="${i?'grid':'base'}" x1="${ml}" x2="${W-mr}" y1="${y(t)}" y2="${y(t)}"/><text x="${ml-6}" y="${y(t)+4}" text-anchor="end">${esc(fmtEixo(t))}</text>`).join('');
+  pts.forEach((p,i)=>{const x=ml+i*band+(band-bw)/2;const h=Math.max(0,y(0)-y(p.v));
+    if(h>0){const r=Math.min(4,bw/2,h);const yt=y(p.v);s+=`<path class="bar" data-i="${i}" style="fill:${cor}" d="M${x},${y(0)}V${yt+r}Q${x},${yt} ${x+r},${yt}H${x+bw-r}Q${x+bw},${yt} ${x+bw},${yt+r}V${y(0)}Z"/>`}
+    if(i%passo===0)s+=`<text x="${x+bw/2}" y="${H-7}" text-anchor="middle">${esc(p.lab)}</text>`;
+    s+=`<rect class="hit" data-i="${i}" x="${ml+i*band}" y="${mt-18}" width="${band}" height="${ph+18}" tabindex="0" aria-label="${esc(p.tit+': '+p.fmt)}"/>`});
+  if(pts.length&&pts[iMax].v>0){const p=pts[iMax];const x=ml+iMax*band+band/2;s+=`<text class="viz-lbl" x="${Math.min(Math.max(x,ml+30),W-mr-30)}" y="${y(p.v)-6}" text-anchor="middle">${esc(fmtEixo===anaNum?anaNum(p.v):anaMoedaCurta(p.v))}</text>`}
+  s+='</svg>';el.innerHTML=s;
+  el.querySelectorAll('.hit').forEach(h=>{const i=+h.dataset.i;const bar=el.querySelector(`.bar[data-i="${i}"]`);const p=pts[i];
+    const show=ev=>{el.querySelectorAll('.bar.on').forEach(b=>b.classList.remove('on'));if(bar)bar.classList.add('on');vizTip(ev,p.fmt,[p.tit].concat(p.linhas||[]),cor,h)};
+    h.addEventListener('pointerenter',show);h.addEventListener('pointermove',show);h.addEventListener('focus',show);
+    const hide=()=>{if(bar)bar.classList.remove('on');vizTipHide()};h.addEventListener('pointerleave',hide);h.addEventListener('blur',hide)});
+}
+/* barras horizontais pareadas: quantidade e valor da mesma obra/empresa na mesma linha (duas escalas separadas, sem eixo duplo) */
+function pairBars(el,grupos,qtdTot,valTot){
+  if(!grupos.length){el.innerHTML='<div class="small muted" style="padding:10px 0">Sem dados no período.</div>';return}
+  let lista=grupos;if(grupos.length>10){const resto=grupos.slice(9);lista=grupos.slice(0,9).concat([{nome:`Outras (${resto.length})`,q:resto.reduce((s,g)=>s+g.q,0),v:resto.reduce((s,g)=>s+g.v,0)}])}
+  const mq=Math.max(...lista.map(g=>g.q)),mv=Math.max(...lista.map(g=>g.v))||1;
+  el.innerHTML=`<div class="pb-row pb-h"><span></span><span><i class="key" style="background:var(--viz-qtd)"></i>Refeições</span><span><i class="key" style="background:var(--viz-val)"></i>Valor</span></div>`+
+    lista.map((g,i)=>`<div class="pb-row" tabindex="0" data-i="${i}"><div class="pb-lab">${esc(g.nome)}</div><div class="pb-cell"><div class="pb-bar" style="background:var(--viz-qtd);width:calc((100% - 52px) * ${(g.q/mq).toFixed(4)})"></div><span class="pb-v">${anaNum(g.q)}</span></div><div class="pb-cell"><div class="pb-bar" style="background:var(--viz-val);width:calc((100% - 108px) * ${(g.v/mv).toFixed(4)})"></div><span class="pb-v">${money(g.v)}</span></div></div>`).join('');
+  el.querySelectorAll('.pb-row[data-i]').forEach(r=>{const g=lista[+r.dataset.i];const show=ev=>vizTip(ev,g.nome,[`${anaNum(g.q)} refeições · ${pct(g.q,qtdTot)} do total`,`${money(g.v)} · ${pct(g.v,valTot)} do valor`,`preço médio ${money(g.q?g.v/g.q:0)}`],null,r);
+    r.addEventListener('pointerenter',show);r.addEventListener('pointermove',show);r.addEventListener('focus',show);r.addEventListener('pointerleave',vizTipHide);r.addEventListener('blur',vizTipHide)});
+}
+function vizTip(ev,titulo,linhas,cor,alvo){
+  const t=$('viz-tip');t.textContent='';const b=document.createElement('b');b.textContent=titulo;t.appendChild(b);
+  (linhas||[]).forEach((l,i)=>{const d=document.createElement('div');if(i===0&&cor){const k=document.createElement('i');k.className='lk';k.style.background=cor;d.appendChild(k)}d.appendChild(document.createTextNode(l));if(i>0||!cor)d.className='m';t.appendChild(d)});
+  t.hidden=false;let x,y;
+  if(ev&&ev.clientX!==undefined&&ev.type!=='focus'){x=ev.clientX;y=ev.clientY}else{const r=alvo.getBoundingClientRect();x=r.left+r.width/2;y=r.top}
+  const w=t.offsetWidth,h=t.offsetHeight;let left=x+14,top=y-h-12;if(left+w>innerWidth-8)left=x-w-14;if(left<8)left=8;if(top<8)top=y+16;t.style.left=left+'px';t.style.top=top+'px';
+}
+function vizTipHide(){$('viz-tip').hidden=true}
+document.querySelectorAll('#an-presets [data-p]').forEach(b=>b.onclick=()=>{ANA.preset=b.dataset.p;const r=anaDatas(ANA.preset);$('an-de').value=r[0];$('an-ate').value=r[1];renderAna()});
+['an-de','an-ate'].forEach(id=>$(id).onchange=()=>{ANA.preset='';renderAna()});
+['an-emp','an-obra','an-tipo','an-ct'].forEach(id=>$(id).onchange=renderAna);
+$('an-colab').oninput=()=>{clearTimeout(ANA.t);ANA.t=setTimeout(renderAna,250)};
+$('an-limpar').onclick=()=>{['an-emp','an-obra','an-tipo','an-ct','an-colab'].forEach(id=>$(id).value='');ANA.preset='mes';const r=anaDatas('mes');$('an-de').value=r[0];$('an-ate').value=r[1];renderAna()};
+document.querySelectorAll('[data-vista]').forEach(b=>b.onclick=()=>{const c=b.closest('.viz-card');const tab=c.classList.toggle('tabela');b.textContent=tab?'Gráfico':'Tabela';b.setAttribute('aria-pressed',String(tab));vizTipHide();if(!tab)renderAna()});
+addEventListener('resize',()=>{clearTimeout(ANA.rz);ANA.rz=setTimeout(()=>{if(PAGE==='ana')renderAna()},200)});
+addEventListener('scroll',vizTipHide,true);
 
 /* =================== BOOT =================== */
 if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{})}
