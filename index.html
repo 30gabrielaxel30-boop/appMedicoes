@@ -661,9 +661,12 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 
         <div id="cfg-obras" class="cfg-pane" hidden>
           <div class="cols">
-            <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Obras</h3><button class="btn sm" id="o-new">Nova obra</button></div><div class="list" id="o-list" style="margin-top:8px"></div><div class="row" id="o-pager" style="justify-content:center;margin-top:10px"></div></div>
+            <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Obras</h3><div class="row" style="gap:8px;flex-wrap:nowrap"><select id="o-f-emp" aria-label="Filtrar obras por empresa" style="width:auto;max-width:230px"></select><button class="btn sm" id="o-new">Nova obra</button></div></div>
+              <div id="o-div" class="stack" style="gap:8px;margin-top:10px" hidden></div>
+              <div class="list" id="o-list" style="margin-top:8px"></div><div class="row" id="o-pager" style="justify-content:center;margin-top:10px"></div></div>
             <div class="card"><h3 id="o-form-title">Nova obra</h3>
               <div class="stack">
+                <div class="field"><label for="o-emp">Empresa dona da obra (obrigatória)</label><select id="o-emp"></select><div class="small muted" id="o-emp-hint" style="margin-top:4px"></div></div>
                 <div class="field"><label for="o-nome">Nome da obra</label><input id="o-nome" placeholder="ex.: SEDE BENEVIDES"></div>
                 <div class="field"><label for="o-contrato">Nº do contrato (obrigatório, até 7 caracteres)</label><input id="o-contrato" maxlength="7" list="contratos-list" autocomplete="off" class="mono" placeholder="ex.: CT-0421" style="text-transform:uppercase"><datalist id="contratos-list"></datalist><div class="small muted" style="margin-top:4px">Se o número ainda não existir, o contrato é criado e você completa as datas na aba Contratos.</div></div>
                 <div class="field"><label for="o-end">Endereço / descrição (opcional)</label><input id="o-end"></div>
@@ -929,6 +932,20 @@ const TIPOS_PERFIL=['Adm','Suprimentos','Obra','Restaurante'];
 function obraOk(obraId){if(!USER||!USER.obras||!USER.obras.length)return true;return USER.obras.includes(obraId)}
 function obraNomeOk(nome){if(!USER||!USER.obras||!USER.obras.length)return true;const o=S.obras.find(x=>x.nome===nome);return !!o&&USER.obras.includes(o.id)}
 function regOkObra(r){if(!USER||!USER.obras||!USER.obras.length)return true;return r.obraId?USER.obras.includes(r.obraId):obraNomeOk(r.obraNome)}
+/* ---- obra ↔ empresa (v2.3): cada obra pertence a uma única empresa ---- */
+function obrasDaEmpresa(empId,todas){return S.obras.filter(o=>o.empresaId&&o.empresaId===empId&&(todas||o.ativo!==false)&&obraOk(o.id))}
+function obraEmpErro(empId,obraId){const o=obra(obraId);if(!o)return null;
+  if(!o.empresaId)return `A obra ${o.nome} ainda não tem empresa definida (Configurações › Obras).`;
+  if(empId&&o.empresaId!==empId){const e=emp(o.empresaId),e2=emp(empId);return `A obra ${o.nome} pertence à empresa ${e?e.nome:'—'} e não pode ser usada por ${e2?e2.nome:'outra empresa'}.`}
+  return null}
+function usoObra(obraId){const m=new Map();const add=(e,k)=>{if(!e)return;const a=m.get(e)||{colab:0,regs:0,sobras:0,bms:0};a[k]++;m.set(e,a)};
+  S.colab.forEach(c=>{if(c.obraId===obraId)add(c.empresaId,'colab')});S.registros.forEach(r=>{if(r.obraId===obraId)add(r.empresaId,'regs')});
+  (S.sobras||[]).forEach(s=>{if(s.obraId===obraId)add(s.empresaId,'sobras')});S.bms.forEach(b=>{if(b.obraId===obraId)add(b.empresaId,'bms')});return m}
+function usoTxt(u){return [u.colab&&`${u.colab} colaborador(es)`,u.regs&&`${u.regs} registro(s)`,u.sobras&&`${u.sobras} sobra(s)`,u.bms&&`${u.bms} BM(s)`].filter(Boolean).join(', ')}
+function divergencias(){
+  const semEmp=S.obras.filter(o=>!o.empresaId&&obraOk(o.id));
+  const colab=S.colab.filter(c=>c.ativo!==false&&c.obraId&&obraOk(c.obraId)&&(obra(c.obraId)||{}).empresaId&&obra(c.obraId).empresaId!==c.empresaId);
+  return {semEmp,colab}}
 /* ---- contratadas (restaurantes) ---- */
 function ct(id){return (S.contratadas||[]).find(c=>c.id===id)}
 function ctDefault(){const l=S.contratadas||[];return (l.find(c=>c.id==='ct-legacy')||l[0]||{}).id||null}
@@ -962,7 +979,7 @@ function sucesso(m){return balao('ok',m)}
 /* grava e só mostra "Sucesso" depois que o servidor confirmar */
 function concluir(msg){
   return save().then(()=>{sucesso(msg);return true},e=>{const m=(e&&e.message)||String(e||'');
-    if(/row-level security|permission|policy|42501|violates|JWT|not allowed|denied/i.test(m))toast(`O servidor recusou a gravação — “${msg}” não foi concluído. Verifique suas permissões. (${m.slice(0,90)})`,'bad');
+    if(/row-level security|permission|policy|42501|violates|JWT|not allowed|denied|Regra obra-empresa/i.test(m))toast(`O servidor recusou a gravação — “${msg}” não foi concluído. Verifique suas permissões. (${m.slice(0,90)})`,'bad');
     else toast(`Sem conexão com o servidor: “${msg}” ficou guardado neste aparelho e será enviado automaticamente quando a internet voltar.`,'warn');
     return false});
 }
@@ -993,7 +1010,7 @@ function fillSelect(sel,items,val,allLabel){sel.innerHTML=(allLabel!==undefined?
 const ABAS={login:'Login',rest:'Restaurante',sup:'Administrativo',ana:'Analítico',aud:'Auditoria',cfg:'Configurações'};
 const ACOES={
   'login.ok':'Login','login.falha':'Tentativa de login inválida','logout':'Logout','nav':'Acessou aba','nav.cfg':'Acessou seção de configurações',
-  'refeicao.registrar':'Registrou refeição','refeicao.fechar':'Fechou refeição sem BM','refeicao.reabrir':'Reabriu refeição fechada sem BM','refeicao.estornar':'Estornou refeição','sobra.registrar':'Registrou sobra','bm.compartilhar':'Compartilhou PDF do BM','sobra.excluir':'Excluiu sobra',
+  'refeicao.registrar':'Registrou refeição','refeicao.corrigir_obra':'Corrigiu a obra da refeição','refeicao.fechar':'Fechou refeição sem BM','refeicao.reabrir':'Reabriu refeição fechada sem BM','refeicao.estornar':'Estornou refeição','sobra.registrar':'Registrou sobra','bm.compartilhar':'Compartilhou PDF do BM','sobra.excluir':'Excluiu sobra',
   'bm.emitir':'Gerou rascunho de BM','bm.fechar':'Fechou BM','bm.validar':'Validou BM (assinatura eletrônica do restaurante)','bm.homologar':'Homologou assinatura física do restaurante','bm.assinar_sup':'Registrou assinatura do Suprimentos','bm.nf':'Informou nota fiscal','bm.pdf':'Exportou BM em PDF','bm.imprimir':'Imprimiu BM','bm.anexar':'Anexou BM assinado','bm.anexo_remover':'Removeu anexo do BM','bm.anexo_baixar':'Baixou anexo do BM',
   'usuario.salvar':'Cadastrou/alterou usuário','colab.salvar':'Cadastrou/alterou colaborador','colab.realocar':'Realocou colaborador (empresa/obra)','empresa.salvar':'Cadastrou/alterou empresa','obra.salvar':'Cadastrou/alterou obra','preco.salvar':'Cadastrou/alterou preço','contrato.salvar':'Cadastrou/alterou contrato',
   'contratada.salvar':'Cadastrou/alterou contratada (restaurante)','usuario.senha':'Redefiniu senha de usuário','auditoria.csv':'Exportou auditoria em CSV','dados.apagar':'Apagou todos os dados','perfil.salvar':'Cadastrou/alterou perfil','perfil.excluir':'Excluiu perfil','usuario.excluir':'Excluiu usuário','usuario.aprovar':'Aprovou conta','usuario.negar':'Negou conta','bm.excluir':'Excluiu boletim de medição','empresa.excluir':'Excluiu empresa','obra.excluir':'Excluiu obra','auditoria.arquivo':'Baixou arquivo compactado da auditoria','foto.ver':'Visualizou foto do registro','horarios.salvar':'Alterou horário limite de registro','fotos.baixar':'Baixou arquivos compactados de fotos','fotos.compactar':'Compactou fotos (rotina do servidor)'
@@ -1047,6 +1064,19 @@ function save(){
   SYNC.pending=true;setSync('pend');clearTimeout(SYNC.timer);SYNC.timer=setTimeout(sync,350);
   const pr=new Promise((res,rej)=>(SYNC.waiters=SYNC.waiters||[]).push({res,rej}));pr.catch(()=>{});return pr;
 }
+/* o banco recusa obra de outra empresa ("Regra obra-empresa"): envia linha a linha, descarta só a linha recusada e avisa */
+const REGRA_OBRA=/Regra obra-empresa/i;
+async function upsertComRegra(k,t,rows,cur){
+  const {error}=await sb.from(t).upsert(rows);if(!error)return;
+  if(!REGRA_OBRA.test(String(error.message||'')))throw error;
+  for(const row of rows){
+    const {error:e1}=await sb.from(t).upsert([row]);if(!e1)continue;
+    if(!REGRA_OBRA.test(String(e1.message||'')))throw e1;
+    S[k]=(S[k]||[]).filter(x=>x.id!==row.id);delete cur[row.id];const d=row.data||{};
+    toast(`O servidor recusou ${k==='registros'?'a refeição de '+(d.nome||''):k==='sobras'?'a sobra de '+(d.colabNome||''):k==='colab'?'o colaborador '+(d.nome||''):k==='obras'?'a obra '+(d.nome||''):'a gravação'}: ${String(e1.message||'').replace(/^Regra obra-empresa:\s*/i,'')}`,'bad');
+    if(PAGE==='rest')setTimeout(renderRest,50);
+  }
+}
 async function sync(){
   if(SYNC.running||!USER)return;SYNC.running=true;SYNC.pending=false;clearTimeout(SYNC.retry);
   const batch=(SYNC.waiters||[]).splice(0);
@@ -1061,7 +1091,7 @@ async function sync(){
         if(velhos.length){const {data,error}=await sb.rpc('sync_update',{p_table:t,p_rows:velhos});
           if(error){if(/sync_update|PGRST202|function/i.test((error.message||'')+(error.code||'')))resto=ups;else throw error}
           else{const ok=new Set(data||[]);resto=resto.concat(velhos.filter(r=>!ok.has(r.id)))}}
-        if(resto.length){const {error}=await sb.from(t).upsert(resto);if(error)throw error}
+        if(resto.length)await upsertComRegra(k,t,resto,cur);
       }
       if(dels.length){const {error}=await sb.from(t).delete().in('id',dels);if(error)throw error}
       LAST[k]=cur;
@@ -1378,6 +1408,7 @@ function lookup(code){
   if(!c.ativo){toast('Colaborador inativo — procure o Suprimentos');return}
   const ce=emp(c.empresaId);if(ce&&ce.ativo===false){toast(`Empresa ${ce.nome} está inativa — refeição não registrada`);return}
   if(!obraOk(c.obraId)){toast('Colaborador de obra fora do seu acesso');return}
+  const oe=obraEmpErro(c.empresaId,c.obraId);if(oe){toast(`${c.nome}: ${oe} Realoque o colaborador em Configurações › Colaboradores — refeição não registrada.`,'bad');return}
   const RC=restCt();if(!RC){toast('Nenhuma contratada (restaurante) cadastrada ou liberada para você');return}
   if(!(RC.obras||[]).includes(c.obraId)){const o=obra(c.obraId);toast(`O restaurante ${RC.nome} não atende a obra ${o?o.nome:''} deste colaborador`);return}
   CUR=c;CURTIPO=suggestTipo();fotoReset();
@@ -1466,7 +1497,8 @@ function renderManual(){
   $('m-nome-lbl').textContent=ret?'Refeição destinada a (nome do colaborador — obrigatório)':'Nome do colaborador';
   $('m-save').textContent=ret?'Registrar retirada':'Registrar refeição manual';
   setupDateManual('mdm');const t=regDate('mdm');if(!MTIPO)MTIPO=suggestTipo();
-  fillSelect($('m-emp'),S.empresas.filter(e=>e.ativo!==false),$('m-emp').value);const RC=restCt();fillSelect($('m-obra'),S.obras.filter(o=>o.ativo!==false&&obraOk(o.id)&&RC&&(RC.obras||[]).includes(o.id)),$('m-obra').value);
+  fillSelect($('m-emp'),S.empresas.filter(e=>e.ativo!==false),$('m-emp').value);const RC=restCt();const mObras=obrasDaEmpresa($('m-emp').value).filter(o=>RC&&(RC.obras||[]).includes(o.id));fillSelect($('m-obra'),mObras,$('m-obra').value,mObras.length?undefined:'Nenhuma obra desta empresa neste restaurante');
+  $('m-emp').onchange=()=>{$('m-obra').value='';renderManual()};
   const man=S.registros.filter(r=>modOf(r)===(ret?'retirada':'terceirizado'));
   const nomes=man.map(r=>r.nome);
   $('manual-names').innerHTML=[...new Set(nomes)].sort().map(n=>`<option value="${esc(n)}">`).join('');
@@ -1485,7 +1517,8 @@ $('m-save').onclick=()=>{
   const dest=ret?S.colab.find(c=>c.id===$('m-dest').value):null;
   if(ret&&!dest)return show('Selecione o colaborador para quem é a refeição (cadastrado).');
   if(!ret&&!nome)return show('Informe o nome do colaborador.');
-  if(!empId||!obraId)return show('Selecione a empresa e a obra (a obra precisa estar vinculada ao restaurante selecionado).');
+  if(!empId||!obraId)return show('Selecione a empresa e a obra (a obra precisa ser da empresa e estar vinculada ao restaurante selecionado).');
+  const oe=obraEmpErro(empId,obraId);if(oe)return show(oe);
   const RC=restCt();if(!RC)return show('Nenhuma contratada (restaurante) disponível.');
   const cerr=contratoErro(obraId,t);if(cerr)return show(cerr);
   const p=precoVigente(MTIPO,t,cidOf(obraId));if(p===null)return show(`${tipo(MTIPO).curto} não tem preço cadastrado para o contrato desta obra.`);
@@ -1507,10 +1540,11 @@ function renderSobrasForm(){
   const RC=restCt();
   if(!$('s-tipo').options.length)TIPOS.forEach(tp=>{const o=document.createElement('option');o.value=tp.id;o.textContent=tp.curto;$('s-tipo').appendChild(o)});
   fillSelect($('s-emp'),S.empresas.filter(e=>e.ativo!==false),$('s-emp').value,'Selecione…');
-  fillSelect($('s-obra'),S.obras.filter(o=>o.ativo!==false&&obraOk(o.id)&&RC&&(RC.obras||[]).includes(o.id)),$('s-obra').value,'Selecione…');
+  const sObras=obrasDaEmpresa($('s-emp').value).filter(o=>RC&&(RC.obras||[]).includes(o.id));fillSelect($('s-obra'),sObras,$('s-obra').value,$('s-emp').value?(sObras.length?'Selecione…':'Nenhuma obra desta empresa neste restaurante'):'Selecione a empresa primeiro');
   colabOpts($('s-colab'),$('s-obra').value,$('s-colab').value);sobraPrecoHint();
 }
 $('s-obra').addEventListener('change',()=>colabOpts($('s-colab'),$('s-obra').value,$('s-colab').value));
+$('s-emp').addEventListener('change',()=>{$('s-obra').value='';renderSobrasForm()});
 function sobraPrecoHint(){
   const el=$('s-preco');if(!el)return;const obraId=$('s-obra').value,tp=$('s-tipo').value,q=parseInt($('s-qtd').value,10)||0;
   if(!obraId||!tp){el.textContent='Selecione empresa e obra para ver o preço cobrado.';return}
@@ -1522,6 +1556,7 @@ $('s-save').onclick=()=>{
   const q=parseInt($('s-qtd').value,10),colSel=S.colab.find(x=>x.id===$('s-colab').value),empId=$('s-emp').value,obraId=$('s-obra').value,tp=$('s-tipo').value,t=today();
   const msg=$('s-msg');const show=m=>{msg.hidden=false;msg.textContent=m};msg.hidden=true;
   if(!empId||!obraId)return show('Informe a empresa e a obra da sobra (obrigatórias).');
+  const oeS=obraEmpErro(empId,obraId);if(oeS)return show(oeS);
   if(!(q>0))return show('Informe a quantidade que sobrou.');
   if(!colSel)return show('Selecione o colaborador que sobrou (cadastrado).');
   const RC=restCt();if(!RC)return show('Nenhuma contratada (restaurante) disponível.');
@@ -1675,7 +1710,7 @@ $('info-close').onclick=()=>$('info-modal').classList.remove('on');
 function bmTuplas(empId){
   const T=new Map();const add=(k,o,c)=>{if(!k||!o||!ctOk(k)||!obraOk(o))return;const key=k+'|'+o+'|'+c;if(!T.has(key))T.set(key,{k,o,c})};
   const obs=new Set();S.colab.forEach(c=>{if(c.empresaId===empId&&c.obraId)obs.add(c.obraId)});
-  ctsAcessiveis().forEach(K=>(K.obras||[]).forEach(o=>{if(obs.has(o)&&(obra(o)||{}).ativo!==false)add(K.id,o,cidOf(o)||SEM_CT)}));
+  ctsAcessiveis().forEach(K=>(K.obras||[]).forEach(o=>{const O=obra(o)||{};if(O.ativo!==false&&(O.empresaId?O.empresaId===empId:obs.has(o)))add(K.id,o,cidOf(o)||SEM_CT)}));
   S.registros.forEach(r=>{if(r.empresaId===empId&&r.obraId)add(ctOf(r),r.obraId,cidReg(r))});
   (S.sobras||[]).forEach(s=>{if(s.empresaId===empId&&s.obraId)add(ctOf(s),s.obraId,cidReg(s))});
   return [...T.values()];
@@ -2178,22 +2213,27 @@ function renderPager(el,key,P,unit,rerender){
 }
 /* colaboradores */
 function renderColab(){
-  fillSelect($('c-emp'),S.empresas,$('c-emp').value);fillSelect($('c-obra'),S.obras.filter(o=>o.ativo!==false),$('c-obra').value);
+  if(!CEDIT){fillSelect($('c-emp'),S.empresas.filter(e=>e.ativo!==false),$('c-emp').value);colabObraOpts($('c-emp').value,$('c-obra').value)}
   const need=[];if(!S.empresas.length)need.push('empresa');if(!S.obras.length)need.push('obra');
   $('c-need').hidden=!need.length;$('c-need').textContent=need.length?`Cadastre antes ao menos uma ${need.join(' e uma ')} nas abas correspondentes.`:'';
   $('c-save').disabled=!!need.length;
   const q=$('c-busca').value.trim().toLowerCase();
   const l=S.colab.filter(c=>obraOk(c.obraId)).filter(c=>{const e=emp(c.empresaId);return !q||[c.nome,c.qr,e?e.nome:''].some(x=>x.toLowerCase().includes(q))});
   renderRealoc();const P=paginate('colab',l,25);
-  $('c-table').innerHTML=`<thead><tr><th>QR Code</th><th>Nome</th><th>Empresa</th><th>Obra</th><th></th></tr></thead><tbody>${P.rows.map(c=>{const e=emp(c.empresaId),o=obra(c.obraId);return `<tr><td class="mono">${esc(c.qr)}</td><td>${esc(c.nome)}${c.ativo?'':' <span class="pill bad">inativo</span>'}</td><td>${esc(e?e.nome:'—')}${e&&e.ativo===false?' <span class="pill bad">inativa</span>':''}</td><td>${esc(o?o.nome:'—')}${c.realocacoes&&c.realocacoes.length?` <span class="pill neutral" title="realocações">${c.realocacoes.length}×</span>`:''}</td><td><button class="btn sec sm" data-c="${c.id}">Editar</button></td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Nenhum colaborador cadastrado. Leia o QR Code do crachá para começar.</td></tr>'}</tbody>`;
+  $('c-table').innerHTML=`<thead><tr><th>QR Code</th><th>Nome</th><th>Empresa</th><th>Obra</th><th></th></tr></thead><tbody>${P.rows.map(c=>{const e=emp(c.empresaId),o=obra(c.obraId);const dv=o&&o.empresaId&&o.empresaId!==c.empresaId;return `<tr><td class="mono">${esc(c.qr)}</td><td>${esc(c.nome)}${c.ativo?'':' <span class="pill bad">inativo</span>'}</td><td>${esc(e?e.nome:'—')}${e&&e.ativo===false?' <span class="pill bad">inativa</span>':''}</td><td>${esc(o?o.nome:'—')}${dv?` <span class="pill bad" title="A obra pertence a ${esc((emp(o.empresaId)||{}).nome||'outra empresa')} — realoque o colaborador">obra de outra empresa</span>`:o&&!o.empresaId?' <span class="pill warn" title="Defina a empresa da obra em Configurações › Obras">obra sem empresa</span>':''}${c.realocacoes&&c.realocacoes.length?` <span class="pill neutral" title="realocações">${c.realocacoes.length}×</span>`:''}</td><td><button class="btn sec sm" data-c="${c.id}">Editar</button></td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Nenhum colaborador cadastrado. Leia o QR Code do crachá para começar.</td></tr>'}</tbody>`;
   $('c-table').querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{CEDIT=S.colab.find(c=>c.id===b.dataset.c);fillColab()});
   renderPager($('c-pager'),'colab',P,['colaborador','colaboradores'],renderColab);
 }
 function fillColab(){const c=CEDIT||{qr:'',nome:'',empresaId:(S.empresas.find(e=>e.ativo!==false)||{}).id,obraId:(S.obras.find(o=>o.ativo!==false&&obraOk(o.id))||{}).id,ativo:true};
   $('c-form-title').textContent=CEDIT?'Editar colaborador':'Novo colaborador';$('c-qr').value=c.qr;$('c-qr').readOnly=true;$('c-nome').value=c.nome;
-  fillSelect($('c-emp'),S.empresas.filter(e=>e.ativo!==false||e.id===c.empresaId),c.empresaId);fillSelect($('c-obra'),S.obras.filter(o=>(o.ativo!==false&&obraOk(o.id))||o.id===c.obraId),c.obraId);
+  fillSelect($('c-emp'),S.empresas.filter(e=>e.ativo!==false||e.id===c.empresaId),c.empresaId);
+  if(CEDIT)fillSelect($('c-obra'),S.obras.filter(o=>o.id===c.obraId),c.obraId);else colabObraOpts(c.empresaId,c.obraId);
   $('c-emp').value=c.empresaId||'';$('c-obra').value=c.obraId||'';$('c-ativo').value=c.ativo?'1':'0';
   $('c-emp').disabled=!!CEDIT;$('c-obra').disabled=!!CEDIT;$('c-realoc-hint').hidden=!CEDIT;$('c-realoc').hidden=!CEDIT}
+function colabObraOpts(empId,val,sel){sel=sel||$('c-obra');const l=obrasDaEmpresa(empId);
+  sel.innerHTML=l.length?l.map(o=>`<option value="${esc(o.id)}"${o.id===val?' selected':''}>${esc(o.nome)}</option>`).join(''):`<option value="">${empId?'Nenhuma obra desta empresa — cadastre em Obras':'Selecione a empresa'}</option>`;
+  if(!l.some(o=>o.id===val))sel.value=l[0]?l[0].id:''}
+$('c-emp').addEventListener('change',()=>{if(!CEDIT)colabObraOpts($('c-emp').value,'')});
 function renderRealoc(){
   const q=($('rl-busca').value||'').trim().toLowerCase();
   const rows=[];S.colab.forEach(c=>(c.realocacoes||[]).forEach(r=>rows.push({...r,colab:c.nome,qr:c.qr})));
@@ -2210,11 +2250,14 @@ $('c-realoc').onclick=()=>{
     <div class="field"><label for="rl-motivo">Motivo da realocação (obrigatório)</label><textarea id="rl-motivo" rows="3" placeholder="ex.: transferido para a obra X a pedido do gestor"></textarea></div>
     <div id="rl-err" class="notice bad" hidden></div>
     <button class="btn" id="rl-go">Confirmar realocação</button></div>`);
-  fillSelect($('rl-emp'),S.empresas.filter(e=>e.ativo!==false||e.id===c.empresaId),c.empresaId);fillSelect($('rl-obra'),S.obras.filter(o=>(o.ativo!==false&&obraOk(o.id))||o.id===c.obraId),c.obraId);
+  fillSelect($('rl-emp'),S.empresas.filter(e=>e.ativo!==false||e.id===c.empresaId),c.empresaId);colabObraOpts(c.empresaId,c.obraId,$('rl-obra'));
+  $('rl-emp').onchange=()=>colabObraOpts($('rl-emp').value,'',$('rl-obra'));
   $('rl-go').onclick=()=>{
     const ne=$('rl-emp').value,no=$('rl-obra').value,motivo=$('rl-motivo').value.trim();const err=$('rl-err');
     if(ne===c.empresaId&&no===c.obraId){err.hidden=false;err.textContent='Nada mudou: escolha outra empresa e/ou outra obra.';return}
     if(motivo.length<5){err.hidden=false;err.textContent='Informe o motivo da realocação.';return}
+    if(!no){err.hidden=false;err.textContent='Escolha uma obra da nova empresa.';return}
+    const oeR=obraEmpErro(ne,no);if(oeR){err.hidden=false;err.textContent=oeR;return}
     const e1=emp(ne),o1=obra(no);
     const rl={id:uid(),em:new Date().toISOString(),usuario:USER.nome,deEmpresaId:c.empresaId,deEmpresa:e0?e0.nome:'',paraEmpresaId:ne,paraEmpresa:e1?e1.nome:'',deObraId:c.obraId,deObra:o0?o0.nome:'',paraObraId:no,paraObra:o1?o1.nome:'',motivo};
     c.realocacoes=c.realocacoes||[];c.realocacoes.push(rl);c.empresaId=ne;c.obraId=no;
@@ -2235,6 +2278,7 @@ $('c-save').onclick=()=>{
   if(!qr){toast('Leia o QR Code do crachá antes de salvar');return}
   if(!nome){toast('Informe o nome do colaborador');return}
   if(!$('c-emp').value||!$('c-obra').value){toast('Selecione empresa e obra');return}
+  if(!CEDIT){const oeC=obraEmpErro($('c-emp').value,$('c-obra').value);if(oeC){toast(oeC,'bad');return}}
   if(S.colab.some(c=>c.qr.toLowerCase()===qr.toLowerCase()&&c!==CEDIT)){toast('Este QR Code já está cadastrado para outro colaborador');return}
   const obj={qr,nome,empresaId:CEDIT?CEDIT.empresaId:$('c-emp').value,obraId:CEDIT?CEDIT.obraId:$('c-obra').value,ativo:$('c-ativo').value==='1'};
   const ce=emp(obj.empresaId),co=obra(obj.obraId);audit('colab.salvar',`${CEDIT?'Alterou':'Cadastrou'} colaborador ${nome} — QR ${qr} — ${ce?ce.nome:''} / ${co?co.nome:''}${obj.ativo?'':' — inativo'}`,{obra:co?co.nome:'',empresa:ce?ce.nome:'',entidade:'colaborador '+qr,antes:CEDIT?JSON.stringify({nome:CEDIT.nome,qr:CEDIT.qr,empresa:(emp(CEDIT.empresaId)||{}).nome,obra:(obra(CEDIT.obraId)||{}).nome,ativo:CEDIT.ativo}):null,depois:JSON.stringify({nome,qr,empresa:ce&&ce.nome,obra:co&&co.nome,ativo:obj.ativo})});
@@ -2243,7 +2287,7 @@ $('c-save').onclick=()=>{
 };
 /* empresas */
 function renderEmpresas(){
-  $('e-list').innerHTML=S.empresas.map(e=>`<div class="item">${e.logo?`<img class="logo-thumb" src="${e.logo}" alt="">`:`<div class="avatar">${ini(e.nome)}</div>`}<div class="t"><b>${esc(e.nome)}${e.ativo===false?' <span class="pill bad">inativa</span>':''}</b><span>${e.cnpj?esc(e.cnpj)+' · ':''}${S.colab.filter(c=>c.empresaId===e.id).length} colaboradores · próximo BM ${e.proximoBM||1}${e.logo?'':' · <span style="color:var(--warn)">sem logotipo</span>'}</span></div><button class="btn sec sm" data-e="${e.id}">Editar</button>${can('del.empresas')?`<button class="btn danger sm" data-edel="${e.id}">Excluir</button>`:''}</div>`).join('')||'<div class="small muted">Nenhuma empresa cadastrada.</div>';
+  $('e-list').innerHTML=S.empresas.map(e=>`<div class="item">${e.logo?`<img class="logo-thumb" src="${e.logo}" alt="">`:`<div class="avatar">${ini(e.nome)}</div>`}<div class="t"><b>${esc(e.nome)}${e.ativo===false?' <span class="pill bad">inativa</span>':''}</b><span>${e.cnpj?esc(e.cnpj)+' · ':''}${S.obras.filter(o=>o.empresaId===e.id).length} obra(s) · ${S.colab.filter(c=>c.empresaId===e.id).length} colaboradores · próximo BM ${e.proximoBM||1}${e.logo?'':' · <span style="color:var(--warn)">sem logotipo</span>'}</span></div><button class="btn sec sm" data-e="${e.id}">Editar</button>${can('del.empresas')?`<button class="btn danger sm" data-edel="${e.id}">Excluir</button>`:''}</div>`).join('')||'<div class="small muted">Nenhuma empresa cadastrada.</div>';
   $('e-list').querySelectorAll('[data-edel]').forEach(b=>b.onclick=()=>excluirEmpresa(emp(b.dataset.edel)));
   $('e-list').querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{EEDIT=emp(b.dataset.e);fillEmpresa()});
   if(!$('e-ct').parentElement.querySelector('[data-ct]'))fillEmpresa();
@@ -2316,18 +2360,43 @@ function excluirObra(O){
 }
 /* obras */
 function renderObras(){
-  const PO=paginate('obras',S.obras.filter(o=>obraOk(o.id)),10);
-  $('o-list').innerHTML=PO.rows.map(o=>`<div class="item"><div class="avatar">${ini(o.nome)}</div><div class="t"><b>${esc(o.nome)} ${contrato(o.contratoId)?`<span class="pill neutral mono">${esc(contrato(o.contratoId).numero)}</span>`:'<span class="pill warn">sem contrato</span>'}</b><span>${o.endereco?esc(o.endereco)+' · ':''}${S.colab.filter(c=>c.obraId===o.id).length} colaboradores · restaurante: ${esc((S.contratadas||[]).filter(c=>(c.obras||[]).includes(o.id)).map(c=>c.nome).join(', ')||'nenhum')}${o.ativo===false?' · encerrada':''}</span></div><button class="btn sec sm" data-func="${o.id}">Funcionários</button><button class="btn sec sm" data-o="${o.id}">Editar</button>${can('del.obras')?`<button class="btn danger sm" data-odel="${o.id}">Excluir</button>`:''}</div>`).join('')||'<div class="small muted">Nenhuma obra cadastrada.</div>';
+  fillSelect($('o-f-emp'),S.empresas,$('o-f-emp').value,'Todas as empresas');const fEmp=$('o-f-emp').value;if(!$('o-emp').options.length)fillObraEmp();
+  renderDivergencias();
+  const PO=paginate('obras',S.obras.filter(o=>obraOk(o.id)&&(!fEmp||o.empresaId===fEmp)).sort((a,b)=>((emp(a.empresaId)||{}).nome||'~').localeCompare((emp(b.empresaId)||{}).nome||'~')||a.nome.localeCompare(b.nome)),10);
+  $('o-list').innerHTML=PO.rows.map(o=>{const E=emp(o.empresaId);const outros=S.colab.filter(c=>c.obraId===o.id&&c.ativo!==false&&o.empresaId&&c.empresaId!==o.empresaId).length;return `<div class="item"><div class="avatar">${ini(o.nome)}</div><div class="t"><b>${esc(o.nome)} ${contrato(o.contratoId)?`<span class="pill neutral mono">${esc(contrato(o.contratoId).numero)}</span>`:'<span class="pill warn">sem contrato</span>'}</b><span>${E?`<b style="color:var(--ink)">${esc(E.nome)}</b> · `:'<span class="pill bad">sem empresa</span> · '}${outros?`<span class="pill bad">${outros} colaborador(es) de outra empresa</span> · `:''}${o.endereco?esc(o.endereco)+' · ':''}${S.colab.filter(c=>c.obraId===o.id).length} colaboradores · restaurante: ${esc((S.contratadas||[]).filter(c=>(c.obras||[]).includes(o.id)).map(c=>c.nome).join(', ')||'nenhum')}${o.ativo===false?' · encerrada':''}</span></div><button class="btn sec sm" data-func="${o.id}">Funcionários</button><button class="btn sec sm" data-o="${o.id}">Editar</button>${can('del.obras')?`<button class="btn danger sm" data-odel="${o.id}">Excluir</button>`:''}</div>`}).join('')||`<div class="small muted">${fEmp?'Nenhuma obra desta empresa.':'Nenhuma obra cadastrada.'}</div>`;
   $('o-list').querySelectorAll('[data-odel]').forEach(b=>b.onclick=()=>excluirObra(obra(b.dataset.odel)));
   renderPager($('o-pager'),'obras',PO,['obra','obras'],renderObras);
   $('o-list').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{OEDIT=obra(b.dataset.o);fillObra()});
   $('o-list').querySelectorAll('[data-func]').forEach(b=>b.onclick=()=>{const o=obra(b.dataset.func);const l=S.colab.filter(c=>c.obraId===o.id).sort((a,c)=>a.nome.localeCompare(c.nome));
     infoModal(`Funcionários — ${esc(o.nome)} (${l.length})`,`<div class="tablewrap"><table><thead><tr><th>#</th><th>Nome</th><th>Empresa</th><th>QR Code</th><th>Situação</th></tr></thead><tbody>${l.map((c,i)=>{const e=emp(c.empresaId);return `<tr><td class="num">${i+1}</td><td>${esc(c.nome)}</td><td>${esc(e?e.nome:'—')}</td><td class="mono">${esc(c.qr)}</td><td>${c.ativo?'<span class="pill ok">ativo</span>':'<span class="pill bad">inativo</span>'}</td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Nenhum colaborador alocado nesta obra.</td></tr>'}</tbody></table></div>`)});
 }
-function fillObra(){const o=OEDIT||{nome:'',endereco:'',ativo:true};$('o-form-title').textContent=OEDIT?'Editar obra':'Nova obra';$('o-nome').value=o.nome;$('o-contrato').value=(contrato(o.contratoId)||{}).numero||'';$('contratos-list').innerHTML=(S.contratos||[]).map(c=>`<option value="${esc(c.numero)}">${esc(c.descricao||'')}</option>`).join('');$('o-end').value=o.endereco||'';$('o-ativo').value=o.ativo===false?'0':'1'}
+function renderDivergencias(){
+  const el=$('o-div');const D=divergencias();const partes=[];
+  if(D.semEmp.length)partes.push(`<div class="notice warn small" style="margin:0"><b>${D.semEmp.length} obra(s) sem empresa definida.</b> Edite e escolha a empresa dona — enquanto isso, não há registro de refeição nessas obras.<div class="row" style="gap:6px;margin-top:6px">${D.semEmp.map(o=>`<button type="button" class="btn sec sm" data-dobra="${esc(o.id)}">${esc(o.nome)}</button>`).join('')}</div></div>`);
+  if(D.colab.length)partes.push(`<div class="notice bad small" style="margin:0"><b>${D.colab.length} colaborador(es) em obra de outra empresa.</b> O registro de refeição deles fica bloqueado até a realocação (Colaboradores › Editar › Realocar).<div class="row" style="gap:6px;margin-top:6px">${D.colab.map(c=>{const o=obra(c.obraId),e=emp(c.empresaId);return `<button type="button" class="btn sec sm" data-dcol="${esc(c.id)}" title="${esc(o?o.nome:'')} pertence a ${esc((emp(o&&o.empresaId)||{}).nome||'')}">${esc(c.nome)} · ${esc(e?e.nome:'—')} → ${esc(o?o.nome:'—')}</button>`}).join('')}</div></div>`);
+  el.innerHTML=partes.join('');el.hidden=!partes.length;
+  el.querySelectorAll('[data-dobra]').forEach(b=>b.onclick=()=>{OEDIT=obra(b.dataset.dobra);fillObra();$('o-emp').focus()});
+  el.querySelectorAll('[data-dcol]').forEach(b=>b.onclick=()=>{if(!can('cfg.colab')){toast('Sem permissão para alterar colaboradores');return}CFGTAB='colab';renderCfg();CEDIT=S.colab.find(c=>c.id===b.dataset.dcol);fillColab();$('c-realoc').click()});
+}
+$('o-f-emp').onchange=()=>{PAGES.obras=1;renderObras()};
+function obraEmpTravada(o){if(!o||!o.empresaId)return false;const u=usoObra(o.id);return [...u.values()].some(x=>x.colab||x.regs||x.sobras||x.bms)}
+function fillObraEmp(){
+  const o=OEDIT;const trav=obraEmpTravada(o);const hint=$('o-emp-hint');
+  fillSelect($('o-emp'),S.empresas.filter(e=>e.ativo!==false||(o&&e.id===o.empresaId)),o&&o.empresaId||'','Selecione a empresa…');
+  $('o-emp').disabled=trav;hint.style.color='';
+  if(trav){const u=usoObra(o.id).get(o.empresaId)||{};hint.textContent=`Empresa travada: a obra já tem ${usoTxt(u)||'movimento'} desta empresa. Para outra empresa, cadastre uma nova obra.`}
+  else if(o&&!o.empresaId){const u=usoObra(o.id);const l=[...u.entries()];
+    if(l.length===1){$('o-emp').value=l[0][0];hint.textContent=`Sugestão pelo uso atual: ${(emp(l[0][0])||{}).nome||''} (${usoTxt(l[0][1])}). Confirme e salve.`}
+    else if(l.length>1){hint.style.color='var(--bad)';hint.textContent='Obra usada por mais de uma empresa: '+l.map(([e,x])=>`${(emp(e)||{}).nome||'—'} (${usoTxt(x)})`).join('; ')+'. Escolha a empresa dona; os colaboradores da outra empresa ficarão bloqueados até serem realocados para uma obra da empresa deles.'}
+    else hint.textContent='Obra antiga sem empresa: escolha a empresa dona e salve.'}
+  else hint.textContent=o?'':'A obra fica vinculada só a esta empresa; não pode ser usada por outra.';
+}
+function fillObra(){const o=OEDIT||{nome:'',endereco:'',ativo:true};$('o-form-title').textContent=OEDIT?'Editar obra':'Nova obra';fillObraEmp();$('o-nome').value=o.nome;$('o-contrato').value=(contrato(o.contratoId)||{}).numero||'';$('contratos-list').innerHTML=(S.contratos||[]).map(c=>`<option value="${esc(c.numero)}">${esc(c.descricao||'')}</option>`).join('');$('o-end').value=o.endereco||'';$('o-ativo').value=o.ativo===false?'0':'1'}
 $('o-new').onclick=()=>{OEDIT=null;fillObra()};$('o-cancel').onclick=()=>{OEDIT=null;fillObra()};
 $('o-save').onclick=()=>{
   const nome=$('o-nome').value.trim();if(!nome){toast('Informe o nome da obra');return}
+  const empO=OEDIT&&obraEmpTravada(OEDIT)?OEDIT.empresaId:$('o-emp').value;
+  if(!empO){toast('Escolha a empresa dona da obra');$('o-emp').focus();return}
   if(S.obras.some(x=>x.nome.toLowerCase()===nome.toLowerCase()&&x!==OEDIT)){toast('Já existe obra com este nome');return}
   const num=$('o-contrato').value.trim().toUpperCase();
   if(!num){toast('Informe o Nº do contrato da obra');$('o-contrato').focus();return}
@@ -2335,8 +2404,9 @@ $('o-save').onclick=()=>{
   let C=(S.contratos||[]).find(c=>c.numero.toUpperCase()===num);
   if(!C){C={id:uid(),numero:num,descricao:'',inicio:'',fim:'',ativo:true};S.contratos.push(C);audit('contrato.salvar',`Criou contrato ${num} ao cadastrar a obra ${nome}`,{obra:nome,entidade:'contrato '+num});toast(`Contrato ${num} criado — complete as datas na aba Contratos`)}
   const antesCt=OEDIT?(contrato(OEDIT.contratoId)||{}).numero||'':'';
-  const obj={nome,endereco:$('o-end').value.trim(),ativo:$('o-ativo').value==='1',contratoId:C.id};
-  audit('obra.salvar',`${OEDIT?'Alterou':'Cadastrou'} obra ${nome} — contrato ${num}${obj.ativo?'':' — encerrada'}`,{obra:nome,entidade:'obra '+nome,antes:OEDIT&&antesCt!==num?(antesCt||'sem contrato'):null,depois:OEDIT&&antesCt!==num?num:null});
+  const obj={nome,endereco:$('o-end').value.trim(),ativo:$('o-ativo').value==='1',contratoId:C.id,empresaId:empO};
+  const EO=emp(empO);const empAntes=OEDIT?(emp(OEDIT.empresaId)||{}).nome||'sem empresa':null;
+  audit('obra.salvar',`${OEDIT?'Alterou':'Cadastrou'} obra ${nome} — empresa ${EO?EO.nome:''} — contrato ${num}${obj.ativo?'':' — encerrada'}`,{obra:nome,empresa:EO?EO.nome:'',entidade:'obra '+nome,antes:OEDIT&&(antesCt!==num||OEDIT.empresaId!==empO)?`${empAntes} / ${antesCt||'sem contrato'}`:null,depois:OEDIT&&(antesCt!==num||OEDIT.empresaId!==empO)?`${EO?EO.nome:''} / ${num}`:null});
   if(OEDIT){Object.assign(OEDIT,obj);if(can('sup.bm')||can('del.bm')){S.registros.forEach(r=>{const c=S.colab.find(x=>x.id===r.colabId);if(r.obraId?r.obraId===OEDIT.id:(c&&c.obraId===OEDIT.id))r.obraNome=nome});S.sobras.forEach(s=>{if(s.obraId===OEDIT.id)s.obraNome=nome})}}else S.obras.push({id:uid(),...obj});
   concluir('Obra salva');OEDIT=null;fillObra();renderObras();renderSetup();
 };
@@ -2415,7 +2485,7 @@ function fillContratada(){
   const c=KEDIT||{nome:'',cnpj:'',gestor:'',cargo:'',servico:'FORNECIMENTO DE REFEIÇÕES',obras:[],ativo:true};
   $('k-form-title').textContent=KEDIT?'Editar contratada':'Nova contratada';
   $('k-contratada').value=c.nome;$('k-cnpj').value=c.cnpj||'';$('k-gestor').value=c.gestor||'';$('k-cargo').value=c.cargo||'';$('k-servico').value=c.servico||'FORNECIMENTO DE REFEIÇÕES';$('k-ativo').value=c.ativo===false?'0':'1';$('k-err').hidden=true;
-  $('k-obras').innerHTML=chipsHtml(S.obras,new Set(c.obras||[]),'data-kob')||'<span class="small muted">Cadastre as obras primeiro (aba Obras).</span>';
+  $('k-obras').innerHTML=chipsHtml(S.obras.map(o=>({...o,nome:o.nome+' · '+((emp(o.empresaId)||{}).nome||'sem empresa')})),new Set(c.obras||[]),'data-kob')||'<span class="small muted">Cadastre as obras primeiro (aba Obras).</span>';
   $('k-obras').querySelectorAll('input').forEach(i=>i.onchange=()=>chipToggle(i));
 }
 $('k-new').onclick=()=>{KEDIT=null;fillContratada()};$('k-cancel').onclick=()=>{KEDIT=null;fillContratada()};
@@ -2770,7 +2840,7 @@ function renderAna(){
   if($('an-de').value>$('an-ate').value){const x=$('an-de').value;$('an-de').value=$('an-ate').value;$('an-ate').value=x}
   document.querySelectorAll('#an-presets [data-p]').forEach(b=>b.classList.toggle('on',b.dataset.p===ANA.preset));
   fillSelect($('an-emp'),S.empresas.slice().sort((a,b)=>a.nome.localeCompare(b.nome)),$('an-emp').value,'Todas');
-  fillSelect($('an-obra'),S.obras.filter(o=>obraOk(o.id)).sort((a,b)=>a.nome.localeCompare(b.nome)),$('an-obra').value,'Todas');
+  fillSelect($('an-obra'),S.obras.filter(o=>obraOk(o.id)&&(!$('an-emp').value||o.empresaId===$('an-emp').value)).sort((a,b)=>a.nome.localeCompare(b.nome)),$('an-obra').value,'Todas');
   fillSelect($('an-ct'),(S.contratadas||[]).filter(c=>ctOk(c.id)),$('an-ct').value,'Todos');
   if($('an-tipo').options.length<2)TIPOS.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.curto;$('an-tipo').appendChild(o)});
   $('an-colab-list').innerHTML=[...new Set(S.colab.map(c=>c.nome).concat(S.registros.filter(r=>modOf(r)==='terceirizado').map(r=>r.nome)))].sort().map(n=>`<option value="${esc(n)}">`).join('');
