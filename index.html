@@ -232,6 +232,57 @@ td.empty{color:var(--ink-3);text-align:center;padding:18px}
 .periodo{display:flex;align-items:center;gap:6px}.periodo input{flex:1;min-width:0}.periodo>span{color:var(--ink-3);font-size:13px}
 .chipbtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px;font-size:12.5px;color:var(--ink-2)}
 .chipbtn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-2);font-weight:600}
+/* relatórios (v2.7.0): menu com grupo, filtros com várias escolhas e documento com logotipo */
+.sidenav .nav-grupo .chev2{margin-left:auto;width:16px;height:16px;flex:0 0 auto;transition:transform .15s}
+.sidenav .nav-grupo[aria-expanded="true"] .chev2{transform:rotate(180deg)}
+.tabbar .nav-grupo .chev2{display:none}
+.tabbar .nav-grupo[aria-expanded="true"]{color:var(--nav-on)}
+.sidenav .nav-sub{display:flex;flex-direction:column;gap:2px;margin:0 0 4px 21px;padding-left:9px;border-left:1px solid var(--nav-line)}
+.sidenav .nav-sub[hidden]{display:none}
+.sidenav .nav-sub button{padding:8px 12px;font-size:13px}
+.tab-sub{position:fixed;z-index:25;left:8px;bottom:76px;min-width:190px;background:var(--nav-bg);border:1px solid var(--nav-line);border-radius:12px;padding:6px;box-shadow:0 12px 32px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:2px}
+.tab-sub[hidden]{display:none}
+.tab-sub button{background:none;border:0;color:var(--nav-ink);text-align:left;padding:12px 14px;border-radius:8px;font-size:14.5px;font-weight:500}
+.tab-sub button.on{color:var(--nav-on);background:var(--nav-on-bg)}
+@media (min-width:900px){.tab-sub{display:none!important}}
+.req{color:var(--bad);font-weight:700}
+.ms{position:relative}
+.ms-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 11px;text-align:left;min-height:41px}
+.ms-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ms-btn svg{width:16px;height:16px;flex:0 0 auto;color:var(--ink-3)}
+.ms-btn.tem{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-2);font-weight:600}
+.ms-pop{position:absolute;z-index:40;left:0;top:calc(100% + 4px);min-width:100%;width:max-content;max-width:min(340px,calc(100vw - 32px));max-height:300px;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:6px}
+.ms-pop.dir{left:auto;right:0}
+.ms-pop label{display:flex;align-items:center;gap:9px;padding:8px;border-radius:6px;font-size:13.5px;font-weight:400;color:var(--ink);text-transform:none;letter-spacing:0;margin:0;cursor:pointer}
+.ms-pop label:hover{background:var(--surface-2)}
+.ms-pop input{width:16px;height:16px;flex:0 0 auto;margin:0;padding:0;accent-color:var(--accent)}
+.ms-pop .ms-todos{font-weight:600;border-bottom:1px solid var(--line-2);border-radius:6px 6px 0 0;margin-bottom:4px}
+.rel-cab{display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding-bottom:12px;border-bottom:2px solid var(--ink);margin-bottom:12px}
+.rel-logos{display:flex;gap:6px;flex-wrap:wrap;flex:0 0 auto;max-width:340px}
+.rel-logo{flex:0 0 auto;width:156px;height:66px;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid var(--line-2);border-radius:8px;padding:6px}
+.rel-logo img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.rel-semlogo{font-size:11px;line-height:1.3;color:#6B7785;text-align:center}
+.rel-tit{flex:1;min-width:230px}
+.rel-tit h3{margin:0 0 4px;font-family:var(--display);font-size:17px;letter-spacing:.02em;text-transform:uppercase}
+.rel-tit div{font-size:13px;color:var(--ink-2);line-height:1.5}
+.rel-acoes{display:flex;gap:6px;flex-wrap:wrap}
+.rel-resumo{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.rel-resumo .rr{border:1px solid var(--line-2);border-radius:8px;padding:6px 10px;background:var(--surface-2);font-size:12.5px;color:var(--ink-2)}
+.rel-resumo .rr b{font-family:var(--display);font-size:16px;color:var(--ink);margin-right:4px}
+.rel-tab{max-height:68vh}
+.rel-tab th{position:sticky;top:0;z-index:1}
+.rel-tab table{font-size:12px}.rel-tab th{padding:8px 7px;font-size:10.5px;letter-spacing:.03em;white-space:normal;line-height:1.25;vertical-align:bottom;min-width:52px}.rel-tab td{padding:6px 7px;white-space:nowrap}
+.rel-tab td.quebra{white-space:normal;min-width:110px;max-width:215px}
+.rel-tab .pill{padding:2px 7px;font-size:11px}
+.rel-tab tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--surface-2) 55%,transparent)}
+.rel-tab tfoot td{font-weight:700;background:var(--surface-2);border-top:1px solid var(--line);position:sticky;bottom:0}
+.rel-pe{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:10px}
+.fin-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin-top:14px}
+@media (min-width:1180px){.fin-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.fin-sec.larga{grid-column:1/-1}}
+.fin-sec h4{margin:0 0 8px;font-family:var(--display);font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2);display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.fin-sec h4 span{font-family:var(--font);text-transform:none;letter-spacing:0;font-size:12px;color:var(--ink-3);font-weight:400}
+.fin-sec .rel-tab{max-height:none}
+.fin-bar{display:inline-block;height:6px;border-radius:3px;background:var(--accent);vertical-align:middle;margin-right:6px;opacity:.75}
 .ana-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin-top:14px}.ana-grid>.card{margin:0}
 @media (min-width:1180px){.ana-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
 .viz-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
@@ -465,10 +516,10 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         </div>
       </div>
     </div>
-    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.6.5.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
+    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.7.0.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
   </div>
   </div>
-  <div class="lx-rodape"><span>RAF INFRAESTRUTURA · v2.6.5</span></div>
+  <div class="lx-rodape"><span>RAF INFRAESTRUTURA · v2.7.0</span></div>
   </div>
 </div>
 
@@ -601,6 +652,69 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
           <div class="card viz-card"><div class="viz-head"><div><h3>Valor das refeições <span class="small muted" style="font-weight:400" id="ana-c2-sub"></span></h3><div class="viz-tot num" id="ana-t2"></div></div><button class="btn sec sm" type="button" data-vista aria-pressed="false">Tabela</button></div><div class="viz-chart" id="ana-c2"></div><div class="viz-tab" id="ana-c2-tab"></div></div>
           <div class="card viz-card"><div class="viz-head"><div><h3>Por obra — quantidade e valor</h3><div class="small muted" id="ana-c3-n"></div></div><button class="btn sec sm" type="button" data-vista aria-pressed="false">Tabela</button></div><div class="viz-chart" id="ana-c3"></div><div class="viz-tab" id="ana-c3-tab"></div></div>
           <div class="card viz-card"><div class="viz-head"><div><h3>Por empresa — quantidade e valor</h3><div class="small muted" id="ana-c4-n"></div></div><button class="btn sec sm" type="button" data-vista aria-pressed="false">Tabela</button></div><div class="viz-chart" id="ana-c4"></div><div class="viz-tab" id="ana-c4-tab"></div></div>
+        </div>
+      </section>
+
+      <!-- ---------- RELATÓRIOS (v2.7.0) ---------- -->
+      <section class="page" id="page-rel">
+        <div class="page-head"><div><h2 id="rel-titulo">Relatórios</h2><p>Escolha os filtros — os marcados com <span class="req">*</span> são obrigatórios.</p></div></div>
+        <!-- Registros -->
+        <div id="rel-p-registros" data-rel="registros" hidden>
+          <div class="card">
+            <div class="row" style="align-items:flex-start">
+              <div class="field" style="flex:1.4;min-width:300px"><label for="rl-de">Período <span class="req" aria-hidden="true">*</span></label><div class="periodo"><input id="rl-de" type="date" aria-label="Início do período (obrigatório)" required><span>a</span><input id="rl-ate" type="date" aria-label="Fim do período (obrigatório)" required></div>
+                <div class="row" id="rl-presets" style="gap:4px;margin-top:6px"><button type="button" class="chipbtn" data-p="mes">Mês atual</button><button type="button" class="chipbtn" data-p="mes-ant">Mês anterior</button><button type="button" class="chipbtn" data-p="30">Últimos 30 dias</button></div></div>
+              <div class="field" style="flex:1;min-width:220px"><label for="rl-emp">Empresa <span class="req" aria-hidden="true">*</span></label><select id="rl-emp" required aria-required="true"></select></div>
+            </div>
+            <div class="row" style="align-items:flex-start;margin-top:12px">
+              <div class="field" style="flex:1;min-width:170px"><label id="rl-ct-l">Restaurante</label><div class="ms" id="rl-ct" data-rotulo="rl-ct-l"></div></div>
+              <div class="field" style="flex:1;min-width:150px"><label id="rl-tipo-l">Tipo de refeição</label><div class="ms" id="rl-tipo" data-rotulo="rl-tipo-l"></div></div>
+              <div class="field" style="flex:1.2;min-width:180px"><label id="rl-obra-l">Obra</label><div class="ms" id="rl-obra" data-rotulo="rl-obra-l"></div></div>
+              <button class="btn sec sm" id="rl-limpar" type="button" style="align-self:flex-end;margin-bottom:4px">Limpar filtros</button>
+            </div>
+            <div class="small muted" style="margin-top:8px"><span class="req">*</span> obrigatório · Restaurante, tipo de refeição e obra: marque um ou mais; sem marcar, entram todos.</div>
+          </div>
+          <div id="rl-aviso" class="notice warn" style="margin-top:14px" hidden></div>
+          <div class="card" id="rl-doc" style="margin-top:14px" hidden>
+            <div class="rel-cab">
+              <div class="rel-logos"><div class="rel-logo" id="rl-logo"></div></div>
+              <div class="rel-tit"><h3>Relatório de registros de refeições</h3><div id="rl-cab"></div></div>
+              <div class="rel-acoes"><button class="btn sec sm" id="rl-ver" type="button">Visualizar PDF</button><button class="btn sm" id="rl-pdf" type="button">Baixar PDF</button><button class="btn sec sm" id="rl-csv" type="button">Planilha (CSV)</button></div>
+            </div>
+            <div class="rel-resumo" id="rl-resumo"></div>
+            <div id="rl-vazio" class="notice warn" hidden>Nenhum registro com esses filtros no período.</div>
+            <div class="tablewrap rel-tab" id="rl-tabwrap"><table><thead><tr><th>Data da refeição</th><th>Funcionário</th><th>Obra</th><th>Restaurante</th><th>Tipo de refeição</th><th class="c">Nº BM</th><th>Situação BM</th><th>Cadastrado por</th><th>Data de cadastro</th><th>Forma</th><th>Tipo de cadastro</th></tr></thead><tbody id="rl-tbody"></tbody></table></div>
+            <div class="rel-pe"><span class="small muted" id="rl-mostrando"></span><button class="btn sec sm" id="rl-mais" type="button" hidden>Mostrar mais</button></div>
+          </div>
+        </div>
+        <!-- Financeiro -->
+        <div id="rel-p-financeiro" data-rel="financeiro" hidden>
+          <div class="card">
+            <div class="row" style="align-items:flex-start">
+              <div class="field" style="flex:1.4;min-width:300px"><label for="fn-de">Período <span class="req" aria-hidden="true">*</span></label><div class="periodo"><input id="fn-de" type="date" aria-label="Início do período (obrigatório)" required><span>a</span><input id="fn-ate" type="date" aria-label="Fim do período (obrigatório)" required></div>
+                <div class="row" id="fn-presets" style="gap:4px;margin-top:6px"><button type="button" class="chipbtn" data-p="mes">Mês atual</button><button type="button" class="chipbtn" data-p="mes-ant">Mês anterior</button><button type="button" class="chipbtn" data-p="30">Últimos 30 dias</button><button type="button" class="chipbtn" data-p="ano">Ano</button></div></div>
+              <div class="field" style="flex:1;min-width:220px"><label for="fn-emp">Empresa <span class="req" aria-hidden="true">*</span></label><select id="fn-emp" required aria-required="true"></select></div>
+            </div>
+            <div class="row" style="align-items:flex-start;margin-top:12px">
+              <div class="field" style="flex:1;min-width:170px"><label id="fn-ct-l">Restaurante</label><div class="ms" id="fn-ct" data-rotulo="fn-ct-l"></div></div>
+              <div class="field" style="flex:1;min-width:150px"><label id="fn-tipo-l">Tipo de refeição</label><div class="ms" id="fn-tipo" data-rotulo="fn-tipo-l"></div></div>
+              <div class="field" style="flex:1.2;min-width:180px"><label id="fn-obra-l">Obra</label><div class="ms" id="fn-obra" data-rotulo="fn-obra-l"></div></div>
+              <button class="btn sec sm" id="fn-limpar" type="button" style="align-self:flex-end;margin-bottom:4px">Limpar filtros</button>
+            </div>
+            <div class="row" style="margin-top:8px;justify-content:space-between;gap:8px 16px"><span class="small muted"><span class="req">*</span> obrigatório · Restaurante, tipo de refeição e obra: marque um ou mais; sem marcar, entram todos.</span>
+              <label class="row" style="gap:7px;text-transform:none;letter-spacing:0;margin:0;font-size:13px;font-weight:500;color:var(--ink-2);cursor:pointer"><input type="checkbox" id="fn-sobras" checked style="width:16px;height:16px;padding:0;margin:0;accent-color:var(--accent)"> Incluir sobras cobradas</label></div>
+          </div>
+          <div id="fn-aviso" class="notice warn" style="margin-top:14px" hidden></div>
+          <div class="card" id="fn-doc" style="margin-top:14px" hidden>
+            <div class="rel-cab">
+              <div class="rel-logos"><div class="rel-logo" id="fn-logo"></div></div>
+              <div class="rel-tit"><h3>Relatório financeiro — gastos com refeições</h3><div id="fn-cab"></div></div>
+              <div class="rel-acoes"><button class="btn sec sm" id="fn-ver" type="button">Visualizar PDF</button><button class="btn sm" id="fn-pdf" type="button">Baixar PDF</button><button class="btn sec sm" id="fn-csv" type="button">Planilha (CSV)</button></div>
+            </div>
+            <div class="tiles" id="fn-kpis"></div>
+            <div id="fn-vazio" class="notice warn" style="margin-top:12px" hidden>Nenhum gasto com esses filtros no período.</div>
+            <div class="fin-grid" id="fn-secoes"></div>
+          </div>
         </div>
       </section>
 
@@ -975,6 +1089,6 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <div id="viz-tip" role="tooltip" hidden></div>
 
-<script src="app-2.6.5.js"></script>
+<script src="app-2.7.0.js"></script>
 </body>
 </html>
