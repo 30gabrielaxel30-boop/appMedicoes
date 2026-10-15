@@ -265,9 +265,12 @@ td.empty{color:var(--ink-3);text-align:center;padding:18px}
 @media (min-width:1180px){.fx-fl{display:grid!important;grid-template-columns:minmax(286px,1.7fr) repeat(5,minmax(112px,1fr)) auto;gap:12px;align-items:start!important}.fx-fl>.field{min-width:0!important}.fx-fl>#an-limpar{margin-top:22px;align-self:start!important}}
 .fx-vazio{margin-top:14px;text-align:center;color:var(--fx-ink2);padding:34px 18px}
 /* KPIs: grade no computador, faixa com rolagem para o lado no celular */
-.fx-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin:16px 0}
-@media (max-width:1279px){.fx-kpis{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px;-webkit-overflow-scrolling:touch}.fx-kpis>.fx-kpi{flex:0 0 236px;scroll-snap-align:start}}
-.fx-kpi{padding:14px 16px 10px;display:flex;flex-direction:column;min-width:0}
+.fx-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:16px 0}
+@media (max-width:699px){.fx-kpis{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-flow:dense;gap:10px}.fx-kpis>#fx-k-v{grid-column:1/-1}}
+.fx-k-lin{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-top:6px;min-width:0}.fx-k-lin .fx-k-val{margin-top:0}
+.fx-k-lin .fx-spark{flex:1 1 auto;min-width:48px;max-width:300px;height:40px;margin:0 0 4px}
+@media (max-width:699px){.fx-kpi .fx-k-val{font-size:28px}.fx-kpi.hero .fx-k-val{font-size:32px}.fx-k-lin .fx-spark{height:32px}}
+.fx-kpi{padding:14px 18px 14px;display:flex;flex-direction:column;min-width:0;cursor:default}
 .fx-k-lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--fx-ink2)}
 .fx-k-val{font-family:var(--display);font-weight:700;font-size:32px;line-height:1.1;margin-top:6px;color:var(--fx-ink);text-shadow:var(--fx-ts2);white-space:nowrap}
 .fx-kpi.hero .fx-k-val{font-size:40px}
@@ -294,7 +297,7 @@ td.empty{color:var(--ink-3);text-align:center;padding:18px}
 .fx-svg{display:block}.fx-svg text{fill:var(--fx-mute);font:11px var(--font);font-variant-numeric:tabular-nums}
 .fx-svg .fx-gl{stroke:var(--fx-gl);stroke-width:1}.fx-svg .fx-base{stroke:var(--fx-base);stroke-width:1}
 .fx-svg .fx-fds{fill:var(--fx-fds)}
-.fx-svg .fx-lbl{fill:var(--fx-ink);font-weight:600}
+.fx-svg .fx-lbl{fill:var(--fx-ink);font-weight:600}.fx-svg .fx-qt{font-weight:600;fill:var(--fx-ink);paint-order:stroke;stroke:var(--fx-panel);stroke-width:3px;stroke-linejoin:round}
 .fx-svg .fx-mes{fill:var(--fx-ink2);font-weight:600}
 .fx-glow{filter:var(--fx-glow-f)}
 .fx-tl{display:flex;align-items:stretch}
@@ -364,6 +367,16 @@ td.empty{color:var(--ink-3);text-align:center;padding:18px}
 #viz-tip{--fx-t-cafe:#d95926;--fx-t-almoco:#199e70;--fx-t-jantar:#9085e9;--fx-t-lanche:#c98500;background:rgba(9,16,30,.96);color:#EAF2FF;border:1px solid rgba(41,197,246,.35);box-shadow:0 12px 30px rgba(0,0,0,.45),0 0 18px rgba(41,197,246,.12)}
 #viz-tip .m{color:#AFC0D8}
 #viz-tip .lk{height:10px!important;width:10px!important;border-radius:3px!important}
+/* restaurante: últimos registros separados por dia (v2.8.1) */
+.rest-dia{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);padding:10px 2px 4px;border-bottom:1px solid var(--line-2)}
+.rest-grupo:first-child .rest-dia{padding-top:0}.rest-grupo+.rest-grupo{margin-top:8px}
+#rest-pager{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:10px}
+/* relatórios: paginação (v2.8.1) */
+.rel-pag{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;margin:10px 0}
+.rel-pag-tam{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2);white-space:nowrap}.rel-pag-tam select{width:auto;min-width:84px;padding:5px 8px}
+.rel-pag-nav{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.rel-pag-n{padding:0 6px;white-space:nowrap}
+.rel-pag-faixa{white-space:nowrap}.fin-pag-tam{justify-content:flex-start}
+@media (max-width:640px){.rel-pag{justify-content:center}.rel-pag-nav{justify-content:center;width:100%}}
 /* relatórios (v2.7.0): menu com grupo, filtros com várias escolhas e documento com logotipo */
 .sidenav .nav-grupo .chev2{margin-left:auto;width:16px;height:16px;flex:0 0 auto;transition:transform .15s}
 .sidenav .nav-grupo[aria-expanded="true"] .chev2{transform:rotate(180deg)}
@@ -649,10 +662,10 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         </div>
       </div>
     </div>
-    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.8.0.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
+    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.8.2.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
   </div>
   </div>
-  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.8.0</span></div>
+  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.8.2</span></div>
   </div>
 </div>
 
@@ -737,7 +750,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
           </div>
           <div class="stack">
             <div class="tiles" id="rest-tiles"></div>
-            <div class="card"><h3>Últimos registros de hoje</h3><div class="list" id="rest-recent"></div></div>
+            <div class="card"><h3>Últimos registros</h3><p class="small muted" style="margin:-4px 0 10px">Hoje e os 7 dias anteriores · 10 por página</p><div class="list" id="rest-recent"></div><div class="pager" id="rest-pager"></div></div>
           </div>
         </div>
       </section>
@@ -788,10 +801,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
           <section class="fx-card s5" id="fx-p-mix"><header class="fx-ph"><div><h3 class="fx-pt" id="fx-mix-tit">Por tipo de refeição</h3><div class="fx-ps" id="fx-mix-sub">participação no período</div></div><div class="fx-pa"><button class="fx-tbtn" type="button" data-fx-tab aria-pressed="false">Tabela</button></div></header><div class="fx-chart" id="fx-mix"></div><div class="fx-tab" id="fx-mix-tab"></div></section>
           <section class="fx-card s7" id="fx-p-calor"><header class="fx-ph"><div><h3 class="fx-pt" id="fx-calor-tit">Horário dos registros</h3><div class="fx-ps" id="fx-calor-sub">dia da semana × hora em que a refeição foi registrada</div></div><div class="fx-pa"><button class="fx-tbtn" type="button" data-fx-tab aria-pressed="false">Tabela</button></div></header><div class="fx-chart" id="fx-calor"></div><div class="fx-tab" id="fx-calor-tab"></div></section>
           <section class="fx-card s7" id="fx-p-obras"><header class="fx-ph"><div><h3 class="fx-pt" id="fx-obras-tit">Ranking de obras</h3><div class="fx-ps" id="fx-obras-sub">do maior para o menor</div></div><div class="fx-pa"><button class="fx-tbtn" type="button" data-fx-tab aria-pressed="false">Tabela</button></div></header><div class="fx-chart" id="fx-obras"></div><div class="fx-tab" id="fx-obras-tab"></div></section>
-          <section class="fx-card s5" id="fx-p-medicao"><header class="fx-ph"><div><h3 class="fx-pt" id="fx-medicao-tit">Esteira de medição</h3><div class="fx-ps" id="fx-medicao-sub">onde está o valor do período</div></div><div class="fx-pa"><button class="fx-tbtn" type="button" data-fx-tab aria-pressed="false">Tabela</button></div></header><div class="fx-chart" id="fx-medicao"></div><div class="fx-tab" id="fx-medicao-tab"></div></section>
-          <section class="fx-card s7 r2" id="fx-p-colab"><header class="fx-ph"><div><h3 class="fx-pt" id="fx-colab-tit">Colaboradores</h3><div class="fx-ps" id="fx-colab-sub">quem mais consumiu no período</div></div><div class="fx-pa"><button class="fx-tbtn" type="button" data-fx-tab aria-pressed="false">Tabela</button></div></header><div class="fx-chart" id="fx-colab"></div><div class="fx-tab" id="fx-colab-tab"></div></section>
           <section class="fx-card s5" id="fx-p-rest"><header class="fx-ph"><div><h3 class="fx-pt" id="fx-rest-tit">Restaurantes e empresas</h3><div class="fx-ps" id="fx-rest-sub"></div></div><div class="fx-pa"><button class="fx-tbtn" type="button" data-fx-tab aria-pressed="false">Tabela</button></div></header><div class="fx-chart" id="fx-rest"></div><div class="fx-tab" id="fx-rest-tab"></div></section>
-          <section class="fx-card s5" id="fx-p-forma"><header class="fx-ph"><div><h3 class="fx-pt" id="fx-forma-tit">Forma de cadastro</h3><div class="fx-ps" id="fx-forma-sub">como as refeições entraram no sistema</div></div><div class="fx-pa"><button class="fx-tbtn" type="button" data-fx-tab aria-pressed="false">Tabela</button></div></header><div class="fx-chart" id="fx-forma"></div><div class="fx-tab" id="fx-forma-tab"></div></section>
         </div>
       </section>
 
@@ -823,8 +833,36 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
             </div>
             <div class="rel-resumo" id="rl-resumo"></div>
             <div id="rl-vazio" class="notice warn" hidden>Nenhum registro com esses filtros no período.</div>
+            <div class="rel-pag" id="rl-pag-topo" hidden></div>
             <div class="tablewrap rel-tab" id="rl-tabwrap"><table><thead><tr><th>Data da refeição</th><th>Funcionário</th><th>Obra</th><th>Restaurante</th><th>Tipo de refeição</th><th class="c">Nº BM</th><th>Situação BM</th><th>Cadastrado por</th><th>Data de cadastro</th><th>Forma</th><th>Tipo de cadastro</th></tr></thead><tbody id="rl-tbody"></tbody></table></div>
+            <div class="rel-pag" id="rl-pag" hidden></div>
             <div class="rel-pe"><span class="small muted" id="rl-mostrando"></span><button class="btn sec sm" id="rl-mais" type="button" hidden>Mostrar mais</button></div>
+          </div>
+        </div>
+        <!-- Colaboradores (v2.8.2) -->
+        <div id="rel-p-colaboradores" data-rel="colaboradores" hidden>
+          <div class="card">
+            <div class="row" style="align-items:flex-start">
+              <div class="field" style="flex:1;min-width:220px"><label for="co-emp">Empresa</label><select id="co-emp"></select></div>
+              <div class="field" style="flex:1.2;min-width:220px"><label for="co-obra">Obra</label><select id="co-obra"></select></div>
+              <div class="field" style="flex:.8;min-width:170px"><label for="co-sit">Situação</label><select id="co-sit"><option value="">Ativos e inativos</option><option value="1">Só ativos</option><option value="0">Só inativos</option></select></div>
+              <button class="btn sec sm" id="co-limpar" type="button" style="align-self:flex-end;margin-bottom:4px">Limpar filtros</button>
+            </div>
+            <div class="small muted" style="margin-top:8px">Escolha a empresa, a obra ou as duas.</div>
+          </div>
+          <div id="co-aviso" class="notice warn" style="margin-top:14px" hidden></div>
+          <div class="card" id="co-doc" style="margin-top:14px" hidden>
+            <div class="rel-cab">
+              <div class="rel-logos"><div class="rel-logo" id="co-logo"></div></div>
+              <div class="rel-tit"><h3>Relatório de colaboradores</h3><div id="co-cab"></div></div>
+              <div class="rel-acoes"><button class="btn sec sm" id="co-ver" type="button">Visualizar PDF</button><button class="btn sm" id="co-pdf" type="button">Baixar PDF</button><button class="btn sec sm" id="co-csv" type="button">Planilha (CSV)</button></div>
+            </div>
+            <div class="rel-resumo" id="co-resumo"></div>
+            <div id="co-vazio" class="notice warn" hidden>Nenhum colaborador cadastrado com esses filtros.</div>
+            <div class="rel-pag" id="co-pag-topo" hidden></div>
+            <div class="tablewrap rel-tab" id="co-tabwrap"><table><thead><tr id="co-thead"></tr></thead><tbody id="co-tbody"></tbody></table></div>
+            <div class="rel-pag" id="co-pag" hidden></div>
+            <div class="rel-pe"><span class="small muted" id="co-mostrando"></span></div>
           </div>
         </div>
         <!-- Financeiro -->
@@ -853,6 +891,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
             </div>
             <div class="tiles" id="fn-kpis"></div>
             <div id="fn-vazio" class="notice warn" style="margin-top:12px" hidden>Nenhum gasto com esses filtros no período.</div>
+            <div class="rel-pag fin-pag-tam" id="fn-pag-tam" hidden></div>
             <div class="fin-grid" id="fn-secoes"></div>
           </div>
         </div>
@@ -1229,6 +1268,6 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <div id="viz-tip" role="tooltip" hidden></div>
 
-<script src="app-2.8.0.js"></script>
+<script src="app-2.8.2.js"></script>
 </body>
 </html>
