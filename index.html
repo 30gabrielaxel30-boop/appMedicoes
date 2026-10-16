@@ -383,6 +383,11 @@ th:hover .th-redim::after,.th-redim.on::after{opacity:1;background:var(--accent)
 body.redimensionando,body.redimensionando *{cursor:col-resize!important;user-select:none!important;-webkit-user-select:none!important}
 table.redim td,table.redim th{overflow:hidden;text-overflow:ellipsis}
 table.redim td{overflow-wrap:anywhere}
+/* funcionário sem QR Code (v2.8.5) */
+.semqr-lbl{display:inline-flex;align-items:center;gap:7px;margin:0;font-size:13.5px;font-weight:600;text-transform:none;letter-spacing:0;cursor:pointer;color:var(--ink-2);white-space:nowrap;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface)}
+.semqr-lbl input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.semqr-lbl:has(input:checked){border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+button.semqr-item{width:100%;text-align:left;cursor:pointer;font:inherit;color:inherit;background:none;border:0;border-bottom:1px solid var(--line)}button.semqr-item:hover{background:var(--surface-2)}
 /* auditoria (v2.8.3): abas e registro de usuários */
 #aud-abas{margin-top:2px}
 @media (max-width:600px){#aud-abas button{flex:1 1 0;min-width:0;white-space:normal;line-height:1.2;padding:8px 6px;font-size:13px}}
@@ -683,10 +688,10 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         </div>
       </div>
     </div>
-    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.8.4.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
+    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.8.5.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
   </div>
   </div>
-  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.8.4</span></div>
+  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.8.5</span></div>
   </div>
 </div>
 
@@ -712,10 +717,17 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         <div class="cols">
           <div class="stack">
             <div class="card">
-              <h3>Refeição do colaborador</h3>
+              <div class="row" style="justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px"><h3 style="margin:0">Refeição do colaborador</h3><label class="semqr-lbl" for="semqr-check"><input type="checkbox" id="semqr-check"> Não possui QR Code</label></div>
+              <div id="qr-box">
               <button class="qrbtn" id="btn-scan-rest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/><rect x="7" y="7" width="4" height="4"/><rect x="13" y="7" width="4" height="4"/><rect x="7" y="13" width="4" height="4"/><path d="M13 13h4v4"/></svg><div><b>Ler QR Code do crachá</b><span>Usa o mesmo QR Code do sistema de ponto</span></div></button>
               <div style="margin-top:12px" class="field"><label for="qr-manual">Ou informe o código do crachá</label>
                 <div class="row" style="flex-wrap:nowrap"><input id="qr-manual" class="mono" placeholder="código impresso no QR" inputmode="text"><button class="btn sec" id="qr-manual-go">Buscar</button></div></div>
+              </div>
+              <div id="semqr-box" hidden>
+                <div class="notice info small" style="margin-bottom:10px">Para o funcionário que <b>não tem QR Code</b>: procure o nome entre os cadastrados, tire a <b>foto do funcionário</b> e registre normalmente. O registro fica marcado como “sem QR Code”.</div>
+                <div class="field"><label for="semqr-busca">Nome do funcionário (cadastrado)</label><input id="semqr-busca" autocomplete="off" autocapitalize="words" placeholder="digite o nome — ex.: João Silva"></div>
+                <div class="list" id="semqr-lista" style="margin-top:8px"></div>
+              </div>
             </div>
             <div class="card" id="confirm-card" hidden>
               <h3>Confirmar refeição</h3>
@@ -1301,6 +1313,6 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <div id="viz-tip" role="tooltip" hidden></div>
 
-<script src="app-2.8.4.js"></script>
+<script src="app-2.8.5.js"></script>
 </body>
 </html>
