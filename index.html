@@ -383,6 +383,15 @@ th:hover .th-redim::after,.th-redim.on::after{opacity:1;background:var(--accent)
 body.redimensionando,body.redimensionando *{cursor:col-resize!important;user-select:none!important;-webkit-user-select:none!important}
 table.redim td,table.redim th{overflow:hidden;text-overflow:ellipsis}
 table.redim td{overflow-wrap:anywhere}
+/* Administrativo em guias (v2.8.6) */
+#sup-reg-card,#sup-sob-card,#sup-bol-card{margin-top:0}
+.sa-n{display:inline-block;min-width:18px;margin-left:4px;padding:0 6px;border-radius:999px;background:var(--surface-2);color:var(--ink-3);font-size:11.5px;font-weight:600;line-height:18px;text-align:center}
+#sup-abas button.on .sa-n{background:var(--accent-soft);color:var(--accent)}
+@media (max-width:600px){#sup-abas button{flex:1 1 0;min-width:0;white-space:normal;line-height:1.2;padding:8px 6px;font-size:13px}}
+/* Analítico (v2.8.6): sem cabeçalho — os filtros ficam no topo */
+.fx-medida .fx-seg button{white-space:nowrap;padding:7px 12px}
+@media (min-width:1180px){.fx-fl{grid-template-columns:minmax(270px,1.7fr) repeat(5,minmax(104px,1fr)) auto!important}}
+.fx-fl .fx-limpar{margin-left:auto;border-style:dashed}
 /* funcionário sem QR Code (v2.8.5) */
 .semqr-lbl{display:inline-flex;align-items:center;gap:7px;margin:0;font-size:13.5px;font-weight:600;text-transform:none;letter-spacing:0;cursor:pointer;color:var(--ink-2);white-space:nowrap;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface)}
 .semqr-lbl input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
@@ -688,10 +697,10 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         </div>
       </div>
     </div>
-    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.8.5.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
+    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.8.6.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
   </div>
   </div>
-  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.8.5</span></div>
+  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.8.6</span></div>
   </div>
 </div>
 
@@ -804,27 +813,24 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
           </div>
         </div>
         <div class="card" id="sup-notif" style="margin-top:14px;border-left:4px solid var(--good)" hidden><h3>Boletins assinados pelo restaurante — prontos para impressão e assinatura do Gestor / Engenheiro da obra</h3><div class="list" id="sup-notif-list"></div></div>
-        <div class="card" id="sup-reg-card" style="margin-top:14px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Registros</h3><span class="small muted" id="sup-count"></span></div><div class="tablewrap" style="margin-top:8px"><table id="sup-table" data-ord="supRegs"></table></div><div class="row" id="sup-pager" style="justify-content:center;margin-top:10px"></div></div>
+        <div class="subtabs" id="sup-abas" role="tablist" style="margin-top:14px"><button type="button" data-sa="reg" role="tab">Registros <span class="sa-n" id="sa-n-reg"></span></button><button type="button" data-sa="sob" role="tab">Sobras informadas <span class="sa-n" id="sa-n-sob"></span></button><button type="button" data-sa="bol" role="tab">Boletins emitidos <span class="sa-n" id="sa-n-bol"></span></button></div>
+        <div class="card" id="sup-reg-card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Registros</h3><span class="small muted" id="sup-count"></span></div><div class="tablewrap" style="margin-top:8px"><table id="sup-table" data-ord="supRegs"></table></div><div class="row" id="sup-pager" style="justify-content:center;margin-top:10px"></div></div>
         <div class="card" id="sup-sob-card"><h3>Sobras informadas na semana <span class="small muted" style="font-weight:400">— cobradas no BM</span></h3><div class="tablewrap"><table id="sup-sobras"></table></div></div>
         <div class="card" id="sup-bol-card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Boletins emitidos</h3><button class="btn sec sm" id="bm-conferir" type="button">Conferir assinatura (ID)</button></div><div class="tablewrap" style="margin-top:8px"><table id="bm-list" data-ord="bms"></table></div><div class="row" id="bm-pager" style="justify-content:center;margin-top:10px"></div><input id="bm-anexo-file" type="file" accept="application/pdf,image/*" hidden></div>
       </section>
 
       <!-- ---------- ANALÍTICO ---------- -->
       <section class="page" id="page-ana">
-        <div class="fx-head">
-          <div><div class="fx-eyebrow">SISMED · painel analítico</div><h2 class="fx-title">Analítico</h2><p class="fx-sub" id="ana-sub"></p></div>
-          <div class="fx-head-r">            <div class="fx-seg" id="ana-medida" role="group" aria-label="Medida do painel"><button type="button" data-m="q" class="on" aria-pressed="true">Refeições</button><button type="button" data-m="v" aria-pressed="false">Valor (R$)</button></div></div>
-        </div>
         <div class="fx-card">
           <div class="row fx-fl" style="align-items:flex-start">
             <div class="field" style="flex:1.5;min-width:260px"><label for="an-de">Período</label><div class="periodo"><input id="an-de" type="date" aria-label="Início do período"><span>a</span><input id="an-ate" type="date" aria-label="Fim do período"></div>
-              <div class="row" id="an-presets" style="gap:4px;margin-top:6px"><button type="button" class="chipbtn" data-p="mes">Mês atual</button><button type="button" class="chipbtn" data-p="mes-ant">Mês anterior</button><button type="button" class="chipbtn" data-p="30">30 dias</button><button type="button" class="chipbtn" data-p="ano">Ano</button></div></div>
+              <div class="row" id="an-presets" style="gap:4px;margin-top:6px"><button type="button" class="chipbtn" data-p="mes">Mês atual</button><button type="button" class="chipbtn" data-p="mes-ant">Mês anterior</button><button type="button" class="chipbtn" data-p="30">30 dias</button><button type="button" class="chipbtn" data-p="ano">Ano</button><button type="button" class="chipbtn fx-limpar" id="an-limpar">Limpar filtros</button></div></div>
             <div class="field" style="flex:1;min-width:150px"><label for="an-emp">Empresa</label><select id="an-emp"></select></div>
             <div class="field" style="flex:1;min-width:150px"><label for="an-obra">Obra</label><select id="an-obra"></select></div>
             <div class="field" style="flex:1;min-width:150px"><label for="an-colab">Colaborador</label><input id="an-colab" list="an-colab-list" placeholder="nome…" autocomplete="off"><datalist id="an-colab-list"></datalist></div>
-            <div class="field" style="flex:.8;min-width:120px"><label for="an-tipo">Tipo de refeição</label><select id="an-tipo"><option value="">Todos</option></select></div>
+            <div class="field" style="flex:.8;min-width:120px"><label for="an-tipo">Tipo</label><select id="an-tipo"><option value="">Todos</option></select></div>
             <div class="field" style="flex:1;min-width:150px"><label for="an-ct">Restaurante</label><select id="an-ct"></select></div>
-            <button class="btn sec sm" id="an-limpar" type="button" style="align-self:flex-end;margin-bottom:2px">Limpar filtros</button>
+            <div class="field fx-medida" style="flex:0 0 auto"><label id="ana-medida-lbl">Mostrar</label><div class="fx-seg" id="ana-medida" role="group" aria-labelledby="ana-medida-lbl"><button type="button" data-m="q" class="on" aria-pressed="true">Refeições</button><button type="button" data-m="v" aria-pressed="false">Valor (R$)</button></div></div>
           </div>
         </div>
         <div class="fx-card fx-vazio" id="ana-vazio" hidden>Nenhuma refeição com esses filtros no período.</div>
@@ -1313,6 +1319,6 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <div id="viz-tip" role="tooltip" hidden></div>
 
-<script src="app-2.8.5.js"></script>
+<script src="app-2.8.6.js"></script>
 </body>
 </html>
