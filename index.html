@@ -367,6 +367,27 @@ td.empty{color:var(--ink-3);text-align:center;padding:18px}
 #viz-tip{--fx-t-cafe:#d95926;--fx-t-almoco:#199e70;--fx-t-jantar:#9085e9;--fx-t-lanche:#c98500;background:rgba(9,16,30,.96);color:#EAF2FF;border:1px solid rgba(41,197,246,.35);box-shadow:0 12px 30px rgba(0,0,0,.45),0 0 18px rgba(41,197,246,.12)}
 #viz-tip .m{color:#AFC0D8}
 #viz-tip .lk{height:10px!important;width:10px!important;border-radius:3px!important}
+/* tabelas (v2.8.3): ordenar pelo título e ajustar a largura das colunas */
+:where(th){position:relative}
+th.ord{cursor:pointer;user-select:none;-webkit-user-select:none}
+th.ord:hover{color:var(--ink)}
+th.ord:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+th .ord-i{display:inline-block;min-width:12px;margin-left:3px;font-size:9px;color:var(--accent);vertical-align:1px;text-align:center}
+th.ord:not([aria-sort=ascending]):not([aria-sort=descending]) .ord-i::after{content:'↕';color:var(--ink-3);font-size:10px;opacity:.45}
+th.ord:not([aria-sort=ascending]):not([aria-sort=descending]):hover .ord-i::after{opacity:1}
+/* a alça fica dentro do próprio título (os títulos fixos no topo empilham cada um por cima do anterior) */
+.th-redim{position:absolute;top:0;right:0;width:10px;height:100%;cursor:col-resize;z-index:2;touch-action:none}
+.th-redim::after{content:'';position:absolute;top:22%;bottom:22%;right:0;width:2px;border-radius:1px;background:var(--line);opacity:0;transition:opacity .15s}
+th:hover .th-redim::after,.th-redim.on::after{opacity:1;background:var(--accent)}
+@media (pointer:coarse){.th-redim{width:18px}.th-redim::after{opacity:.6}}
+body.redimensionando,body.redimensionando *{cursor:col-resize!important;user-select:none!important;-webkit-user-select:none!important}
+table.redim td,table.redim th{overflow:hidden;text-overflow:ellipsis}
+table.redim td{overflow-wrap:anywhere}
+/* auditoria (v2.8.3): abas e registro de usuários */
+#aud-abas{margin-top:2px}
+@media (max-width:600px){#aud-abas button{flex:1 1 0;min-width:0;white-space:normal;line-height:1.2;padding:8px 6px;font-size:13px}}
+.usu-l{cursor:pointer}.usu-l:hover td{background:var(--surface-2)}.usu-l.sel td{background:var(--accent-soft)}
+.usu-on{font-weight:600}
 /* restaurante: últimos registros separados por dia (v2.8.1) */
 .rest-dia{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);padding:10px 2px 4px;border-bottom:1px solid var(--line-2)}
 .rest-grupo:first-child .rest-dia{padding-top:0}.rest-grupo+.rest-grupo{margin-top:8px}
@@ -662,10 +683,10 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         </div>
       </div>
     </div>
-    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.8.2.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
+    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.8.3.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
   </div>
   </div>
-  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.8.2</span></div>
+  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.8.3</span></div>
   </div>
 </div>
 
@@ -771,9 +792,9 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
           </div>
         </div>
         <div class="card" id="sup-notif" style="margin-top:14px;border-left:4px solid var(--good)" hidden><h3>Boletins assinados pelo restaurante — prontos para impressão e assinatura do Gestor / Engenheiro da obra</h3><div class="list" id="sup-notif-list"></div></div>
-        <div class="card" style="margin-top:14px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Registros</h3><span class="small muted" id="sup-count"></span></div><div class="tablewrap" style="margin-top:8px"><table id="sup-table"></table></div><div class="row" id="sup-pager" style="justify-content:center;margin-top:10px"></div></div>
-        <div class="card"><h3>Sobras informadas na semana <span class="small muted" style="font-weight:400">— cobradas no BM</span></h3><div class="tablewrap"><table id="sup-sobras"></table></div></div>
-        <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Boletins emitidos</h3><button class="btn sec sm" id="bm-conferir" type="button">Conferir assinatura (ID)</button></div><div class="tablewrap" style="margin-top:8px"><table id="bm-list"></table></div><div class="row" id="bm-pager" style="justify-content:center;margin-top:10px"></div><input id="bm-anexo-file" type="file" accept="application/pdf,image/*" hidden></div>
+        <div class="card" id="sup-reg-card" style="margin-top:14px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Registros</h3><span class="small muted" id="sup-count"></span></div><div class="tablewrap" style="margin-top:8px"><table id="sup-table" data-ord="supRegs"></table></div><div class="row" id="sup-pager" style="justify-content:center;margin-top:10px"></div></div>
+        <div class="card" id="sup-sob-card"><h3>Sobras informadas na semana <span class="small muted" style="font-weight:400">— cobradas no BM</span></h3><div class="tablewrap"><table id="sup-sobras"></table></div></div>
+        <div class="card" id="sup-bol-card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Boletins emitidos</h3><button class="btn sec sm" id="bm-conferir" type="button">Conferir assinatura (ID)</button></div><div class="tablewrap" style="margin-top:8px"><table id="bm-list" data-ord="bms"></table></div><div class="row" id="bm-pager" style="justify-content:center;margin-top:10px"></div><input id="bm-anexo-file" type="file" accept="application/pdf,image/*" hidden></div>
       </section>
 
       <!-- ---------- ANALÍTICO ---------- -->
@@ -834,7 +855,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
             <div class="rel-resumo" id="rl-resumo"></div>
             <div id="rl-vazio" class="notice warn" hidden>Nenhum registro com esses filtros no período.</div>
             <div class="rel-pag" id="rl-pag-topo" hidden></div>
-            <div class="tablewrap rel-tab" id="rl-tabwrap"><table><thead><tr><th>Data da refeição</th><th>Funcionário</th><th>Obra</th><th>Restaurante</th><th>Tipo de refeição</th><th class="c">Nº BM</th><th>Situação BM</th><th>Cadastrado por</th><th>Data de cadastro</th><th>Forma</th><th>Tipo de cadastro</th></tr></thead><tbody id="rl-tbody"></tbody></table></div>
+            <div class="tablewrap rel-tab" id="rl-tabwrap"><table data-ord="rl"><thead><tr><th>Data da refeição</th><th>Funcionário</th><th>Obra</th><th>Restaurante</th><th>Tipo de refeição</th><th class="c">Nº BM</th><th>Situação BM</th><th>Cadastrado por</th><th>Data de cadastro</th><th>Forma</th><th>Tipo de cadastro</th></tr></thead><tbody id="rl-tbody"></tbody></table></div>
             <div class="rel-pag" id="rl-pag" hidden></div>
             <div class="rel-pe"><span class="small muted" id="rl-mostrando"></span><button class="btn sec sm" id="rl-mais" type="button" hidden>Mostrar mais</button></div>
           </div>
@@ -860,7 +881,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
             <div class="rel-resumo" id="co-resumo"></div>
             <div id="co-vazio" class="notice warn" hidden>Nenhum colaborador cadastrado com esses filtros.</div>
             <div class="rel-pag" id="co-pag-topo" hidden></div>
-            <div class="tablewrap rel-tab" id="co-tabwrap"><table><thead><tr id="co-thead"></tr></thead><tbody id="co-tbody"></tbody></table></div>
+            <div class="tablewrap rel-tab" id="co-tabwrap"><table data-ord="co"><thead><tr id="co-thead"></tr></thead><tbody id="co-tbody"></tbody></table></div>
             <div class="rel-pag" id="co-pag" hidden></div>
             <div class="rel-pe"><span class="small muted" id="co-mostrando"></span></div>
           </div>
@@ -899,8 +920,10 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 
       <!-- ---------- AUDITORIA ---------- -->
       <section class="page" id="page-aud">
-        <div class="page-head"><div><h2>Auditoria</h2><p>Trilha de tudo que cada usuário fez no sistema. Somente leitura. A cada 1.000 eventos o servidor compacta a trilha em um arquivo CSV (lista abaixo).</p></div>
+        <div class="page-head"><div><h2>Auditoria</h2><p id="aud-sub">Trilha de tudo que cada usuário fez no sistema. Somente leitura.</p></div>
           <button class="btn sec" id="aud-csv">Exportar CSV</button></div>
+        <div class="subtabs" id="aud-abas" role="tablist"><button type="button" data-aa="mov" role="tab">Movimentações</button><button type="button" data-aa="arq" role="tab">Arquivos compactados</button><button type="button" data-aa="usu" role="tab">Registro de usuários</button></div>
+        <div id="aud-p-mov">
         <div class="card">
           <div class="row">
             <div class="field" style="flex:1;min-width:140px"><label for="a-user">Usuário</label><select id="a-user"></select></div>
@@ -920,8 +943,9 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         <div class="card" style="margin-top:14px">
           <div class="row" style="justify-content:space-between"><h3 style="margin:0">Movimentações</h3><span class="small muted" id="aud-count"></span></div>
           <div class="notice info small" data-hint="aud-ip" style="margin:8px 0">IP e navegador são gravados pelo servidor no momento do registro (não podem ser alterados pelo app). O dispositivo é identificado por um código gerado em cada aparelho.</div>
-          <div class="tablewrap"><table id="aud-table"></table></div>
+          <div class="tablewrap"><table id="aud-table" data-ord="aud"></table></div>
           <div class="row" id="aud-pager" style="justify-content:center;margin-top:10px"></div>
+        </div>
         </div>
         <div class="card" style="margin-top:14px" id="arq-card"><h3>Arquivos compactados</h3>
           <div class="subtabs" id="arq-tabs"><button type="button" data-at="aud" class="on">Auditoria</button><button type="button" data-at="fotos">Fotos</button></div>
@@ -940,6 +964,15 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
             </div>
             <div class="small muted" id="fa-resumo" style="margin-top:8px"></div>
             <div class="tablewrap" style="margin-top:8px"><table id="fa-table"></table></div>
+          </div>
+        </div>
+        <div id="aud-p-usu" hidden>
+          <div id="usu-aviso" class="notice info" hidden></div>
+          <div id="usu-corpo">
+            <div class="tiles" id="usu-tiles"></div>
+            <div class="card" style="margin-top:14px"><div class="row" style="justify-content:space-between;align-items:baseline"><h3 style="margin:0">Usuários</h3><span class="small muted">Online = sistema aberto (sinal no último 2,5 min) · atualiza sozinho a cada 30 s · toque num usuário para ver as sessões</span></div>
+              <div class="tablewrap" style="margin-top:8px"><table id="usu-table" data-ord="usu"></table></div></div>
+            <div class="card" id="usu-hist-card" style="margin-top:14px" hidden><h3 id="usu-hist-tit"></h3><div class="tablewrap"><table id="usu-hist" data-ord="usuHist"></table></div></div>
           </div>
         </div>
       </section>
@@ -987,7 +1020,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
           <div class="cols">
             <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Colaboradores</h3><button class="btn sm" id="c-new">Novo colaborador</button></div>
               <input id="c-busca" placeholder="buscar por nome, código ou empresa…" style="margin-top:8px">
-              <div class="tablewrap" style="margin-top:8px"><table id="c-table"></table></div><div class="row" id="c-pager" style="justify-content:center;margin-top:10px"></div></div>
+              <div class="tablewrap" style="margin-top:8px"><table id="c-table" data-ord="colab"></table></div><div class="row" id="c-pager" style="justify-content:center;margin-top:10px"></div></div>
             <div class="card"><h3 id="c-form-title">Novo colaborador</h3>
               <div class="stack">
                 <div id="c-need" class="notice warn" hidden></div>
@@ -1047,7 +1080,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         <div id="cfg-contratos" class="cfg-pane" hidden>
           <div class="cols">
             <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Contratos</h3><div class="row"><select id="ctr-filtro" style="width:auto"><option value="">Todos</option><option value="ativos">Ativos</option><option value="inativos">Inativos / encerrados</option></select><button class="btn sm" id="ctr-new">Novo contrato</button></div></div>
-              <div class="tablewrap" style="margin-top:10px"><table id="ctr-table"></table></div><div class="row" id="ctr-pager" style="justify-content:center;margin-top:10px"></div></div>
+              <div class="tablewrap" style="margin-top:10px"><table id="ctr-table" data-ord="contratos"></table></div><div class="row" id="ctr-pager" style="justify-content:center;margin-top:10px"></div></div>
             <div class="card"><h3 id="ctr-form-title">Novo contrato</h3>
               <div class="stack">
                 <div class="grid2"><div class="field"><label for="ctr-num">Nº do contrato (até 7 caracteres)</label><input id="ctr-num" maxlength="7" class="mono" style="text-transform:uppercase"></div><div class="field"><label for="ctr-ativo">Situação</label><select id="ctr-ativo"><option value="1">Ativo</option><option value="0">Inativo</option></select></div></div>
@@ -1268,6 +1301,6 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <div id="viz-tip" role="tooltip" hidden></div>
 
-<script src="app-2.8.2.js"></script>
+<script src="app-2.8.3.js"></script>
 </body>
 </html>
