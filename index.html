@@ -392,6 +392,38 @@ table.redim td{overflow-wrap:anywhere}
 .fx-medida .fx-seg button{white-space:nowrap;padding:7px 12px}
 @media (min-width:1180px){.fx-fl{grid-template-columns:minmax(270px,1.7fr) repeat(5,minmax(104px,1fr)) auto!important}}
 .fx-fl .fx-limpar{margin-left:auto;border-style:dashed}
+/* v2.8.7: versão no canto superior direito */
+.ver-tag{font-family:var(--mono);font-size:10px;line-height:1;letter-spacing:.04em;color:var(--nav-ink);opacity:.72;white-space:nowrap;align-self:flex-start;margin:-3px -8px 0 0;user-select:none;cursor:default}
+@media (max-width:480px){.ver-tag{font-size:9px;margin:-5px -10px 0 -4px}}
+/* v2.8.7: KPIs dentro do card Fluxo de refeições (tema escuro do card) */
+.fx-kpis.fx-kpis-in{grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:16px 0 0;padding-top:2px;border-top:1px solid var(--fx-line)}
+.fx-kpis-in .fx-kpi{padding:12px 18px 2px;border-left:1px solid var(--fx-line2);background:none;border-radius:0;box-shadow:none}
+.fx-kpis-in .fx-kpi:first-child{border-left:0;padding-left:2px}
+.fx-kpis-in .fx-k-val{font-size:28px;margin-top:4px}.fx-kpis-in .fx-k-val.longo{font-size:23px}
+.fx-kpis-in .fx-kpi.ativo .fx-k-lab{color:var(--fx-acc)}
+.fx-kpis-in .fx-k-sub{margin-top:4px}.fx-kpis-in .fx-meter{margin-top:12px;height:6px}
+@media (max-width:699px){.fx-kpis.fx-kpis-in{grid-template-columns:repeat(2,minmax(0,1fr));gap:0}.fx-kpis-in>#fx-k-v{grid-column:auto}
+  .fx-kpis-in .fx-kpi{padding:10px 10px 8px 12px}.fx-kpis-in .fx-kpi:nth-child(odd){border-left:0;padding-left:2px}.fx-kpis-in .fx-kpi:nth-child(n+3){border-top:1px solid var(--fx-line2)}
+  .fx-kpis-in .fx-k-val{font-size:23px}.fx-kpis-in .fx-k-val.longo{font-size:18px}.fx-kpis-in .fx-k-sub{font-size:11.5px}}
+@media (min-width:1180px) and (max-width:1299px){.fx-fl{display:flex!important;flex-wrap:wrap}.fx-fl>.field{min-width:130px!important}.fx-fl>.field:first-child{min-width:290px!important}}
+@media (min-width:1300px){.fx-fl{grid-template-columns:minmax(286px,1.6fr) repeat(4,minmax(100px,1fr)) auto!important}}
+@media (min-width:1400px){.fx-fl{grid-template-columns:minmax(376px,2fr) repeat(4,minmax(108px,1fr)) auto!important}}
+@media (max-width:699px){.fx-fl>.field{min-width:128px!important}}
+/* v2.8.7: Auditoria dentro de Configurações — guias da Auditoria como um segundo nível (botões agrupados) */
+.aud-topo{justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+#aud-abas{display:inline-flex;gap:2px;padding:3px;margin:0;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);max-width:100%;overflow-x:auto}
+#aud-abas button{border:0;margin:0;border-radius:7px;padding:6px 12px;font-size:13px}
+#aud-abas button.on{background:var(--surface);color:var(--accent);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+#aud-sub{margin:0 0 12px}
+@media (max-width:600px){.aud-topo #aud-abas{display:flex;width:100%}.aud-topo #aud-csv{margin-left:auto}}
+/* v2.8.7: Nº do título nos Boletins emitidos */
+#bm-list td.bm-tit{white-space:nowrap}
+.tit-ed{background:none;border:1px solid transparent;border-radius:6px;padding:0 6px;color:var(--ink-3);cursor:pointer;font-size:13px;line-height:24px}
+.tit-ed:hover,.tit-ed:focus-visible{border-color:var(--line);color:var(--accent)}
+.tit-add{background:none;border:1px dashed var(--line);border-radius:6px;padding:2px 8px;color:var(--accent);cursor:pointer;font-size:12.5px;font-weight:500;white-space:nowrap}
+.tit-add:hover,.tit-add:focus-visible{border-style:solid;border-color:var(--accent);background:var(--accent-soft)}
+.tit-f{display:flex;gap:4px;align-items:center}.tit-f .tit-in{width:140px;min-width:0;padding:5px 8px}
+#l-inativo b{display:block}
 /* funcionário sem QR Code (v2.8.5) */
 .semqr-lbl{display:inline-flex;align-items:center;gap:7px;margin:0;font-size:13.5px;font-weight:600;text-transform:none;letter-spacing:0;cursor:pointer;color:var(--ink-2);white-space:nowrap;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface)}
 .semqr-lbl input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
@@ -660,6 +692,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
     <div class="stack">
       <div id="l-form">
         <div class="stack">
+          <div id="l-inativo" class="notice warn" role="status" hidden></div>
           <div class="field"><label for="l-user">Usuário ou e-mail</label><input id="l-user" autocomplete="username" placeholder="USUÁRIO" autocapitalize="characters"></div>
           <div class="field"><label for="l-pass">Senha</label><input id="l-pass" type="password" autocomplete="current-password" placeholder="••••••"></div>
           <div id="l-err" class="notice bad" hidden>Usuário ou senha inválidos.</div>
@@ -697,10 +730,10 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         </div>
       </div>
     </div>
-    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.8.6.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
+    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.8.7.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
   </div>
   </div>
-  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.8.6</span></div>
+  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.8.7</span></div>
   </div>
 </div>
 
@@ -711,6 +744,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
     <span class="spacer"></span>
     <button class="who-m" id="who-btn" type="button"><span class="who-l"><span class="sync" data-sync title="Sincronizado"></span><b id="who-name"></b></span><span id="who-role"></span></button>
     <button class="btn-ghost bell" id="bell" aria-label="Notificações e mensagens"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="badge" id="bell-badge" hidden></span></button><button class="btn-ghost" id="theme-btn" aria-label="Alternar modo escuro/claro"><svg id="theme-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"></svg><span id="theme-txt">Escuro</span></button>
+    <span class="ver-tag" id="ver-tag" title="Versão do sistema">v2.8.7</span>
   </header>
   <div class="umenu" id="user-menu" hidden></div>
   <div class="body">
@@ -819,34 +853,31 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         <div class="card" id="sup-bol-card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Boletins emitidos</h3><button class="btn sec sm" id="bm-conferir" type="button">Conferir assinatura (ID)</button></div><div class="tablewrap" style="margin-top:8px"><table id="bm-list" data-ord="bms"></table></div><div class="row" id="bm-pager" style="justify-content:center;margin-top:10px"></div><input id="bm-anexo-file" type="file" accept="application/pdf,image/*" hidden></div>
       </section>
 
-      <!-- ---------- ANALÍTICO ---------- -->
-      <section class="page" id="page-ana">
-        <div class="fx-card">
-          <div class="row fx-fl" style="align-items:flex-start">
-            <div class="field" style="flex:1.5;min-width:260px"><label for="an-de">Período</label><div class="periodo"><input id="an-de" type="date" aria-label="Início do período"><span>a</span><input id="an-ate" type="date" aria-label="Fim do período"></div>
-              <div class="row" id="an-presets" style="gap:4px;margin-top:6px"><button type="button" class="chipbtn" data-p="mes">Mês atual</button><button type="button" class="chipbtn" data-p="mes-ant">Mês anterior</button><button type="button" class="chipbtn" data-p="30">30 dias</button><button type="button" class="chipbtn" data-p="ano">Ano</button><button type="button" class="chipbtn fx-limpar" id="an-limpar">Limpar filtros</button></div></div>
-            <div class="field" style="flex:1;min-width:150px"><label for="an-emp">Empresa</label><select id="an-emp"></select></div>
-            <div class="field" style="flex:1;min-width:150px"><label for="an-obra">Obra</label><select id="an-obra"></select></div>
-            <div class="field" style="flex:1;min-width:150px"><label for="an-colab">Colaborador</label><input id="an-colab" list="an-colab-list" placeholder="nome…" autocomplete="off"><datalist id="an-colab-list"></datalist></div>
-            <div class="field" style="flex:.8;min-width:120px"><label for="an-tipo">Tipo</label><select id="an-tipo"><option value="">Todos</option></select></div>
-            <div class="field" style="flex:1;min-width:150px"><label for="an-ct">Restaurante</label><select id="an-ct"></select></div>
-            <div class="field fx-medida" style="flex:0 0 auto"><label id="ana-medida-lbl">Mostrar</label><div class="fx-seg" id="ana-medida" role="group" aria-labelledby="ana-medida-lbl"><button type="button" data-m="q" class="on" aria-pressed="true">Refeições</button><button type="button" data-m="v" aria-pressed="false">Valor (R$)</button></div></div>
-          </div>
-        </div>
-        <div class="fx-card fx-vazio" id="ana-vazio" hidden>Nenhuma refeição com esses filtros no período.</div>
-        <div class="fx-kpis" id="ana-kpis"></div>
-        <div class="fx-grid" id="ana-grid">
-          <section class="fx-card fx-escuro" id="fx-p-tempo"><header class="fx-ph"><div><h3 class="fx-pt" id="fx-tempo-tit">Fluxo de refeições</h3><div class="fx-ps" id="fx-tempo-sub">por dia</div></div><div class="fx-pa"><div class="fx-leg" id="fx-tempo-leg"></div><button class="fx-tbtn" type="button" data-fx-tab aria-pressed="false">Tabela</button></div></header><div class="fx-chart" id="fx-tempo"></div><div class="fx-tab" id="fx-tempo-tab"></div></section>
-          <section class="fx-card s5" id="fx-p-mix"><header class="fx-ph"><div><h3 class="fx-pt" id="fx-mix-tit">Por tipo de refeição</h3><div class="fx-ps" id="fx-mix-sub">participação no período</div></div><div class="fx-pa"><button class="fx-tbtn" type="button" data-fx-tab aria-pressed="false">Tabela</button></div></header><div class="fx-chart" id="fx-mix"></div><div class="fx-tab" id="fx-mix-tab"></div></section>
-          <section class="fx-card s7" id="fx-p-calor"><header class="fx-ph"><div><h3 class="fx-pt" id="fx-calor-tit">Horário dos registros</h3><div class="fx-ps" id="fx-calor-sub">dia da semana × hora em que a refeição foi registrada</div></div><div class="fx-pa"><button class="fx-tbtn" type="button" data-fx-tab aria-pressed="false">Tabela</button></div></header><div class="fx-chart" id="fx-calor"></div><div class="fx-tab" id="fx-calor-tab"></div></section>
-          <section class="fx-card s7" id="fx-p-obras"><header class="fx-ph"><div><h3 class="fx-pt" id="fx-obras-tit">Ranking de obras</h3><div class="fx-ps" id="fx-obras-sub">do maior para o menor</div></div><div class="fx-pa"><button class="fx-tbtn" type="button" data-fx-tab aria-pressed="false">Tabela</button></div></header><div class="fx-chart" id="fx-obras"></div><div class="fx-tab" id="fx-obras-tab"></div></section>
-          <section class="fx-card s5" id="fx-p-rest"><header class="fx-ph"><div><h3 class="fx-pt" id="fx-rest-tit">Restaurantes e empresas</h3><div class="fx-ps" id="fx-rest-sub"></div></div><div class="fx-pa"><button class="fx-tbtn" type="button" data-fx-tab aria-pressed="false">Tabela</button></div></header><div class="fx-chart" id="fx-rest"></div><div class="fx-tab" id="fx-rest-tab"></div></section>
-        </div>
-      </section>
-
       <!-- ---------- RELATÓRIOS (v2.7.0) ---------- -->
       <section class="page" id="page-rel">
-        <div class="page-head"><div><h2 id="rel-titulo">Relatórios</h2><p>Escolha os filtros — os marcados com <span class="req">*</span> são obrigatórios.</p></div></div>
+        <div class="page-head" id="rel-head"><div><h2 id="rel-titulo">Relatórios</h2><p>Escolha os filtros — os marcados com <span class="req">*</span> são obrigatórios.</p></div></div>
+        <!-- ---------- ANALÍTICO (v2.8.7: dentro de Relatórios) ---------- -->
+        <div id="page-ana" data-rel="analitico" hidden>
+          <div class="fx-card">
+            <div class="row fx-fl" style="align-items:flex-start">
+              <div class="field" style="flex:1.5;min-width:260px"><label for="an-de">Período</label><div class="periodo"><input id="an-de" type="date" aria-label="Início do período"><span>a</span><input id="an-ate" type="date" aria-label="Fim do período"></div>
+                <div class="row" id="an-presets" style="gap:4px;margin-top:6px"><button type="button" class="chipbtn" data-p="mes">Mês atual</button><button type="button" class="chipbtn" data-p="mes-ant">Mês anterior</button><button type="button" class="chipbtn" data-p="30">30 dias</button><button type="button" class="chipbtn" data-p="ano">Ano</button><button type="button" class="chipbtn fx-limpar" id="an-limpar">Limpar filtros</button></div></div>
+              <div class="field" style="flex:1;min-width:150px"><label for="an-emp">Empresa</label><select id="an-emp"></select></div>
+              <div class="field" style="flex:1;min-width:150px"><label for="an-obra">Obra</label><select id="an-obra"></select></div>
+              <div class="field" style="flex:.8;min-width:120px"><label for="an-tipo">Tipo</label><select id="an-tipo"><option value="">Todos</option></select></div>
+              <div class="field" style="flex:1;min-width:150px"><label for="an-ct">Restaurante</label><select id="an-ct"></select></div>
+              <div class="field fx-medida" style="flex:0 0 auto"><label id="ana-medida-lbl">Mostrar</label><div class="fx-seg" id="ana-medida" role="group" aria-labelledby="ana-medida-lbl"><button type="button" data-m="q" class="on" aria-pressed="true">Refeições</button><button type="button" data-m="v" aria-pressed="false">Valor (R$)</button></div></div>
+            </div>
+          </div>
+          <div class="fx-card fx-vazio" id="ana-vazio" hidden>Nenhuma refeição com esses filtros no período.</div>
+          <div class="fx-grid" id="ana-grid">
+            <section class="fx-card fx-escuro" id="fx-p-tempo"><header class="fx-ph"><div><h3 class="fx-pt" id="fx-tempo-tit">Fluxo de refeições</h3><div class="fx-ps" id="fx-tempo-sub">por dia</div></div><div class="fx-pa"><div class="fx-leg" id="fx-tempo-leg"></div><button class="fx-tbtn" type="button" data-fx-tab aria-pressed="false">Tabela</button></div></header><div class="fx-chart" id="fx-tempo"></div><div class="fx-tab" id="fx-tempo-tab"></div><div class="fx-kpis fx-kpis-in" id="ana-kpis"></div></section>
+            <section class="fx-card s5" id="fx-p-mix"><header class="fx-ph"><div><h3 class="fx-pt" id="fx-mix-tit">Por tipo de refeição</h3><div class="fx-ps" id="fx-mix-sub">participação no período</div></div><div class="fx-pa"><button class="fx-tbtn" type="button" data-fx-tab aria-pressed="false">Tabela</button></div></header><div class="fx-chart" id="fx-mix"></div><div class="fx-tab" id="fx-mix-tab"></div></section>
+            <section class="fx-card s7" id="fx-p-calor"><header class="fx-ph"><div><h3 class="fx-pt" id="fx-calor-tit">Horário dos registros</h3><div class="fx-ps" id="fx-calor-sub">dia da semana × hora em que a refeição foi registrada</div></div><div class="fx-pa"><button class="fx-tbtn" type="button" data-fx-tab aria-pressed="false">Tabela</button></div></header><div class="fx-chart" id="fx-calor"></div><div class="fx-tab" id="fx-calor-tab"></div></section>
+            <section class="fx-card s7" id="fx-p-obras"><header class="fx-ph"><div><h3 class="fx-pt" id="fx-obras-tit">Ranking de obras</h3><div class="fx-ps" id="fx-obras-sub">do maior para o menor</div></div><div class="fx-pa"><button class="fx-tbtn" type="button" data-fx-tab aria-pressed="false">Tabela</button></div></header><div class="fx-chart" id="fx-obras"></div><div class="fx-tab" id="fx-obras-tab"></div></section>
+            <section class="fx-card s5" id="fx-p-rest"><header class="fx-ph"><div><h3 class="fx-pt" id="fx-rest-tit">Restaurantes e empresas</h3><div class="fx-ps" id="fx-rest-sub"></div></div><div class="fx-pa"><button class="fx-tbtn" type="button" data-fx-tab aria-pressed="false">Tabela</button></div></header><div class="fx-chart" id="fx-rest"></div><div class="fx-tab" id="fx-rest-tab"></div></section>
+          </div>
+          </div>
         <!-- Registros -->
         <div id="rel-p-registros" data-rel="registros" hidden>
           <div class="card">
@@ -936,68 +967,9 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         </div>
       </section>
 
-      <!-- ---------- AUDITORIA ---------- -->
-      <section class="page" id="page-aud">
-        <div class="page-head"><div><h2>Auditoria</h2><p id="aud-sub">Trilha de tudo que cada usuário fez no sistema. Somente leitura.</p></div>
-          <button class="btn sec" id="aud-csv">Exportar CSV</button></div>
-        <div class="subtabs" id="aud-abas" role="tablist"><button type="button" data-aa="mov" role="tab">Movimentações</button><button type="button" data-aa="arq" role="tab">Arquivos compactados</button><button type="button" data-aa="usu" role="tab">Registro de usuários</button></div>
-        <div id="aud-p-mov">
-        <div class="card">
-          <div class="row">
-            <div class="field" style="flex:1;min-width:140px"><label for="a-user">Usuário</label><select id="a-user"></select></div>
-            <div class="field" style="flex:1;min-width:140px"><label for="a-aba">Aba</label><select id="a-aba"></select></div>
-            <div class="field" style="flex:1.2;min-width:160px"><label for="a-acao">Ação</label><select id="a-acao"></select></div>
-            <div class="field" style="flex:1;min-width:140px"><label for="a-obra">Obra</label><select id="a-obra"></select></div>
-            <div class="field" style="flex:1;min-width:140px"><label for="a-emp">Empresa</label><select id="a-emp"></select></div>
-          </div>
-          <div class="row" style="margin-top:10px">
-            <div class="field" style="min-width:150px"><label for="a-de">Movimentação de</label><input id="a-de" type="date"></div>
-            <div class="field" style="min-width:150px"><label for="a-ate">até</label><input id="a-ate" type="date"></div>
-            <div class="field" style="flex:1;min-width:180px"><label for="a-busca">Texto</label><input id="a-busca" placeholder="colaborador, BM, valor…"></div>
-            <button class="btn sec sm" id="a-limpar" style="align-self:flex-end">Limpar filtros</button>
-          </div>
-        </div>
-        <div class="tiles" id="aud-tiles" style="margin-top:14px"></div>
-        <div class="card" style="margin-top:14px">
-          <div class="row" style="justify-content:space-between"><h3 style="margin:0">Movimentações</h3><span class="small muted" id="aud-count"></span></div>
-          <div class="notice info small" data-hint="aud-ip" style="margin:8px 0">IP e navegador são gravados pelo servidor no momento do registro (não podem ser alterados pelo app). O dispositivo é identificado por um código gerado em cada aparelho.</div>
-          <div class="tablewrap"><table id="aud-table" data-ord="aud"></table></div>
-          <div class="row" id="aud-pager" style="justify-content:center;margin-top:10px"></div>
-        </div>
-        </div>
-        <div class="card" style="margin-top:14px" id="arq-card"><h3>Arquivos compactados</h3>
-          <div class="subtabs" id="arq-tabs"><button type="button" data-at="aud" class="on">Auditoria</button><button type="button" data-at="fotos">Fotos</button></div>
-          <div id="arq-aud">
-            <div class="notice info small" data-hint="aud-arq" style="margin-bottom:8px">Eventos antigos, compactados automaticamente ao atingir 1.000 registros. Para consultar, baixe o CSV.</div>
-            <div class="tablewrap"><table id="aud-arq"></table></div>
-          </div>
-          <div id="arq-fotos" hidden>
-            <div class="notice info small" data-hint="aud-fotos" style="margin-bottom:10px">As fotos ficam visíveis em Administrativo › Registros por 20 dias. Toda madrugada (03h) o servidor junta as fotos do dia anterior em um arquivo compactado (.zip) com uma planilha de índice. Os arquivos ficam guardados por 12 meses.</div>
-            <div class="tiles" id="fotos-uso"></div>
-            <div class="row" style="margin-top:12px;align-items:flex-end">
-              <div class="field" style="min-width:150px"><label for="fa-de">Selecionar período dos arquivos — de</label><input id="fa-de" type="date"></div>
-              <div class="field" style="min-width:150px"><label for="fa-ate">até</label><input id="fa-ate" type="date"></div>
-              <button class="btn" id="fa-baixar" type="button">Baixar arquivos</button>
-              <button class="btn sec sm" id="fa-agora" type="button" hidden title="Compacta agora as fotos que ainda aguardam (inclusive as de hoje)">Compactar agora</button>
-            </div>
-            <div class="small muted" id="fa-resumo" style="margin-top:8px"></div>
-            <div class="tablewrap" style="margin-top:8px"><table id="fa-table"></table></div>
-          </div>
-        </div>
-        <div id="aud-p-usu" hidden>
-          <div id="usu-aviso" class="notice info" hidden></div>
-          <div id="usu-corpo">
-            <div class="tiles" id="usu-tiles"></div>
-            <div class="card" style="margin-top:14px"><div class="row" style="justify-content:space-between;align-items:baseline"><h3 style="margin:0">Usuários</h3><span class="small muted">Online = sistema aberto (sinal no último 2,5 min) · atualiza sozinho a cada 30 s · toque num usuário para ver as sessões</span></div>
-              <div class="tablewrap" style="margin-top:8px"><table id="usu-table" data-ord="usu"></table></div></div>
-            <div class="card" id="usu-hist-card" style="margin-top:14px" hidden><h3 id="usu-hist-tit"></h3><div class="tablewrap"><table id="usu-hist" data-ord="usuHist"></table></div></div>
-          </div>
-        </div>
-      </section>
-
       <!-- ---------- CONFIGURAÇÕES ---------- -->
       <section class="page" id="page-cfg">
-        <div class="page-head"><div><h2>Configurações</h2><p>Usuários, colaboradores, empresas, obras, contratos, preços e contratadas</p></div></div>
+        <div class="page-head"><div><h2>Configurações</h2><p>Cadastros, acessos e auditoria do sistema</p></div></div>
         <div class="card" id="setup-card" style="margin-bottom:14px"><h3>Primeiros passos</h3><div class="setup" id="setup-list"></div></div>
         <div class="subtabs" id="cfg-tabs"></div>
 
@@ -1181,6 +1153,64 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
           </div>
         </div>
 
+
+        <!-- ---------- AUDITORIA (v2.8.7: dentro de Configurações) ---------- -->
+        <div id="cfg-auditoria" class="cfg-pane" hidden><div id="page-aud">
+          <div class="row aud-topo"><div class="subtabs" id="aud-abas" role="tablist" aria-label="Auditoria"><button type="button" data-aa="mov" role="tab">Movimentações</button><button type="button" data-aa="arq" role="tab">Arquivos compactados</button><button type="button" data-aa="usu" role="tab">Registro de usuários</button></div><button class="btn sec sm" id="aud-csv">Exportar CSV</button></div>
+          <p class="small muted" id="aud-sub">Trilha de tudo que cada usuário fez no sistema. Somente leitura.</p>
+          <div id="aud-p-mov">
+          <div class="card">
+            <div class="row">
+              <div class="field" style="flex:1;min-width:140px"><label for="a-user">Usuário</label><select id="a-user"></select></div>
+              <div class="field" style="flex:1;min-width:140px"><label for="a-aba">Aba</label><select id="a-aba"></select></div>
+              <div class="field" style="flex:1.2;min-width:160px"><label for="a-acao">Ação</label><select id="a-acao"></select></div>
+              <div class="field" style="flex:1;min-width:140px"><label for="a-obra">Obra</label><select id="a-obra"></select></div>
+              <div class="field" style="flex:1;min-width:140px"><label for="a-emp">Empresa</label><select id="a-emp"></select></div>
+            </div>
+            <div class="row" style="margin-top:10px">
+              <div class="field" style="min-width:150px"><label for="a-de">Movimentação de</label><input id="a-de" type="date"></div>
+              <div class="field" style="min-width:150px"><label for="a-ate">até</label><input id="a-ate" type="date"></div>
+              <div class="field" style="flex:1;min-width:180px"><label for="a-busca">Texto</label><input id="a-busca" placeholder="colaborador, BM, valor…"></div>
+              <button class="btn sec sm" id="a-limpar" style="align-self:flex-end">Limpar filtros</button>
+            </div>
+          </div>
+          <div class="tiles" id="aud-tiles" style="margin-top:14px"></div>
+          <div class="card" style="margin-top:14px">
+            <div class="row" style="justify-content:space-between"><h3 style="margin:0">Movimentações</h3><span class="small muted" id="aud-count"></span></div>
+            <div class="notice info small" data-hint="aud-ip" style="margin:8px 0">IP e navegador são gravados pelo servidor no momento do registro (não podem ser alterados pelo app). O dispositivo é identificado por um código gerado em cada aparelho.</div>
+            <div class="tablewrap"><table id="aud-table" data-ord="aud"></table></div>
+            <div class="row" id="aud-pager" style="justify-content:center;margin-top:10px"></div>
+          </div>
+          </div>
+          <div class="card" style="margin-top:14px" id="arq-card"><h3>Arquivos compactados</h3>
+            <div class="subtabs" id="arq-tabs"><button type="button" data-at="aud" class="on">Auditoria</button><button type="button" data-at="fotos">Fotos</button></div>
+            <div id="arq-aud">
+              <div class="notice info small" data-hint="aud-arq" style="margin-bottom:8px">Eventos antigos, compactados automaticamente ao atingir 1.000 registros. Para consultar, baixe o CSV.</div>
+              <div class="tablewrap"><table id="aud-arq"></table></div>
+            </div>
+            <div id="arq-fotos" hidden>
+              <div class="notice info small" data-hint="aud-fotos" style="margin-bottom:10px">As fotos ficam visíveis em Administrativo › Registros por 20 dias. Toda madrugada (03h) o servidor junta as fotos do dia anterior em um arquivo compactado (.zip) com uma planilha de índice. Os arquivos ficam guardados por 12 meses.</div>
+              <div class="tiles" id="fotos-uso"></div>
+              <div class="row" style="margin-top:12px;align-items:flex-end">
+                <div class="field" style="min-width:150px"><label for="fa-de">Selecionar período dos arquivos — de</label><input id="fa-de" type="date"></div>
+                <div class="field" style="min-width:150px"><label for="fa-ate">até</label><input id="fa-ate" type="date"></div>
+                <button class="btn" id="fa-baixar" type="button">Baixar arquivos</button>
+                <button class="btn sec sm" id="fa-agora" type="button" hidden title="Compacta agora as fotos que ainda aguardam (inclusive as de hoje)">Compactar agora</button>
+              </div>
+              <div class="small muted" id="fa-resumo" style="margin-top:8px"></div>
+              <div class="tablewrap" style="margin-top:8px"><table id="fa-table"></table></div>
+            </div>
+          </div>
+          <div id="aud-p-usu" hidden>
+            <div id="usu-aviso" class="notice info" hidden></div>
+            <div id="usu-corpo">
+              <div class="tiles" id="usu-tiles"></div>
+              <div class="card" style="margin-top:14px"><div class="row" style="justify-content:space-between;align-items:baseline"><h3 style="margin:0">Usuários</h3><span class="small muted">Online = sistema aberto (sinal no último 2,5 min) · atualiza sozinho a cada 30 s · toque num usuário para ver as sessões</span></div>
+                <div class="tablewrap" style="margin-top:8px"><table id="usu-table" data-ord="usu"></table></div></div>
+              <div class="card" id="usu-hist-card" style="margin-top:14px" hidden><h3 id="usu-hist-tit"></h3><div class="tablewrap"><table id="usu-hist" data-ord="usuHist"></table></div></div>
+            </div>
+          </div>
+        </div></div>
       </section>
     </main>
   </div>
@@ -1319,6 +1349,6 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <div id="viz-tip" role="tooltip" hidden></div>
 
-<script src="app-2.8.6.js"></script>
+<script src="app-2.8.7.js"></script>
 </body>
 </html>
