@@ -477,6 +477,10 @@ table.redim td{overflow-wrap:anywhere}
 .rt-sug .rt-sug-i:last-child{border-bottom:0}.rt-sug .rt-sug-i:hover,.rt-sug .rt-sug-i:focus-visible{background:var(--surface-2)}
 .rt-sel{max-height:340px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;padding:0 10px}.rt-sel .item .t b{white-space:normal}.rt-sel .item .pill{max-width:46%;overflow:hidden;text-overflow:ellipsis}
 #rt-lotes .item .t b{white-space:normal}#rt-lotes .item{flex-wrap:wrap}
+/* v2.9.2: QR Code do colaborador */
+.qr-box{display:grid;place-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+#qr-canvas{width:240px;height:240px;max-width:100%;image-rendering:pixelated;image-rendering:crisp-edges}
+.qr-info{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}.qr-info b{font-size:16px}.qr-info span{font-size:13px;color:var(--ink-2)}.qr-info .mono{color:var(--ink-3)}
 /* funcionário sem QR Code (v2.8.5) */
 .semqr-lbl{display:inline-flex;align-items:center;gap:7px;margin:0;font-size:13.5px;font-weight:600;text-transform:none;letter-spacing:0;cursor:pointer;color:var(--ink-2);white-space:nowrap;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface)}
 .semqr-lbl input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
@@ -783,10 +787,10 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         </div>
       </div>
     </div>
-    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.9.1.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
+    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.9.2.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
   </div>
   </div>
-  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.9.1</span></div>
+  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.9.2</span></div>
   </div>
 </div>
 
@@ -797,7 +801,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
     <span class="spacer"></span>
     <button class="who-m" id="who-btn" type="button"><span class="who-l"><span class="sync" data-sync title="Sincronizado"></span><b id="who-name"></b></span><span id="who-role"></span></button>
     <button class="btn-ghost bell" id="bell" aria-label="Notificações e mensagens"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="badge" id="bell-badge" hidden></span></button><button class="btn-ghost" id="theme-btn" aria-label="Alternar modo escuro/claro"><svg id="theme-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"></svg><span id="theme-txt">Escuro</span></button>
-    <span class="ver-tag" id="ver-tag" title="Versão do sistema">v2.9.1</span>
+    <span class="ver-tag" id="ver-tag" title="Versão do sistema">v2.9.2</span>
   </header>
   <div class="umenu" id="user-menu" hidden></div>
   <div class="body">
@@ -1401,6 +1405,18 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 </div>
 
 <!-- ============ INFO MODAL (genérico) ============ -->
+<div class="modal" id="qr-modal">
+  <div class="sheet narrow">
+    <div class="mh"><h2 id="qr-title">QR Code do colaborador</h2><button class="btn sec sm" id="qr-close" type="button">Fechar</button></div>
+    <div class="stack">
+      <div class="qr-box"><canvas id="qr-canvas" role="img" aria-label="QR Code do colaborador"></canvas></div>
+      <div id="qr-info" class="qr-info"></div>
+      <div class="notice warn small">Este QR Code funciona <b>como o crachá</b>: quem tiver a imagem consegue registrar refeição em nome deste colaborador. Não envie por mensagem nem deixe à vista.</div>
+      <div class="row" style="gap:8px"><button class="btn" id="qr-pdf" type="button" style="flex:1">Imprimir (PDF)</button><button class="btn sec" id="qr-png" type="button" style="flex:1">Baixar imagem</button></div>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="info-modal">
   <div class="sheet narrow">
     <div class="mh"><h2 id="info-title"></h2><button class="btn sec sm" id="info-close">Fechar</button></div>
@@ -1427,6 +1443,6 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <div id="viz-tip" role="tooltip" hidden></div>
 
-<script src="app-2.9.1.js"></script>
+<script src="app-2.9.2.js"></script>
 </body>
 </html>
