@@ -740,6 +740,34 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 .steps span.done{background:var(--good-soft);color:var(--good);border-color:transparent}
 .steps span.cur{background:var(--accent);color:var(--accent-ink);border-color:transparent}
 .pp h3{margin:16px 0 6px;font-size:15px}.pp p,.pp li{font-size:13.5px;line-height:1.55}.pp ul{margin:4px 0 4px 18px;padding:0}.pp li{margin:3px 0}
+/* v2.9.4 */
+#info-modal{z-index:55}#fv-modal{z-index:56}   /* abrem por cima do BM (justificativa, foto do registro) */
+.lista-foto{width:1%;white-space:nowrap}
+@media print{.lista-foto{display:none!important}}
+#sp-presets .sp-limpar{border-style:dashed;margin-left:auto}
+.rt-pager{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:10px}
+.as-cts{display:flex;flex-direction:column;gap:6px;max-height:340px;overflow:auto}
+.as-ct{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);cursor:pointer;margin:0;text-transform:none;letter-spacing:0;font-size:13.5px;font-weight:400;color:var(--ink)}
+.as-ct input{width:18px;height:18px;margin:2px 0 0;flex:0 0 auto;accent-color:var(--accent)}
+.as-ct span{display:flex;flex-direction:column;gap:1px;min-width:0}.as-ct small{color:var(--ink-3);font-size:12px;overflow-wrap:anywhere}
+.as-ct:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+#as-users tr.as-sel td{background:var(--accent-soft)}
+#as-resumo.as-alerta{color:var(--warn);font-weight:600}
+.btn.rem-ass{color:var(--bad)}
+.bm-rem-hist ul{margin:4px 0 0 18px;padding:0}.bm-rem-hist li{margin:2px 0}
+.senha-box{position:relative}.senha-box input{padding-right:46px}
+.senha-olho{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:38px;height:38px;display:grid;place-items:center;border:0;background:none;color:var(--ink-3);border-radius:8px;cursor:pointer;padding:0}
+.senha-olho:hover{color:var(--ink);background:var(--surface-2)}.senha-olho:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.senha-olho svg{width:20px;height:20px}.senha-olho .o2{display:none}.senha-olho.on .o1{display:none}.senha-olho.on .o2{display:block}
+.senha-rot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}.senha-rot>label{margin:0}
+.lembrar{display:flex;align-items:center;gap:7px;padding:5px 0;margin:-5px 0!important;font-size:12.5px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-2);cursor:pointer;white-space:nowrap}
+.lembrar input{width:16px;height:16px;margin:0;flex:0 0 auto;accent-color:var(--accent)}
+#page-ana .ms-btn{background:var(--fx-ctl);border-color:var(--fx-line);color:var(--fx-ink)}
+#page-ana .ms-btn.tem{border-color:var(--fx-acc);color:var(--fx-ink);background:var(--fx-ctl);box-shadow:inset 0 0 0 1px var(--fx-acc)}
+#page-ana .ms-btn svg{color:var(--fx-ink2)}
+#page-ana .ms-pop{background:var(--fx-sf);border-color:var(--fx-line)}
+#page-ana .ms-pop label{color:var(--fx-ink)}#page-ana .ms-pop label:hover{background:var(--fx-ctl)}
+#page-ana>.fx-card:first-child{z-index:6}
 </style>
 
 <!-- ============ LOGIN ============ -->
@@ -755,14 +783,14 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
     <div class="subtabs" id="l-tabs"><button data-lt="login" class="on">Entrar</button><button data-lt="signup">Criar conta</button></div>
     <div class="stack">
       <div id="l-form">
-        <div class="stack">
+        <form class="stack" id="l-form-f" autocomplete="on" novalidate>
           <div id="l-inativo" class="notice warn" role="status" hidden></div>
-          <div class="field"><label for="l-user">Usuário ou e-mail</label><input id="l-user" autocomplete="username" placeholder="USUÁRIO" autocapitalize="characters"></div>
-          <div class="field"><label for="l-pass">Senha</label><input id="l-pass" type="password" autocomplete="current-password" placeholder="••••••"></div>
+          <div class="field"><label for="l-user">Usuário ou e-mail</label><input id="l-user" name="username" autocomplete="username" placeholder="USUÁRIO" autocapitalize="characters"></div>
+          <div class="field"><div class="senha-rot"><label for="l-pass">Senha</label><label class="lembrar" for="l-lembrar" title="A senha fica guardada no gerenciador de senhas do navegador deste aparelho — não use em aparelho compartilhado"><input type="checkbox" id="l-lembrar"> Lembrar minha senha</label></div><div class="senha-box"><input id="l-pass" name="password" type="password" autocomplete="current-password" placeholder="••••••"><button type="button" class="senha-olho" id="l-olho" aria-controls="l-pass" aria-pressed="false" aria-label="Mostrar a senha" title="Mostrar a senha"><svg class="o1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="o2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.9 5.2A10.4 10.4 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-2.9 3.9M6.6 6.6C3.9 8.4 2 12 2 12s3.6 7 10 7a9.9 9.9 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="M3 3l18 18"/></svg></button></div></div>
           <div id="l-err" class="notice bad" hidden>Usuário ou senha inválidos.</div>
-          <button class="btn big" id="l-go">Entrar</button>
+          <button class="btn big" id="l-go" type="submit">Entrar</button>
           <div class="small muted" style="text-align:center">Ao entrar, você concorda em usar o sistema conforme a <a href="#" class="linkbtn" data-pp>Política de Privacidade e os Termos de Uso</a>.</div>
-        </div>
+        </form>
       </div>
       <div id="l-signup" hidden>
         <div class="stack">
@@ -794,10 +822,10 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         </div>
       </div>
     </div>
-    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.9.3.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
+    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.9.4.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
   </div>
   </div>
-  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.9.3</span></div>
+  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.9.4</span></div>
   </div>
 </div>
 
@@ -808,7 +836,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
     <span class="spacer"></span>
     <button class="who-m" id="who-btn" type="button"><span class="who-l"><span class="sync" data-sync title="Sincronizado"></span><b id="who-name"></b></span><span id="who-role"></span></button>
     <button class="btn-ghost bell" id="bell" aria-label="Notificações e mensagens"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="badge" id="bell-badge" hidden></span></button><button class="btn-ghost" id="theme-btn" aria-label="Alternar modo escuro/claro"><svg id="theme-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"></svg><span id="theme-txt">Escuro</span></button>
-    <span class="ver-tag" id="ver-tag" title="Versão do sistema">v2.9.3</span>
+    <span class="ver-tag" id="ver-tag" title="Versão do sistema">v2.9.4</span>
   </header>
   <div class="umenu" id="user-menu" hidden></div>
   <div class="body">
@@ -945,9 +973,9 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
             <div class="row fx-fl" style="align-items:flex-start">
               <div class="field" style="flex:1.5;min-width:260px"><label for="an-de">Período</label><div class="periodo"><input id="an-de" type="date" aria-label="Início do período"><span>a</span><input id="an-ate" type="date" aria-label="Fim do período"></div>
                 <div class="row" id="an-presets" style="gap:4px;margin-top:6px"><button type="button" class="chipbtn" data-p="mes">Mês atual</button><button type="button" class="chipbtn" data-p="mes-ant">Mês anterior</button><button type="button" class="chipbtn" data-p="30">30 dias</button><button type="button" class="chipbtn" data-p="ano">Ano</button><button type="button" class="chipbtn fx-limpar" id="an-limpar">Limpar filtros</button></div></div>
-              <div class="field" style="flex:1;min-width:150px"><label for="an-emp">Empresa</label><select id="an-emp"></select></div>
-              <div class="field" style="flex:1;min-width:150px"><label for="an-obra">Obra</label><select id="an-obra"></select></div>
-              <div class="field" style="flex:.8;min-width:120px"><label for="an-tipo">Tipo</label><select id="an-tipo"><option value="">Todos</option></select></div>
+              <div class="field" style="flex:1;min-width:150px"><label id="an-emp-l">Empresa</label><div class="ms" id="an-emp" data-rotulo="an-emp-l"></div></div>
+              <div class="field" style="flex:1;min-width:150px"><label id="an-obra-l">Obra</label><div class="ms" id="an-obra" data-rotulo="an-obra-l"></div></div>
+              <div class="field" style="flex:.8;min-width:120px"><label id="an-tipo-l">Tipo</label><div class="ms" id="an-tipo" data-rotulo="an-tipo-l"></div></div>
               <div class="field" style="flex:1;min-width:150px"><label for="an-ct">Restaurante</label><select id="an-ct"></select></div>
               <div class="field fx-medida" style="flex:0 0 auto"><label id="ana-medida-lbl">Mostrar</label><div class="fx-seg" id="ana-medida" role="group" aria-labelledby="ana-medida-lbl"><button type="button" data-m="q" class="on" aria-pressed="true">Refeições</button><button type="button" data-m="v" aria-pressed="false">Valor (R$)</button></div></div>
             </div>
@@ -1023,7 +1051,6 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         <div id="rel-p-medicoes" data-rel="medicoes" hidden></div>
         <div id="rel-p-ocorrencias" data-rel="ocorrencias" hidden></div>
         <div id="rel-p-terceirizados" data-rel="terceirizados" hidden></div>
-        <div id="rel-p-realocacoes" data-rel="realocacoes" hidden></div>
         <!-- Financeiro -->
         <div id="rel-p-financeiro" data-rel="financeiro" hidden>
           <div class="card">
@@ -1113,6 +1140,8 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
                 <div class="row"><button class="btn" id="c-save">Salvar colaborador</button><button class="btn sec" id="c-realoc" hidden>Realocar</button><button class="btn sec" id="c-cancel">Limpar</button></div>
               </div></div>
           </div>
+          <div class="card" style="margin-top:14px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Histórico de realocações</h3><input id="rl-busca" placeholder="filtrar por colaborador, empresa ou obra…" style="max-width:320px" aria-label="Filtrar o histórico de realocações"></div>
+            <div class="tablewrap" style="margin-top:8px"><table id="rl-table"></table></div></div>
         </div>
 
         <div id="cfg-empresas" class="cfg-pane" hidden>
@@ -1168,6 +1197,22 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
                 <div class="row"><button class="btn" id="o-save">Salvar obra</button><button class="btn sec" id="o-cancel">Limpar</button></div>
               </div></div>
           </div>
+        </div>
+
+        <div id="cfg-assinaturas" class="cfg-pane" hidden>
+          <div class="notice info small" style="margin-bottom:14px">Aqui ficam os usuários que <b>assinam o BM como Gestor / Engenheiro</b> em cada contrato — eletronicamente ou registrando a assinatura física. Só quem estiver liberado no contrato do BM vê os botões de assinar. <b>Contrato sem ninguém liberado: ninguém assina</b> e o BM fica aguardando. As assinaturas já feitas não mudam. A validação do restaurante continua como antes.</div>
+          <div class="cols">
+            <div class="card"><div class="row" style="justify-content:space-between;align-items:baseline;gap:8px"><h3 style="margin:0">Usuários que assinam</h3><span class="small muted" id="as-resumo"></span></div>
+              <div class="tablewrap" style="margin-top:10px"><table id="as-users" data-sem-ord></table></div></div>
+            <div class="card" id="as-form-card"><h3 id="as-form-tit">Liberar contratos</h3>
+              <div class="stack">
+                <div class="field"><label for="as-user">Usuário</label><select id="as-user"></select></div>
+                <div class="field"><label id="as-cts-l">Contratos em que este usuário assina o BM</label><div class="as-cts" id="as-cts" role="group" aria-labelledby="as-cts-l"></div></div>
+                <div id="as-msg" class="notice warn small" hidden></div>
+                <div class="row"><button class="btn" id="as-save" type="button">Salvar</button><button class="btn sec" id="as-cancel" type="button">Limpar</button></div>
+              </div></div>
+          </div>
+          <div class="card" style="margin-top:14px"><h3>Por contrato</h3><div class="tablewrap"><table id="as-cts-table" data-sem-ord></table></div></div>
         </div>
 
         <div id="cfg-contratos" class="cfg-pane" hidden>
@@ -1465,6 +1510,6 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <div id="viz-tip" role="tooltip" hidden></div>
 
-<script src="app-2.9.3.js"></script>
+<script src="app-2.9.4.js"></script>
 </body>
 </html>
