@@ -477,10 +477,17 @@ table.redim td{overflow-wrap:anywhere}
 .rt-sug .rt-sug-i:last-child{border-bottom:0}.rt-sug .rt-sug-i:hover,.rt-sug .rt-sug-i:focus-visible{background:var(--surface-2)}
 .rt-sel{max-height:340px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;padding:0 10px}.rt-sel .item .t b{white-space:normal}.rt-sel .item .pill{max-width:46%;overflow:hidden;text-overflow:ellipsis}
 #rt-lotes .item .t b{white-space:normal}#rt-lotes .item{flex-wrap:wrap}
-/* v2.9.2: QR Code do colaborador */
-.qr-box{display:grid;place-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
-#qr-canvas{width:240px;height:240px;max-width:100%;image-rendering:pixelated;image-rendering:crisp-edges}
-.qr-info{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}.qr-info b{font-size:16px}.qr-info span{font-size:13px;color:var(--ink-2)}.qr-info .mono{color:var(--ink-3)}
+/* v2.9.3 */
+.qr-copiar.ok{color:var(--good);border-color:var(--good)}
+.bm-anxs .anx-n{display:inline-grid;place-items:center;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-size:10.5px;font-weight:700;margin-left:2px}
+.anx-item{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface)}.anx-ico{font-size:22px;line-height:1}
+.anx-item .t{flex:1;min-width:0;display:flex;flex-direction:column}.anx-item .t b{overflow-wrap:anywhere}.anx-item .t span{font-size:12px;color:var(--ink-3)}
+@media (min-width:900px){#anxs-modal .sheet.narrow{max-width:440px}}
+.emp-abas{max-width:460px;margin-bottom:14px}
+.rg-filtros .field{flex:1 1 170px;min-width:170px}.rg-filtros .rg-per{flex:1.4 1 300px;min-width:min(300px,100%)}
+.rg-quadros{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:12px;margin:4px 0 12px}.rg-quadros:empty{display:none}
+.rg-quadro h4{margin:0 0 6px;font-size:13px;color:var(--ink-2)}.rg-quadro table{font-size:12.5px}
+.rg-seta{color:var(--ink-3);padding:0 3px}
 /* funcionário sem QR Code (v2.8.5) */
 .semqr-lbl{display:inline-flex;align-items:center;gap:7px;margin:0;font-size:13.5px;font-weight:600;text-transform:none;letter-spacing:0;cursor:pointer;color:var(--ink-2);white-space:nowrap;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface)}
 .semqr-lbl input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
@@ -787,10 +794,10 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         </div>
       </div>
     </div>
-    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.9.2.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
+    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.9.3.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
   </div>
   </div>
-  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.9.2</span></div>
+  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.9.3</span></div>
   </div>
 </div>
 
@@ -801,7 +808,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
     <span class="spacer"></span>
     <button class="who-m" id="who-btn" type="button"><span class="who-l"><span class="sync" data-sync title="Sincronizado"></span><b id="who-name"></b></span><span id="who-role"></span></button>
     <button class="btn-ghost bell" id="bell" aria-label="Notificações e mensagens"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="badge" id="bell-badge" hidden></span></button><button class="btn-ghost" id="theme-btn" aria-label="Alternar modo escuro/claro"><svg id="theme-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"></svg><span id="theme-txt">Escuro</span></button>
-    <span class="ver-tag" id="ver-tag" title="Versão do sistema">v2.9.2</span>
+    <span class="ver-tag" id="ver-tag" title="Versão do sistema">v2.9.3</span>
   </header>
   <div class="umenu" id="user-menu" hidden></div>
   <div class="body">
@@ -849,13 +856,13 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
                 <div id="m-hint-ret" class="notice info small" data-hint="rest-retirada-foto">Um colaborador retira a refeição para outra pessoa. Identifique quem está retirando pelo QR Code do crachá (ou digite, se não houver QR Code), <b>tire a foto de quem está retirando</b> e informe para quem é a refeição.</div>
                 <div id="m-hint-terc" class="notice info small" data-hint="rest-manual">Para quem não tem crachá do ponto. O custo é alocado à empresa escolhida; a empresa terceirizada é só informativa.</div>
                 <div class="field" id="m-ret-wrap"><label for="m-ret">Quem está retirando (obrigatório)</label><div class="row" style="flex-wrap:nowrap"><input id="m-ret" autocomplete="off" placeholder="leia o QR Code ou digite o código / nome"><button class="btn sec" id="m-ret-scan" type="button">Ler QR Code</button></div><div class="small" id="m-ret-info" style="margin-top:6px"></div><div id="m-foto-slot" style="margin-top:8px"></div></div>
-                <div class="field" id="m-nome-wrap"><label for="m-nome" id="m-nome-lbl">Nome do colaborador</label><input id="m-nome" list="manual-names" autocomplete="off" placeholder="nome completo"><datalist id="manual-names"></datalist></div>
+                <div class="field" id="m-nome-wrap"><label for="m-nome" id="m-nome-lbl">Nome do colaborador</label><input id="m-nome" list="manual-names" autocomplete="off" autocapitalize="characters" placeholder="escolha um cadastrado ou digite o nome completo"><datalist id="manual-names"></datalist><div class="small muted" id="m-nome-hint" style="margin-top:4px" hidden></div></div>
                 <div class="grid2">
                   <div class="field"><label for="m-emp">Empresa (custo alocado)</label><select id="m-emp"></select></div>
                   <div class="field"><label for="m-obra">Obra</label><select id="m-obra"></select></div>
                 </div>
                 <div class="field" id="m-dest-wrap"><label for="m-dest">Refeição destinada a (colaborador cadastrado — obrigatório)</label><select id="m-dest"></select></div>
-                <div class="field" id="m-terc-wrap"><label for="m-terc">Empresa terceirizada (de onde veio — informativo)</label><input id="m-terc" list="terc-names" autocomplete="off" placeholder="ex.: Construtora XYZ"><datalist id="terc-names"></datalist></div>
+                <div class="field" id="m-terc-wrap"><label for="m-terc">Empresa terceirizada (de onde veio — informativo)</label><input id="m-terc" list="terc-names" autocomplete="off" autocapitalize="characters" placeholder="escolha uma cadastrada ou digite — ex.: CONSTRUTORA XYZ"><datalist id="terc-names"></datalist></div>
                 <div class="row" id="mdm-row" hidden><label class="row" style="text-transform:none;letter-spacing:0;font-size:13px;margin:0;gap:6px;cursor:pointer"><input type="checkbox" id="mdm-check" style="width:auto"> Data manual</label><input type="date" id="mdm-date" style="width:170px" hidden></div>
                 <div><div class="small muted" style="margin-bottom:6px">Tipo de refeição</div><div class="mealbtns" id="m-mealbtns"></div></div>
                 <div id="m-msg" class="notice warn" hidden></div>
@@ -1011,6 +1018,12 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
             <div class="rel-pe"><span class="small muted" id="co-mostrando"></span></div>
           </div>
         </div>
+        <!-- v2.9.3: Boletins de Medição, Medições em aberto, Ocorrências, Terceirizados, Realocações (montados por rgRender) -->
+        <div id="rel-p-boletins" data-rel="boletins" hidden></div>
+        <div id="rel-p-medicoes" data-rel="medicoes" hidden></div>
+        <div id="rel-p-ocorrencias" data-rel="ocorrencias" hidden></div>
+        <div id="rel-p-terceirizados" data-rel="terceirizados" hidden></div>
+        <div id="rel-p-realocacoes" data-rel="realocacoes" hidden></div>
         <!-- Financeiro -->
         <div id="rel-p-financeiro" data-rel="financeiro" hidden>
           <div class="card">
@@ -1100,12 +1113,26 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
                 <div class="row"><button class="btn" id="c-save">Salvar colaborador</button><button class="btn sec" id="c-realoc" hidden>Realocar</button><button class="btn sec" id="c-cancel">Limpar</button></div>
               </div></div>
           </div>
-          <div class="card" style="margin-top:14px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Histórico de realocações</h3><input id="rl-busca" placeholder="filtrar por colaborador, empresa ou obra…" style="max-width:320px"></div>
-            <div class="tablewrap" style="margin-top:8px"><table id="rl-table"></table></div></div>
         </div>
 
         <div id="cfg-empresas" class="cfg-pane" hidden>
-          <div class="cols">
+          <div class="seg emp-abas" id="e-abas" role="tablist" aria-label="Tipo de empresa"><button type="button" role="tab" data-ea="emp" class="on" aria-selected="true">Empresas</button><button type="button" role="tab" data-ea="terc" aria-selected="false">Empresas terceirizadas</button></div>
+          <div class="cols" id="t-pane" hidden>
+            <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Empresas terceirizadas</h3><button class="btn sm" id="t-new" type="button">Nova terceirizada</button></div>
+              <p class="small muted" style="margin:6px 0 0">Só para identificar de onde vêm os terceirizados no Restaurante › Registro manual. Não recebem custo nem BM.</p>
+              <div class="list" id="t-list" style="margin-top:8px"></div></div>
+            <div class="card"><h3 id="t-form-title">Nova empresa terceirizada</h3>
+              <div class="stack">
+                <div class="field"><label for="t-nome">Nome da empresa</label><input id="t-nome" autocapitalize="characters" autocomplete="off" placeholder="ex.: CONSTRUTORA XYZ LTDA"></div>
+                <div class="field"><label for="t-cnpj">CNPJ</label><input id="t-cnpj" inputmode="numeric" placeholder="00.000.000/0000-00"></div>
+                <div class="field"><label for="t-ativa">Situação</label><select id="t-ativa"><option value="1">Ativa</option><option value="0">Inativa (não aparece no Registro manual)</option></select></div>
+                <div class="field"><label>Logotipo (opcional)</label>
+                  <div class="row"><img id="t-logo-prev" class="logo-preview" alt="" hidden><div id="t-logo-empty" class="small muted">Nenhum logotipo enviado.</div></div>
+                  <div class="row" style="margin-top:8px"><label class="btn sec" for="t-logo" style="text-transform:none;letter-spacing:0;margin:0;font-size:14px;color:var(--ink)">Enviar imagem<input id="t-logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden></label><button class="btn sec sm" id="t-logo-rm" type="button">Remover</button></div></div>
+                <div class="row"><button class="btn" id="t-save" type="button">Salvar terceirizada</button><button class="btn sec" id="t-cancel" type="button">Limpar</button></div>
+              </div></div>
+          </div>
+          <div class="cols" id="e-pane">
             <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Empresas</h3><button class="btn sm" id="e-new">Nova empresa</button></div>
               <div class="list" id="e-list"></div></div>
             <div class="card"><h3 id="e-form-title">Nova empresa</h3>
@@ -1405,15 +1432,10 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 </div>
 
 <!-- ============ INFO MODAL (genérico) ============ -->
-<div class="modal" id="qr-modal">
-  <div class="sheet narrow">
-    <div class="mh"><h2 id="qr-title">QR Code do colaborador</h2><button class="btn sec sm" id="qr-close" type="button">Fechar</button></div>
-    <div class="stack">
-      <div class="qr-box"><canvas id="qr-canvas" role="img" aria-label="QR Code do colaborador"></canvas></div>
-      <div id="qr-info" class="qr-info"></div>
-      <div class="notice warn small">Este QR Code funciona <b>como o crachá</b>: quem tiver a imagem consegue registrar refeição em nome deste colaborador. Não envie por mensagem nem deixe à vista.</div>
-      <div class="row" style="gap:8px"><button class="btn" id="qr-pdf" type="button" style="flex:1">Imprimir (PDF)</button><button class="btn sec" id="qr-png" type="button" style="flex:1">Baixar imagem</button></div>
-    </div>
+<div class="modal" id="anxs-modal">
+  <div class="sheet narrow anxs-sheet">
+    <div class="mh"><h2 id="anxs-title">Anexos</h2><button class="btn sec sm" id="anxs-close" type="button">Fechar</button></div>
+    <div id="anxs-body"></div>
   </div>
 </div>
 
@@ -1443,6 +1465,6 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <div id="viz-tip" role="tooltip" hidden></div>
 
-<script src="app-2.9.2.js"></script>
+<script src="app-2.9.3.js"></script>
 </body>
 </html>
