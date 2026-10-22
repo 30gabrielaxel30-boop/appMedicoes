@@ -790,6 +790,12 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 .fv-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 12px}
 .fch-trava{white-space:nowrap}
 @media (max-width:600px){.fch-acao{margin-left:0}.fch-tab{margin:0 8px 10px}.fch-cab{padding:10px}}
+/* v2.9.10: seleção Empresa → Obra → Contrato e guia Dias validados */
+#fch-abas{margin-top:12px}
+.fch-sel{display:flex;flex-wrap:wrap;gap:10px 12px;margin:12px 0 6px}.fch-sel .field{flex:1 1 200px;min-width:0;margin:0}
+.fch-sel select:disabled{opacity:.55}
+.fch-escolha{margin-top:12px}
+#fch-val-tab td{vertical-align:top}
 </style>
 
 <!-- ============ LOGIN ============ -->
@@ -844,10 +850,10 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         </div>
       </div>
     </div>
-    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.9.9.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
+    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.9.10.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
   </div>
   </div>
-  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.9.9</span></div>
+  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.9.10</span></div>
   </div>
 </div>
 
@@ -858,7 +864,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
     <span class="spacer"></span>
     <button class="who-m" id="who-btn" type="button"><span class="who-l"><span class="sync" data-sync title="Sincronizado"></span><b id="who-name"></b></span><span id="who-role"></span></button>
     <button class="btn-ghost bell" id="bell" aria-label="Notificações e mensagens"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="badge" id="bell-badge" hidden></span></button><button class="btn-ghost" id="theme-btn" aria-label="Alternar modo escuro/claro"><svg id="theme-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"></svg><span id="theme-txt">Escuro</span></button>
-    <span class="ver-tag" id="ver-tag" title="Versão do sistema">v2.9.9</span>
+    <span class="ver-tag" id="ver-tag" title="Versão do sistema">v2.9.10</span>
   </header>
   <div class="umenu" id="user-menu" hidden></div>
   <div class="body">
@@ -983,8 +989,20 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         <div class="subtabs" id="sup-abas" role="tablist" style="margin-top:14px"><button type="button" data-sa="reg" role="tab">Registros <span class="sa-n" id="sa-n-reg"></span></button><button type="button" data-sa="fech" role="tab">Fechamento <span class="sa-n" id="sa-n-fech"></span></button><button type="button" data-sa="sob" role="tab">Sobras informadas <span class="sa-n" id="sa-n-sob"></span></button><button type="button" data-sa="bol" role="tab">Boletins emitidos <span class="sa-n" id="sa-n-bol"></span></button></div>
         <div class="card" id="sup-reg-card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Registros</h3><span class="small muted" id="sup-count"></span></div><div class="tablewrap" style="margin-top:8px"><table id="sup-table" data-ord="supRegs"></table></div><div class="row" id="sup-pager" style="justify-content:center;margin-top:10px"></div></div>
         <div class="card" id="sup-fech-card" hidden><div class="row" style="justify-content:space-between;align-items:baseline"><h3 style="margin:0">Fechamento do dia</h3><span class="small muted" id="fch-count"></span></div>
-          <p class="small muted" style="margin:6px 0 0">Confira as refeições de cada dia — toque numa linha para ver a foto e os detalhes. <b>Validar dia</b> fecha o dia inteiro (todas as empresas, obras e restaurantes): depois disso nada é incluído, estornado, corrigido nem excluído naquela data. Só o administrador reabre.</p>
-          <div id="fch-dias"></div></div>
+          <div class="subtabs" id="fch-abas" role="tablist"><button type="button" data-fa="conf" role="tab">Conferir e validar</button><button type="button" data-fa="val" role="tab">Dias validados <span class="sa-n" id="fch-n-val"></span></button></div>
+          <div id="fch-conf">
+            <div class="fch-sel">
+              <div class="field"><label for="fs-emp">1 · Empresa</label><select id="fs-emp"></select></div>
+              <div class="field"><label for="fs-obra">2 · Obra</label><select id="fs-obra"></select></div>
+              <div class="field"><label for="fs-ct">3 · Contrato</label><select id="fs-ct"></select></div>
+            </div>
+            <p class="small muted" style="margin:4px 0 0">Escolha a empresa, a obra e o contrato e confira as refeições de cada dia — toque numa linha para ver a foto e os detalhes. <b>Validar dia</b> fecha as refeições e sobras daquela obra e contrato no dia: depois disso nada é incluído, estornado, corrigido nem excluído. Só o administrador reabre.</p>
+            <div id="fch-dias"></div>
+          </div>
+          <div id="fch-val" hidden>
+            <div class="row" style="justify-content:space-between;align-items:center;margin-top:10px"><span class="small muted">Os fechamentos feitos — dia, empresa, obra e contrato —, do mais recente para o mais antigo.</span><label class="small" style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;letter-spacing:normal;font-weight:400;color:var(--ink-2);margin:0"><input type="checkbox" id="fch-val-reab" style="width:auto;margin:0"> Mostrar também os reabertos</label></div>
+            <div class="tablewrap" style="margin-top:8px"><table id="fch-val-tab"></table></div><div class="row" id="fch-val-pager" style="justify-content:center;margin-top:10px"></div>
+          </div></div>
         <div class="card" id="sup-sob-card"><h3>Sobras informadas no período <span class="small muted" style="font-weight:400">— cobradas no BM</span></h3><div class="tablewrap"><table id="sup-sobras"></table></div></div>
         <div class="card" id="sup-bol-card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Boletins emitidos</h3><button class="btn sec sm" id="bm-conferir" type="button">Conferir assinatura (ID)</button></div><div class="tablewrap" style="margin-top:8px"><table id="bm-list" data-ord="bms"></table></div><div class="row" id="bm-pager" style="justify-content:center;margin-top:10px"></div><input id="bm-anexo-file" type="file" accept="application/pdf,image/*" hidden></div>
       </section>
@@ -1535,6 +1553,6 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <div id="viz-tip" role="tooltip" hidden></div>
 
-<script src="app-2.9.9.js"></script>
+<script src="app-2.9.10.js"></script>
 </body>
 </html>
