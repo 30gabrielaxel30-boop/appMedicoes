@@ -792,6 +792,14 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 @media (max-width:600px){.fch-acao{margin-left:0}.fch-tab{margin:0 8px 10px}.fch-cab{padding:10px}}
 /* v2.9.10: seleção Empresa → Obra → Contrato e guia Dias validados */
 #fch-abas{margin-top:12px}
+/* v2.9.12: Configurações › Modalidades — caixa "Vínculos" */
+.vb-ops{display:grid;gap:8px}
+.vb-op{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:14px;font-weight:400;color:var(--ink);margin:0}
+.vb-op input{width:auto;margin:3px 0 0}
+.vb-op small{display:block;color:var(--ink-3);font-size:12.5px;margin-top:2px;line-height:1.35}
+.vb-op.off{opacity:.55;cursor:not-allowed}
+.vb-op:has(input:checked){border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+#md-abas{margin-bottom:14px}
 .fch-sel{display:flex;flex-wrap:wrap;gap:10px 12px;margin:12px 0 6px}.fch-sel .field{flex:1 1 200px;min-width:0;margin:0}
 .fch-sel select:disabled{opacity:.55}
 .fch-escolha{margin-top:12px}
@@ -850,10 +858,10 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         </div>
       </div>
     </div>
-    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.9.11.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
+    <p class="small muted" style="margin:14px 0 0;text-align:center" id="l-status">Conectando ao servidor…<span class="l-falha">O sistema não iniciou. Recarregue a página. Se continuar assim, a atualização do site está incompleta: falta o arquivo <b>app-2.9.13.js</b> (ele precisa estar na mesma pasta do index.html). Avise o administrador.</span></p>
   </div>
   </div>
-  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.9.11</span></div>
+  <div class="lx-rodape"><span>AMETA ENGENHARIA · v2.9.13</span></div>
   </div>
 </div>
 
@@ -864,7 +872,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
     <span class="spacer"></span>
     <button class="who-m" id="who-btn" type="button"><span class="who-l"><span class="sync" data-sync title="Sincronizado"></span><b id="who-name"></b></span><span id="who-role"></span></button>
     <button class="btn-ghost bell" id="bell" aria-label="Notificações e mensagens"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="badge" id="bell-badge" hidden></span></button><button class="btn-ghost" id="theme-btn" aria-label="Alternar modo escuro/claro"><svg id="theme-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"></svg><span id="theme-txt">Escuro</span></button>
-    <span class="ver-tag" id="ver-tag" title="Versão do sistema">v2.9.11</span>
+    <span class="ver-tag" id="ver-tag" title="Versão do sistema">v2.9.13</span>
   </header>
   <div class="umenu" id="user-menu" hidden></div>
   <div class="body">
@@ -1212,6 +1220,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
                 <div class="field"><label for="e-nome">Razão social / nome</label><input id="e-nome"></div>
                 <div class="grid2"><div class="field"><label for="e-cnpj">CNPJ</label><input id="e-cnpj" inputmode="numeric" placeholder="00.000.000/0000-00"></div><div class="field"><label for="e-prox">Próximo nº de BM</label><input id="e-prox" type="number" min="1" value="1"></div></div>
                 <div class="field"><label for="e-ativo">Situação</label><select id="e-ativo"><option value="1">Ativa</option><option value="0">Inativa (não recebe novos registros nem BM)</option></select></div>
+                <div class="field"><label for="e-vinc">Vínculo das obras na medição (BM)</label><select id="e-vinc"><option value="contrato">Somente contratos</option><option value="pedido">Somente pedidos (nº novo a cada medição)</option><option value="ambos">Contratos e pedidos</option></select><div class="small muted" style="margin-top:4px">O que as obras desta empresa podem usar. O vínculo de cada obra fica em Configurações › Modalidades.</div><div id="e-vinc-av" class="notice warn small" style="margin-top:8px" hidden></div></div>
                 <div class="field"><label>Logotipo (aparece no BM)</label>
                   <div class="row"><img id="e-logo-prev" class="logo-preview" alt="" hidden><div id="e-logo-empty" class="small muted">Nenhuma logotipo enviada.</div></div>
                   <div class="row" style="margin-top:8px"><label class="btn sec" for="e-logo" style="text-transform:none;letter-spacing:0;margin:0;font-size:14px;color:var(--ink)">Enviar imagem<input id="e-logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden></label><button class="btn sec sm" id="e-logo-rm">Remover</button></div>
@@ -1233,7 +1242,9 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
               <div class="stack">
                 <div class="field"><label for="o-emp">Empresa dona da obra (obrigatória)</label><select id="o-emp"></select><div class="small muted" id="o-emp-hint" style="margin-top:4px"></div></div>
                 <div class="field"><label for="o-nome">Nome da obra</label><input id="o-nome" placeholder="ex.: SEDE BENEVIDES"></div>
-                <div class="field"><label for="o-contrato">Nº do contrato (obrigatório, até 7 caracteres)</label><input id="o-contrato" maxlength="7" list="contratos-list" autocomplete="off" class="mono" placeholder="ex.: CT-0421" style="text-transform:uppercase"><datalist id="contratos-list"></datalist><div class="small muted" style="margin-top:4px">Se o número ainda não existir, o contrato é criado e você completa as datas na aba Contratos.</div></div>
+                <div class="field"><label for="o-vinc">Modalidade da medição (obrigatória)</label><select id="o-vinc"><option value="">Selecione…</option><option value="contrato">Contrato</option><option value="pedido">Pedido (nº novo a cada medição)</option><option value="ambos">Contrato e pedido</option></select><div class="small muted" id="o-vinc-hint" style="margin-top:4px"></div></div>
+                <div class="notice info small" id="o-ped" hidden>Modalidade <b>Pedido</b>: a obra não tem contrato — o nº do pedido é informado a cada medição, no Emitir BM. As refeições usam os preços da Tabela geral.</div>
+                <div class="field" id="o-ct-wrap" hidden><label for="o-contrato" id="o-ct-lbl">Nº do contrato (obrigatório nesta modalidade, até 7 caracteres)</label><input id="o-contrato" maxlength="7" list="contratos-list" autocomplete="off" class="mono" placeholder="ex.: CT-0421" style="text-transform:uppercase"><datalist id="contratos-list"></datalist><div class="small" id="o-ct-falta" style="color:var(--bad);font-weight:600;margin-top:4px" hidden>Falta o Nº do contrato — obrigatório para a modalidade escolhida.</div><div class="small muted" style="margin-top:4px">Se o número ainda não existir, o contrato é criado e você completa as datas em Modalidades › Contratos.</div></div>
                 <div class="grid2" style="align-items:end"><div class="field"><label for="o-gestor">Gestor / Engenheiro da obra (assina o BM)</label><input id="o-gestor" maxlength="80" placeholder="nome completo" autocomplete="off"></div><div class="field"><label for="o-gcargo">Cargo (opcional)</label><input id="o-gcargo" maxlength="60" placeholder="ex.: Engenheiro Civil" autocomplete="off"></div></div>
                 <div class="field"><label for="o-end">Endereço / descrição (opcional)</label><input id="o-end"></div>
                 <div class="field"><label for="o-ativo">Situação</label><select id="o-ativo"><option value="1">Ativa</option><option value="0">Encerrada</option></select></div>
@@ -1243,23 +1254,29 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
         </div>
 
         <div id="cfg-assinaturas" class="cfg-pane" hidden>
-          <div class="notice info small" style="margin-bottom:14px">Aqui ficam os usuários que <b>assinam o BM como Gestor / Engenheiro</b> em cada contrato — eletronicamente ou registrando a assinatura física. Só quem estiver liberado no contrato do BM vê os botões de assinar. <b>Contrato sem ninguém liberado: ninguém assina</b> e o BM fica aguardando. As assinaturas já feitas não mudam. A validação do restaurante continua como antes.</div>
+          <div class="notice info small" style="margin-bottom:14px">Aqui ficam os usuários que <b>assinam o BM como Gestor / Engenheiro</b> em cada contrato — e nos BMs por <b>pedido</b> (linha “Pedidos”) — eletronicamente ou registrando a assinatura física. Só quem estiver liberado no contrato do BM vê os botões de assinar. <b>Contrato sem ninguém liberado: ninguém assina</b> e o BM fica aguardando. As assinaturas já feitas não mudam. A validação do restaurante continua como antes.</div>
           <div class="cols">
             <div class="card"><div class="row" style="justify-content:space-between;align-items:baseline;gap:8px"><h3 style="margin:0">Usuários que assinam</h3><span class="small muted" id="as-resumo"></span></div>
               <div class="tablewrap" style="margin-top:10px"><table id="as-users" data-sem-ord></table></div></div>
             <div class="card" id="as-form-card"><h3 id="as-form-tit">Liberar contratos</h3>
               <div class="stack">
                 <div class="field"><label for="as-user">Usuário</label><select id="as-user"></select></div>
-                <div class="field"><label id="as-cts-l">Contratos em que este usuário assina o BM</label><div class="as-cts" id="as-cts" role="group" aria-labelledby="as-cts-l"></div></div>
+                <div class="field"><label id="as-cts-l">Contratos (e pedidos) em que este usuário assina o BM</label><div class="as-cts" id="as-cts" role="group" aria-labelledby="as-cts-l"></div></div>
                 <div id="as-msg" class="notice warn small" hidden></div>
                 <div class="row"><button class="btn" id="as-save" type="button">Salvar</button><button class="btn sec" id="as-cancel" type="button">Limpar</button></div>
               </div></div>
           </div>
-          <div class="card" style="margin-top:14px"><h3>Por contrato</h3><div class="tablewrap"><table id="as-cts-table" data-sem-ord></table></div></div>
+          <div class="card" style="margin-top:14px"><h3>Por contrato / pedidos</h3><div class="tablewrap"><table id="as-cts-table" data-sem-ord></table></div></div>
         </div>
 
         <div id="cfg-contratos" class="cfg-pane" hidden>
-          <div class="cols">
+          <div class="subtabs" id="md-abas" role="tablist"><button type="button" data-ma="vinc" role="tab">Vínculos das obras</button><button type="button" data-ma="ctr" role="tab">Contratos</button></div>
+          <div id="md-vinc">
+            <div class="notice info small" data-hint="md-vinc" style="margin-bottom:14px">Cada obra fecha a medição (BM) por <b>contrato</b>, por <b>pedido</b> ou pelos dois — dentro do que a empresa permite (Configurações › Empresas). <b>Pedido</b> é um número novo a cada medição, informado ao emitir o BM. Obra só por pedido não tem contrato: usa os preços da Tabela geral.</div>
+            <div class="card"><div class="row" style="justify-content:space-between;align-items:center;gap:8px"><h3 style="margin:0">Obras e vínculos</h3><select id="md-f-emp" aria-label="Filtrar obras por empresa" style="width:auto;max-width:260px"></select></div>
+              <div class="tablewrap" style="margin-top:10px"><table id="md-table" data-sem-ord></table></div><div class="row" id="md-pager" style="justify-content:center;margin-top:10px"></div></div>
+          </div>
+          <div class="cols" id="md-ctr" hidden>
             <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Contratos</h3><div class="row"><select id="ctr-filtro" style="width:auto"><option value="">Todos</option><option value="ativos">Ativos</option><option value="inativos">Inativos / encerrados</option></select><button class="btn sm" id="ctr-new">Novo contrato</button></div></div>
               <div class="tablewrap" style="margin-top:10px"><table id="ctr-table" data-ord="contratos"></table></div><div class="row" id="ctr-pager" style="justify-content:center;margin-top:10px"></div></div>
             <div class="card"><h3 id="ctr-form-title">Novo contrato</h3>
@@ -1500,7 +1517,8 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
       <div><button class="btn sec sm" id="bmp-voltar" type="button">‹ Medições em aberto</button></div>
       <div id="bm-sel" class="notice small" role="status" hidden></div>
       <div class="grid2"><div class="field"><label for="bm-emp">Empresa</label><select id="bm-emp"></select></div><div class="field"><label for="bm-ct">Restaurante (contratada)</label><select id="bm-ct"></select></div></div>
-      <div class="grid2"><div class="field"><label for="bm-obra">Obra</label><select id="bm-obra"></select></div><div class="field"><label for="bm-contrato">Contrato</label><select id="bm-contrato"></select></div></div>
+      <div class="grid2"><div class="field"><label for="bm-obra">Obra</label><select id="bm-obra"></select></div><div class="field"><label for="bm-contrato">Modalidade (contrato ou pedido)</label><select id="bm-contrato"></select></div></div>
+      <div class="field" id="bm-ped-wrap" hidden><label for="bm-pedido">Nº do pedido (um número novo a cada medição)</label><input id="bm-pedido" maxlength="20" autocomplete="off" class="mono" style="text-transform:uppercase" placeholder="ex.: 4500123456"></div>
       <div class="field"><label for="bm-ini">Período</label><div class="periodo"><input id="bm-ini" type="date" aria-label="Início do período"><span>a</span><input id="bm-fim" type="date" aria-label="Fim do período"></div></div>
       <div class="row"><button class="btn sec sm" data-q="semana-ant">Semana anterior</button><button class="btn sec sm" data-q="semana">Semana atual</button><button class="btn sec sm" data-q="quinzena">Últimos 15 dias</button><button class="btn sec sm" data-q="mes">Mês anterior</button></div>
       <div class="tiles" id="bm-prev-tiles"></div>
@@ -1553,6 +1571,6 @@ details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <div id="viz-tip" role="tooltip" hidden></div>
 
-<script src="app-2.9.11.js"></script>
+<script src="app-2.9.13.js"></script>
 </body>
 </html>
