@@ -33,7 +33,7 @@ class KeyboardE2ETest {
     private val ime = "com.keyhistory/.keyboard.KeyHistoryImeService"
     private val field = "com.keyhistory.testfield"
 
-    @Before fun setUp() = runBlocking {
+    @Before fun setUp(): Unit = runBlocking {
         device.executeShellCommand("settings put secure show_ime_with_hard_keyboard 1")
         device.executeShellCommand("ime enable $ime")
         device.executeShellCommand("ime set $ime")
@@ -46,9 +46,10 @@ class KeyboardE2ETest {
             device.executeShellCommand("settings get secure default_input_method").trim() == ime)
     }
 
-    @After fun tearDown() = runBlocking {
+    @After fun tearDown(): Unit = runBlocking {
         settings.setRecordingEnabled(false)
         repo.deleteAll()
+        Unit
     }
 
     private fun obj(selector: androidx.test.uiautomator.BySelector, timeout: Long = 8_000): UiObject2 =
@@ -81,7 +82,7 @@ class KeyboardE2ETest {
         return records()
     }
 
-    @Test fun typingInAnotherAppIsRecordedEncryptedAndProtectedFieldsAreNot() = runBlocking {
+    @Test fun typingInAnotherAppIsRecordedEncryptedAndProtectedFieldsAreNot(): Unit = runBlocking {
         // 1) Digitação convencional + registro autorizado
         focus("field_text")
         assertTrue("Indicador deve mostrar registro ativo: ${status()}", status().contains("Registro ativo"))

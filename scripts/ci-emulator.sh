@@ -49,13 +49,14 @@ print((int(m.group(1))+int(m.group(3)))//2, (int(m.group(2))+int(m.group(4)))//2
 echo "Tocando no campo em $XY"
 adb shell input tap $XY
 sleep 3
-adb shell uiautomator dump /data/local/tmp/ui.xml >/dev/null
-adb pull /data/local/tmp/ui.xml "$OUT/ui_release.xml" || true
-if grep -q 'Tecla q' "$OUT/ui_release.xml" && grep -q 'Tecla ç' "$OUT/ui_release.xml"; then
+adb shell dumpsys input_method > "$OUT/input_method_release.txt"
+if grep -qE "mInputShown=true|mIsInputViewShown=true" "$OUT/input_method_release.txt" && \
+   grep -q "com.keyhistory/.keyboard.KeyHistoryImeService" "$OUT/input_method_release.txt"; then
   echo "Teclado de release exibido corretamente"
 else
-  echo "Teclado de release NÃO encontrado na tela"; status=1
+  echo "Teclado de release NÃO exibido"; status=1
 fi
+if adb logcat -d | grep -E "FATAL EXCEPTION|AndroidRuntime: Process: com.keyhistory"; then echo "Crash detectado no teclado"; status=1; fi
 adb exec-out screencap -p > "$OUT/screenshots/teclado_release.png"
 
 # Funcionamento sem internet: o APK não declara a permissão INTERNET.

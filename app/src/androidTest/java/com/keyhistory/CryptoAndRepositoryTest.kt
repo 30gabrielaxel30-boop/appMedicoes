@@ -54,7 +54,7 @@ class CryptoInstrumentedTest {
         assertEquals(crypto.blindToken("ola"), CryptoManager(context).blindToken("ola"))
     }
 
-    @Test fun selfTest() = assertTrue(crypto.selfTest())
+    @Test fun selfTest() { assertTrue(crypto.selfTest()) }
 }
 
 @RunWith(AndroidJUnit4::class)
@@ -68,9 +68,9 @@ class RepositoryInstrumentedTest {
         repo = HistoryRepository(context, db.historyDao(), CryptoManager(context))
     }
 
-    @After fun tearDown() = db.close()
+    @After fun tearDown() { db.close() }
 
-    @Test fun storesEncryptedAndSearches() = runBlocking {
+    @Test fun storesEncryptedAndSearches(): Unit = runBlocking {
         val now = System.currentTimeMillis()
         val id1 = repo.save("Reunião de equipe amanhã às 10h", "com.whatsapp", "WhatsApp", "Mensagem", now)
         repo.save("Comprar pão e leite", "com.google.android.keep", "Keep", "Nota", now - 2 * 86_400_000L)
