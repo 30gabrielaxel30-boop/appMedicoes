@@ -20,6 +20,7 @@ echo "::group::Testes instrumentados (Room, criptografia, teclado E2E)"
 echo "::endgroup::"
 adb pull /data/local/tmp/kh_keyboard_active.png "$OUT/screenshots/teclado_registro_ativo.png" || true
 adb pull /data/local/tmp/kh_keyboard_protected.png "$OUT/screenshots/teclado_campo_senha.png" || true
+adb pull /data/local/tmp/kh_dashboard_data.png "$OUT/screenshots/dashboard_com_dados.png" || true
 
 echo "::group::Smoke test do APK de release (R8)"
 APK=app/build/outputs/apk/release/app-release.apk

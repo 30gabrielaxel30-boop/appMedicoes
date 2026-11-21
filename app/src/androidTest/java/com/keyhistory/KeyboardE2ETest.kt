@@ -162,5 +162,12 @@ class KeyboardE2ETest {
 
         // 8) Pesquisa sobre os dados registrados pelo teclado
         assertEquals(listOf("ola mundo"), repo.observe(HistoryQuery("mund")).first().map { it.content })
+
+        // 9) Painel com dados reais (captura de tela para o relatório)
+        device.pressBack()
+        device.executeShellCommand("am start -W -n com.keyhistory/.MainActivity")
+        obj(By.text("Total de registros"))
+        Thread.sleep(1_500)
+        device.executeShellCommand("screencap -p /data/local/tmp/kh_dashboard_data.png")
     }
 }
