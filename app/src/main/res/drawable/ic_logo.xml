@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="40dp" android:height="40dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#FF13254A" android:pathData="M24,0h60a24,24 0 0 1 24,24v60a24,24 0 0 1 -24,24h-60a24,24 0 0 1 -24,-24v-60a24,24 0 0 1 24,-24z" />
+    <group android:translateX="-6" android:translateY="-4" android:scaleX="1.12" android:scaleY="1.12" android:pivotX="54" android:pivotY="54">
+    <!-- Teclado -->
+    <path android:fillColor="#3B82F6" android:pathData="M34,46h40a6,6 0 0 1 6,6v20a6,6 0 0 1 -6,6h-40a6,6 0 0 1 -6,-6v-20a6,6 0 0 1 6,-6z" />
+    <path android:fillColor="#E6EAF2" android:pathData="M33.5,51h5v5h-5zM40.5,51h5v5h-5zM47.5,51h5v5h-5zM54.5,51h5v5h-5zM61.5,51h5v5h-5zM68.5,51h5v5h-5zM33.5,59h5v5h-5zM40.5,59h5v5h-5zM47.5,59h5v5h-5zM54.5,59h5v5h-5zM61.5,59h5v5h-5zM68.5,59h5v5h-5zM40.5,67h26v5h-26z" />
+    <!-- Selo de histórico (relógio) -->
+    <path android:fillColor="#0A1226" android:pathData="M72,22a16,16 0 1 1 0,32a16,16 0 1 1 0,-32z" />
+    <path android:fillColor="#E6EAF2" android:pathData="M72,25a13,13 0 1 1 0,26a13,13 0 1 1 0,-26z" />
+    <path android:strokeColor="#0A1226" android:strokeWidth="3" android:strokeLineCap="round" android:strokeLineJoin="round" android:fillColor="#00000000" android:pathData="M72,30v8l5.5,3.5" />
+    <path android:fillColor="#22C55E" android:pathData="M82,46a3,3 0 1 1 0,6a3,3 0 1 1 0,-6z" />
+    </group>
+</vector>

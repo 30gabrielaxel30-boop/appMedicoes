@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="kh_background">#FF070B14</color>
+    <color name="kh_surface">#FF0F1624</color>
+    <color name="kh_graphite">#FF1A2230</color>
+    <color name="kh_key">#FF1E2735</color>
+    <color name="kh_key_special">#FF2A3445</color>
+    <color name="kh_key_pressed">#FF3A4659</color>
+    <color name="kh_primary">#FF3B82F6</color>
+    <color name="kh_green">#FF22C55E</color>
+    <color name="kh_red">#FFEF4444</color>
+    <color name="kh_amber">#FFF59E0B</color>
+    <color name="kh_text">#FFE6EAF2</color>
+    <color name="kh_text_muted">#FF8A94A6</color>
+    <color name="ic_launcher_background">#FF0A1226</color>
+</resources>

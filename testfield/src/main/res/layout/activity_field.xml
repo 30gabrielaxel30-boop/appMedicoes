@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="24dp">
+    <EditText android:id="@+id/field_text" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:hint="Mensagem" android:inputType="text" android:imeOptions="actionSend" />
+    <EditText android:id="@+id/field_password" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:hint="Senha" android:inputType="textPassword" android:imeOptions="actionDone" />
+    <EditText android:id="@+id/field_pin" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:hint="PIN" android:inputType="numberPassword" android:imeOptions="actionDone" />
+    <EditText android:id="@+id/field_incognito" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:hint="Nota anônima" android:inputType="text" android:imeOptions="actionDone|flagNoPersonalizedLearning" />
+    <TextView android:id="@+id/last_sent" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:textSize="18sp" />
+</LinearLayout>
