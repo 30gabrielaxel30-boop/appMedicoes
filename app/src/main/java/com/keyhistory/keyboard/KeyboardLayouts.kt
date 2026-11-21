@@ -56,7 +56,7 @@ object KeyboardLayouts {
 
     val symbols2: List<List<Key>> = listOf(
         listOf("´", "`", "^", "~", "¨").map { Key(it, KeyKind.DEAD) } + chars("|•√π÷"),
-        chars("×¶€£¥_={}"),
+        chars("×§¶€£¥_={}"),
         listOf(Key("?123", KeyKind.TO_SYMBOLS, 1.5f)) + chars("[]<>\\°¢") + Key("apagar", KeyKind.BACKSPACE, 1.5f),
         bottomRow(Key("ABC", KeyKind.TO_LETTERS, 1.5f)),
     )
